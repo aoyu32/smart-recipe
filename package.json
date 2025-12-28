@@ -1,0 +1,14 @@
+{
+  "name": "smart-recipe",
+  "version": "1.0.0",
+  "description": "食推小智项目",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vant/weapp": "^1.11.7"
+  }
+}
