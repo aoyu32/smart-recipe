@@ -1,0 +1,6 @@
+<!--pages/camera/camera.wxml-->
+<view class="container">
+  <view class="content">
+    <text>拍一拍页面</text>
+  </view>
+</view>

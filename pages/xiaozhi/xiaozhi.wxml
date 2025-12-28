@@ -1,0 +1,7 @@
+<!--pages/xiaozhi/xiaozhi.wxml-->
+<navigation-bar title="小智" back="{{false}}" />
+<view class="container">
+  <view class="content">
+    <text>小智智能咨询页面</text>
+  </view>
+</view>

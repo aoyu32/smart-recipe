@@ -1,0 +1,15 @@
+/* pages/my/my.wxss */
+page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.content {
+  padding: 30rpx;
+}

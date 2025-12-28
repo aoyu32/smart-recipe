@@ -3,8 +3,113 @@ page {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #B6CF99;
 }
+
+.index-header {
+  padding: 0 30rpx 40rpx;
+  background-color: #B6CF99;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  height: 64rpx;
+}
+
+.header-logo {
+  height: 32rpx;
+  line-height: 32rpx;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 64rpx;
+  width: 64rpx;
+  margin-right: 15rpx;
+}
+
+.logo-text {
+  height: 32rpx;
+  width: 100%;
+  font-family: '阿里妈妈数黑体 Bold';
+}
+
+.logo-text text{
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.text-2{
+  color: #037E44;
+}
+
+.text-4{
+  color: #F97804;
+}
+
+.header-slogan {
+  margin-bottom: 30rpx;
+}
+
+.header-slogan text {
+  font-size: 24rpx;
+  color: #7c7c7cad;
+  font-weight: 500;
+}
+
+.search-container {
+  width: 100%;
+  margin-top: 50rpx;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 24rpx 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  height: 88rpx;
+  box-sizing: border-box;
+}
+
+.search-icon {
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 20rpx;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+  height: 100%;
+}
+
+.search-divider {
+  width: 2rpx;
+  height: 70%;
+  background-color: #E5E5E5;
+  margin: 0 24rpx;
+}
+
+.search-btn {
+  font-size: 26rpx;
+  color: #838383;
+  white-space: nowrap;
+}
+
 .scrollarea {
   flex: 1;
   overflow-y: hidden;
+  background-color: #F5F5F5;
+  border-radius: 40rpx 40rpx 0 0;
+}
+
+.content {
+  padding: 30rpx;
 }

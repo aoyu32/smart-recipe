@@ -1,11 +1,58 @@
 {
   "pages": [
-    "pages/index/index"
+    "pages/index/index",
+    "pages/recipe/recipe",
+    "pages/camera/camera",
+    "pages/xiaozhi/xiaozhi",
+    "pages/my/my"
   ],
   "window": {
     "navigationBarTextStyle": "black",
-    "navigationStyle": "custom"
+    "navigationStyle": "custom",
+    "navigationBarBackgroundColor": "#B6CF99",
+    "backgroundColor": "#F5F5F5"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#B6CF99",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/icons/tabbar/tabbar-home.png",
+        "selectedIconPath": "assets/icons/tabbar/tabbar-home-active.png"
+      },
+      {
+        "pagePath": "pages/recipe/recipe",
+        "text": "食谱",
+        "iconPath": "assets/icons/tabbar/tabbar-shipu.png",
+        "selectedIconPath": "assets/icons/tabbar/tabbar-shipu-active.png"
+      },
+      {
+        "pagePath": "pages/camera/camera",
+        "text": "拍一拍",
+        "iconPath": "assets/icons/tabbar/tabbar-camera.png",
+        "selectedIconPath": "assets/icons/tabbar/tabbar-camera-active.png"
+      },
+      {
+        "pagePath": "pages/xiaozhi/xiaozhi",
+        "text": "小智",
+        "iconPath": "assets/icons/tabbar/tabbar-xiaozhi.png",
+        "selectedIconPath": "assets/icons/tabbar/tabbar-xiaozhi-active.png"
+      },
+      {
+        "pagePath": "pages/my/my",
+        "text": "我的",
+        "iconPath": "assets/icons/tabbar/tabbar-my.png",
+        "selectedIconPath": "assets/icons/tabbar/tabbar-my-active.png"
+      }
+    ]
   },
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {
+    "navigation-bar": "/components/navigation-bar/navigation-bar"
+  }
 }

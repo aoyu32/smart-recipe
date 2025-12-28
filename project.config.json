@@ -5,6 +5,7 @@
     "minified": true,
     "uglifyFileName": false,
     "enhance": true,
+    "packNpmManually": false,
     "packNpmRelationList": [],
     "babelSetting": {
       "ignore": [],
@@ -21,5 +22,7 @@
     "include": []
   },
   "appid": "wx4cf75599557e809b",
-  "editorSetting": {}
+  "editorSetting": {},
+  "miniprogramRoot": "./",
+  "srcMiniprogramRoot": "./"
 }

@@ -1,0 +1,14 @@
+/* pages/recipe/recipe.wxss */
+page {
+  height: 100vh;
+  background-color: #F5F5F5;
+}
+
+.container {
+  height: 100%;
+  padding-top: env(safe-area-inset-top);
+}
+
+.content {
+  padding: 30rpx;
+}

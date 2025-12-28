@@ -1,0 +1,7 @@
+<!--pages/my/my.wxml-->
+<navigation-bar title="我的" back="{{false}}" />
+<view class="container">
+  <view class="content">
+    <text>我的页面</text>
+  </view>
+</view>

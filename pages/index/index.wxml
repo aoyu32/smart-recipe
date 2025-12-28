@@ -1,7 +1,40 @@
 <!--index.wxml-->
-<navigation-bar title="Weixin" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<view class="index-header" style="padding-top: {{headerPaddingTop}}px;">
+  <view class="header-top">
+    <view class="header-logo">
+      <image class="logo" src="/assets/logo/logo.png" mode="aspectFit"></image>
+      <view class="logo-text">
+      <text class="text-2">食推</text>
+      <text class="text-4">小智</text>
+      </view>
+      <!-- <image class="logo-text" src="/assets/logo/logo-text.png" mode="aspectFit"></image> -->
+    </view>
+  </view>
+  <!-- <view class="header-slogan">
+    <text>你的每日食谱推荐贴心助手</text>
+  </view> -->
+  <view class="search-container">
+    <view class="search-box">
+      <image class="search-icon" src="/assets/icons/home/home-search.png" mode="aspectFit"></image>
+      <input 
+        class="search-input" 
+        placeholder="搜索食谱或食物" 
+        placeholder-style="color: #999;" 
+        confirm-type="search" 
+        bindconfirm="onSearch" 
+        value="{{searchKeyword}}" 
+        bindinput="onSearchInput" 
+      />
+      <view class="search-divider"></view>
+      <view class="search-btn" bindtap="onSearchBtn">
+        <text>搜索</text>
+      </view>
+    </view>
+  </view>
+</view>
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
-    hello,Weixin
+    <view class="content">
+    </view>
   </view>
 </scroll-view>

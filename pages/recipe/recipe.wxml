@@ -1,0 +1,6 @@
+<!--pages/recipe/recipe.wxml-->
+<view class="container">
+  <view class="content">
+    <text>食谱页面</text>
+  </view>
+</view>
