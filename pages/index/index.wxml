@@ -1,11 +1,11 @@
-<!--index.wxml-->
+<!-- index.wxml -->
 <view class="index-header" style="padding-top: {{headerPaddingTop}}px;">
   <view class="header-top">
     <view class="header-logo">
       <image class="logo" src="/assets/logo/logo.png" mode="aspectFit"></image>
       <view class="logo-text">
-      <text class="text-2">食推</text>
-      <text class="text-4">小智</text>
+        <text class="text-2">食推</text>
+        <text class="text-4">小智</text>
       </view>
       <!-- <image class="logo-text" src="/assets/logo/logo-text.png" mode="aspectFit"></image> -->
     </view>
@@ -15,16 +15,8 @@
   </view> -->
   <view class="search-container">
     <view class="search-box">
-      <image class="search-icon" src="/assets/icons/home/home-search.png" mode="aspectFit"></image>
-      <input 
-        class="search-input" 
-        placeholder="搜索食谱或食物" 
-        placeholder-style="color: #999;" 
-        confirm-type="search" 
-        bindconfirm="onSearch" 
-        value="{{searchKeyword}}" 
-        bindinput="onSearchInput" 
-      />
+      <image class="search-icon" src="/assets/index/home-search.png" mode="aspectFit"></image>
+      <input class="search-input" placeholder="搜索食谱或食物" placeholder-style="color: #999;" confirm-type="search" bindconfirm="onSearch" value="{{searchKeyword}}" bindinput="onSearchInput" />
       <view class="search-divider"></view>
       <view class="search-btn" bindtap="onSearchBtn">
         <text>搜索</text>
@@ -34,7 +26,239 @@
 </view>
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
-    <view class="content">
+    <!-- 轮播图 -->
+    <view class="banner-section">
+      <swiper class="banner-swiper" indicator-dots indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#B6CF99" autoplay circular interval="5000">
+        <swiper-item wx:for="{{banners}}" wx:key="id">
+          <image class="banner-image" src="{{item.image}}" mode="aspectFill"></image>
+        </swiper-item>
+      </swiper>
     </view>
+    <!-- 今日食谱卡片（整合AI生成和食谱展示） -->
+    <view class="today-recipe-wrapper">
+      <!-- AI智能生成按钮 -->
+      <view class="ai-generate-btn" bindtap="onAIGenerate">
+        <view class="ai-icon">
+          <image src="/assets/index/icon-meihua.png" mode="aspectFit"></image>
+        </view>
+        <text class="ai-text">一键智能生成今日食谱</text>
+        <view class="ai-arrow">
+          <image src="/assets/index/icon-xiaozhi.png" mode="aspectFit"></image>
+        </view>
+      </view>
+      <!-- 今日食谱卡片 -->
+      <view class="today-recipe-card">
+        <!-- 卡片头部 -->
+        <view class="recipe-card-header">
+          <view class="recipe-title-row">
+            <view class="title-left">
+              <text class="recipe-title">{{todayRecipe.title}}</text>
+              <view class="recipe-date">
+                <text class="date-text">{{todayRecipe.date}}</text>
+                <text class="weekday-text">{{todayRecipe.weekday}}</text>
+              </view>
+            </view>
+          </view>
+          <text class="recipe-description">{{todayRecipe.description}}</text>
+        </view>
+        <!-- 营养数据统计 -->
+        <view class="recipe-stats">
+          <view class="stat-item">
+            <text class="stat-value">{{todayRecipe.totalCalories}}</text>
+            <text class="stat-label">总热量(千卡)</text>
+          </view>
+          <view class="stat-divider"></view>
+          <view class="stat-item">
+            <text class="stat-value">{{todayRecipe.totalProtein}}g</text>
+            <text class="stat-label">蛋白质</text>
+          </view>
+          <view class="stat-divider"></view>
+          <view class="stat-item">
+            <text class="stat-value">{{todayRecipe.totalCarbs}}g</text>
+            <text class="stat-label">碳水</text>
+          </view>
+          <view class="stat-divider"></view>
+          <view class="stat-item">
+            <text class="stat-value">{{todayRecipe.totalFat}}g</text>
+            <text class="stat-label">脂肪</text>
+          </view>
+        </view>
+        <!-- 早餐 -->
+        <view class="meal-section">
+          <view class="meal-header">
+            <text class="meal-time">🌅 {{todayRecipe.meals.breakfast.time}}</text>
+            <text class="meal-time-range">{{todayRecipe.meals.breakfast.timeRange}}</text>
+            <text class="meal-calories">{{todayRecipe.meals.breakfast.calories}}千卡</text>
+          </view>
+          <view class="food-list-vertical">
+            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.breakfast.foods}}" wx:key="id">
+              <image class="food-item-image" src="{{item.image}}" mode="aspectFill"></image>
+              <view class="food-item-content">
+                <view class="food-item-header">
+                  <text class="food-item-name">{{item.name}}</text>
+                  <text class="food-item-amount">{{item.amount}}</text>
+                </view>
+                <view class="food-item-body">
+                  <view class="food-item-nutrients">
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">🔥</text>
+                      <text class="nutrient-text">{{item.calories}}千卡</text>
+                    </view>
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">💪</text>
+                      <text class="nutrient-text">{{item.protein}}g蛋白</text>
+                    </view>
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">🍚</text>
+                      <text class="nutrient-text">{{item.carbs}}g碳水</text>
+                    </view>
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">🥑</text>
+                      <text class="nutrient-text">{{item.fat}}g脂肪</text>
+                    </view>
+                  </view>
+                  <view class="food-category">{{item.category}}</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <!-- 午餐 -->
+        <view class="meal-section">
+          <view class="meal-header">
+            <text class="meal-time">☀️ {{todayRecipe.meals.lunch.time}}</text>
+            <text class="meal-time-range">{{todayRecipe.meals.lunch.timeRange}}</text>
+            <text class="meal-calories">{{todayRecipe.meals.lunch.calories}}千卡</text>
+          </view>
+          <view class="food-list-vertical">
+            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.lunch.foods}}" wx:key="id">
+              <image class="food-item-image" src="{{item.image}}" mode="aspectFill"></image>
+              <view class="food-item-content">
+                <view class="food-item-header">
+                  <text class="food-item-name">{{item.name}}</text>
+                  <text class="food-item-amount">{{item.amount}}</text>
+                </view>
+                <view class="food-item-body">
+                  <view class="food-item-nutrients">
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">🔥</text>
+                      <text class="nutrient-text">{{item.calories}}千卡</text>
+                    </view>
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">💪</text>
+                      <text class="nutrient-text">{{item.protein}}g蛋白</text>
+                    </view>
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">🍚</text>
+                      <text class="nutrient-text">{{item.carbs}}g碳水</text>
+                    </view>
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">🥑</text>
+                      <text class="nutrient-text">{{item.fat}}g脂肪</text>
+                    </view>
+                  </view>
+                  <view class="food-category">{{item.category}}</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <!-- 晚餐 -->
+        <view class="meal-section">
+          <view class="meal-header">
+            <text class="meal-time">🌙 {{todayRecipe.meals.dinner.time}}</text>
+            <text class="meal-time-range">{{todayRecipe.meals.dinner.timeRange}}</text>
+            <text class="meal-calories">{{todayRecipe.meals.dinner.calories}}千卡</text>
+          </view>
+          <view class="food-list-vertical">
+            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.dinner.foods}}" wx:key="id">
+              <image class="food-item-image" src="{{item.image}}" mode="aspectFill"></image>
+              <view class="food-item-content">
+                <view class="food-item-header">
+                  <text class="food-item-name">{{item.name}}</text>
+                  <text class="food-item-amount">{{item.amount}}</text>
+                </view>
+                <view class="food-item-body">
+                  <view class="food-item-nutrients">
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">🔥</text>
+                      <text class="nutrient-text">{{item.calories}}千卡</text>
+                    </view>
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">💪</text>
+                      <text class="nutrient-text">{{item.protein}}g蛋白</text>
+                    </view>
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">🍚</text>
+                      <text class="nutrient-text">{{item.carbs}}g碳水</text>
+                    </view>
+                    <view class="nutrient-tag">
+                      <text class="nutrient-icon">🥑</text>
+                      <text class="nutrient-text">{{item.fat}}g脂肪</text>
+                    </view>
+                  </view>
+                  <view class="food-category">{{item.category}}</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <!-- 快捷入口 -->
+    <view class="quick-entry-section">
+      <view class="quick-entry-item" bindtap="onNavigate" data-page="diary">
+        <view class="entry-icon">📝</view>
+        <text class="entry-text">饮食日记</text>
+      </view>
+      <view class="quick-entry-item" bindtap="onNavigate" data-page="health">
+        <view class="entry-icon">💚</view>
+        <text class="entry-text">健康档案</text>
+      </view>
+    </view>
+    <!-- 饮食打卡 -->
+    <view class="section checkin-section">
+      <view class="section-header">
+        <text class="section-title">今日饮食打卡</text>
+        <text class="section-subtitle">记录你的实际饮食</text>
+      </view>
+      <view class="checkin-list">
+        <view class="checkin-item {{item.checked ? 'checked' : ''}}" wx:for="{{checkinMeals}}" wx:key="type" bindtap="onCheckin" data-type="{{item.type}}">
+          <view class="checkin-icon-wrapper">
+            <text class="checkin-emoji">
+              {{item.type === 'breakfast' ? '🌅' : item.type === 'lunch' ? '☀️' : '🌙'}}
+            </text>
+          </view>
+          <text class="checkin-label">{{item.label}}</text>
+          <view class="checkin-status">
+            <text class="checkin-status-text">{{item.checked ? '✓ 已打卡' : '未打卡'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <!-- 食物排行榜 -->
+    <view class="section ranking-section">
+      <view class="section-header">
+        <text class="section-title">🏆 食物排行榜</text>
+        <text class="section-more" bindtap="onViewRanking">TOP 10 ></text>
+      </view>
+      <view class="ranking-list">
+        <view class="ranking-item" wx:for="{{rankings}}" wx:key="id" bindtap="onRecipeTap" data-id="{{item.id}}">
+          <view class="ranking-badge {{item.rank <= 3 ? 'top-three rank-' + item.rank : ''}}">
+            {{item.rank}}
+          </view>
+          <image class="ranking-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="ranking-info">
+            <text class="ranking-name">{{item.name}}</text>
+            <view class="ranking-meta">
+              <text class="ranking-likes">❤️ {{item.likes}}</text>
+              <text class="ranking-views">👁 {{item.views}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <!-- 底部间距 -->
+    <view class="bottom-space"></view>
   </view>
 </scroll-view>

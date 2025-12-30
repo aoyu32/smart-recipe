@@ -1,24 +1,42 @@
 // index.js
+const { banners, todayRecipe, rankings } = require('../../mock/index.js');
+
 Page({
   data: {
     searchKeyword: '',
     statusBarHeight: 0,
     menuButtonInfo: {},
-    headerPaddingTop: 0
+    headerPaddingTop: 0,
+    
+    // 轮播图数据
+    banners: [],
+    
+    // 今日食谱数据
+    todayRecipe: null,
+    
+    // 打卡状态
+    checkinMeals: [
+      { type: 'breakfast', label: '早餐', checked: false, icon: '/assets/icons/home/breakfast.png' },
+      { type: 'lunch', label: '午餐', checked: false, icon: '/assets/icons/home/lunch.png' },
+      { type: 'dinner', label: '晚餐', checked: false, icon: '/assets/icons/home/dinner.png' }
+    ],
+    
+    // 排行榜数据
+    rankings: []
   },
 
   onLoad() {
-    // 获取状态栏高度和胶囊按钮信息
     const systemInfo = wx.getSystemInfoSync();
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
-    
-    // 计算header的padding-top，让内容从胶囊按钮顶部开始
     const headerPaddingTop = menuButtonInfo.top;
     
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight,
       menuButtonInfo: menuButtonInfo,
-      headerPaddingTop: headerPaddingTop
+      headerPaddingTop: headerPaddingTop,
+      banners: banners,
+      todayRecipe: todayRecipe,
+      rankings: rankings
     });
   },
 
@@ -40,7 +58,6 @@ Page({
   performSearch(keyword) {
     if (keyword && keyword.trim()) {
       console.log('搜索关键词:', keyword);
-      // TODO: 实现搜索功能
       wx.showToast({
         title: `搜索: ${keyword}`,
         icon: 'none'
@@ -51,5 +68,81 @@ Page({
         icon: 'none'
       });
     }
+  },
+
+  // AI智能生成
+  onAIGenerate() {
+    wx.showLoading({ title: '智能生成中...' });
+    setTimeout(() => {
+      wx.hideLoading();
+      wx.showToast({
+        title: '生成成功！',
+        icon: 'success'
+      });
+    }, 1500);
+  },
+
+  // 查看更多食谱
+  onViewMoreRecipes() {
+    wx.navigateTo({
+      url: '/pages/recipe/recipe'
+    });
+  },
+
+  // 点击餐次
+  onMealTap(e) {
+    const type = e.currentTarget.dataset.type;
+    console.log('查看餐次:', type);
+    wx.showToast({
+      title: '查看食谱详情',
+      icon: 'none'
+    });
+  },
+
+  // 快捷入口导航
+  onNavigate(e) {
+    const page = e.currentTarget.dataset.page;
+    console.log('导航到:', page);
+    wx.showToast({
+      title: `进入${page === 'diary' ? '饮食日记' : '健康档案'}`,
+      icon: 'none'
+    });
+  },
+
+  // 饮食打卡
+  onCheckin(e) {
+    const type = e.currentTarget.dataset.type;
+    const checkinMeals = this.data.checkinMeals.map(item => {
+      if (item.type === type) {
+        return { ...item, checked: !item.checked };
+      }
+      return item;
+    });
+    
+    this.setData({ checkinMeals });
+    
+    const meal = checkinMeals.find(item => item.type === type);
+    wx.showToast({
+      title: meal.checked ? '打卡成功！' : '取消打卡',
+      icon: meal.checked ? 'success' : 'none'
+    });
+  },
+
+  // 查看排行榜
+  onViewRanking() {
+    wx.showToast({
+      title: '查看完整排行榜',
+      icon: 'none'
+    });
+  },
+
+  // 点击食谱
+  onRecipeTap(e) {
+    const id = e.currentTarget.dataset.id;
+    console.log('查看食谱:', id);
+    wx.showToast({
+      title: '查看食谱详情',
+      icon: 'none'
+    });
   }
 })
