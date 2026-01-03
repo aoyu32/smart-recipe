@@ -1,0 +1,76 @@
+<!--pages/take-picture/take-picture.wxml-->
+<view class="take-picture-container">
+  <!-- 拍摄界面 -->
+  <view class="capture-view" wx:if="{{currentStep === 'capture'}}">
+    <camera 
+      class="camera" 
+      device-position="back" 
+      flash="off"
+      binderror="onCameraError"
+      bindtouchstart="onTouchStart"
+      bindtouchmove="onTouchMove"
+      bindtouchend="onTouchEnd"
+    >
+      <cover-view class="camera-overlay">
+        <cover-view class="camera-header" style="padding-top: {{statusBarHeight}}px; height: {{menuButtonInfo.height}}px;">
+          <cover-view class="camera-title">拍一拍</cover-view>
+        </cover-view>
+        
+        <cover-view class="camera-guide">
+          <cover-view class="guide-frame" style="width: {{frameSize}}px; height: {{frameSize}}px;"></cover-view>
+          <cover-view class="guide-text">将食物放入框内</cover-view>
+          <cover-view class="zoom-indicator" wx:if="{{isZooming}}">
+            <cover-view class="zoom-text">{{zoomLevel}}x</cover-view>
+          </cover-view>
+        </cover-view>
+        
+        <cover-view class="camera-controls">
+          <cover-view class="control-btn album-btn" bindtap="chooseFromAlbum">
+            <cover-view class="album-icon">📷</cover-view>
+            <cover-view class="control-text">相册</cover-view>
+          </cover-view>
+          
+          <cover-view class="control-btn capture-btn" bindtap="takePhoto">
+            <cover-view class="capture-inner"></cover-view>
+          </cover-view>
+          
+          <cover-view class="control-btn placeholder-btn"></cover-view>
+        </cover-view>
+      </cover-view>
+    </camera>
+  </view>
+
+  <!-- 操作选择界面 -->
+  <view class="action-view" wx:if="{{currentStep === 'action'}}">
+    <view class="action-header" style="padding-top: {{statusBarHeight}}px; height: {{menuButtonInfo.height}}px;">
+      <view class="action-title">选择操作</view>
+    </view>
+    
+    <view class="action-preview">
+      <image class="preview-image" src="{{capturedImagePath}}" mode="aspectFit"></image>
+    </view>
+    
+    <view class="action-buttons">
+      <view class="action-card meal-card" bindtap="onMealCheckin">
+        <view class="card-icon">🍽️</view>
+        <view class="card-title">饮食打卡</view>
+        <view class="card-desc">记录今日饮食</view>
+      </view>
+      
+      <view class="action-card ai-card" bindtap="askXiaozhi">
+        <view class="card-icon">🤖</view>
+        <view class="card-title">询问小智</view>
+        <view class="card-desc">AI智能分析</view>
+      </view>
+    </view>
+    
+    <view class="action-footer">
+      <view class="footer-btn" bindtap="retake">
+        <text>重新拍摄</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 隐藏的canvas用于图片裁剪 -->
+<canvas canvas-id="cropCanvas" style="position: fixed; left: -9999px; top: -9999px; width: {{frameSize}}px; height: {{frameSize}}px;"></canvas>

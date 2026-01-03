@@ -2,7 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/recipe/recipe",
-    "pages/camera/camera",
+    "pages/take-picture/take-picture",
     "pages/xiaozhi/xiaozhi",
     "pages/my/my"
   ],
@@ -31,7 +31,7 @@
         "selectedIconPath": "assets/icons/tabbar/tabbar-shipu-active.png"
       },
       {
-        "pagePath": "pages/camera/camera",
+        "pagePath": "pages/take-picture/take-picture",
         "text": "拍一拍",
         "iconPath": "assets/icons/tabbar/tabbar-camera.png",
         "selectedIconPath": "assets/icons/tabbar/tabbar-camera-active.png"
@@ -54,5 +54,10 @@
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
     "navigation-bar": "/components/navigation-bar/navigation-bar"
+  },
+  "permission": {
+    "scope.camera": {
+      "desc": "需要使用您的相机拍摄食物照片"
+    }
   }
 }

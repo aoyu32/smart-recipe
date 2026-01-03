@@ -1,0 +1,336 @@
+/* pages/take-picture/take-picture.wxss */
+page {
+  height: 100vh;
+  background-color: #000;
+}
+
+.take-picture-container {
+  width: 100%;
+  height: 100vh;
+}
+
+/* 拍摄界面 */
+.capture-view {
+  width: 100%;
+  height: 100vh;
+}
+
+.camera {
+  width: 100%;
+  height: 100vh;
+}
+
+.camera-overlay {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.camera-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+}
+
+.camera-title {
+  font-size: 36rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.camera-guide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.guide-frame {
+  border: 4rpx solid rgba(182, 207, 153, 0.8);
+  border-radius: 20rpx;
+  box-shadow: 0 0 0 9999rpx rgba(0, 0, 0, 0.3);
+}
+
+.guide-text {
+  margin-top: 40rpx;
+  font-size: 28rpx;
+  color: #FFFFFF;
+}
+
+.zoom-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 20rpx 40rpx;
+  border-radius: 50rpx;
+}
+
+.zoom-text {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.camera-controls {
+  padding: 60rpx 30rpx;
+  padding-bottom: calc(60rpx + env(safe-area-inset-bottom));
+  background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.control-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.album-btn {
+  width: 120rpx;
+}
+
+.control-icon {
+  width: 60rpx;
+  height: 60rpx;
+}
+
+.album-icon {
+  font-size: 60rpx;
+}
+
+.control-text {
+  font-size: 24rpx;
+  color: #FFFFFF;
+}
+
+.capture-btn {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  border: 6rpx solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.capture-inner {
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+}
+
+.placeholder-btn {
+  width: 120rpx;
+}
+
+/* 编辑界面 */
+.edit-view {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
+}
+
+.edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.edit-title {
+  font-size: 36rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.edit-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.movable-area {
+  width: 100%;
+  height: 100%;
+}
+
+.movable-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-image {
+  width: 100%;
+  height: 100%;
+}
+
+.edit-tools {
+  padding: 20rpx 30rpx;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.tool-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 60rpx;
+  margin-bottom: 15rpx;
+}
+
+.tool-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.tool-icon {
+  font-size: 48rpx;
+}
+
+.tool-label {
+  font-size: 24rpx;
+  color: #FFFFFF;
+}
+
+.tool-tip {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 20rpx;
+  padding: 30rpx;
+  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.action-btn {
+  flex: 1;
+  padding: 28rpx;
+  border-radius: 15rpx;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.cancel-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, #B6CF99 0%, #9BC184 100%);
+  color: #FFFFFF;
+}
+
+/* 操作选择界面 */
+.action-view {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #F5F5F5;
+}
+
+.action-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #B6CF99;
+}
+
+.action-title {
+  font-size: 36rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.action-preview {
+  width: 100%;
+  height: 400rpx;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 30rpx;
+  padding: 40rpx 30rpx;
+}
+
+.action-card {
+  flex: 1;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 40rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.meal-card {
+  border: 3rpx solid #B6CF99;
+}
+
+.ai-card {
+  border: 3rpx solid #9BC184;
+}
+
+.card-icon {
+  font-size: 60rpx;
+  margin-bottom: 15rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.card-desc {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.action-footer {
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+}
+
+.footer-btn {
+  width: 100%;
+  padding: 28rpx;
+  background-color: #FFFFFF;
+  border-radius: 15rpx;
+  text-align: center;
+  font-size: 32rpx;
+  color: #666;
+  border: 2rpx solid #E0E0E0;
+}
