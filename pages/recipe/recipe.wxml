@@ -1,6 +1,71 @@
-<!--pages/recipe/recipe.wxml-->
+<!-- pages/recipe/recipe.wxml -->
 <view class="container">
+  <!-- 头部栏：不显示返回按钮 -->
+  <navigation-bar title="食谱" back="{{false}}"></navigation-bar>
+
   <view class="content">
-    <text>食谱页面</text>
+    <!-- 搜索框（组件化：与主页一致） -->
+    <search-box
+      value="{{keyword}}"
+      placeholder="搜索食谱或食物"
+      bind:input="onKeywordInput"
+      bind:confirm="onSearch"
+      bind:tapSearch="onSearch"
+    />
+
+    <!-- 四个按钮卡片 -->
+    <view class="goal-grid">
+      <view class="goal-card {{activeGoal==='cut' ? 'active' : ''}}" data-goal="cut" bindtap="onTapGoal">
+        <view class="goal-title">减脂</view>
+        <view class="goal-sub">低热量</view>
+      </view>
+      <view class="goal-card {{activeGoal==='bulk' ? 'active' : ''}}" data-goal="bulk" bindtap="onTapGoal">
+        <view class="goal-title">增脂</view>
+        <view class="goal-sub">高能量</view>
+      </view>
+      <view class="goal-card {{activeGoal==='muscle' ? 'active' : ''}}" data-goal="muscle" bindtap="onTapGoal">
+        <view class="goal-title">增肌</view>
+        <view class="goal-sub">高蛋白</view>
+      </view>
+      <view class="goal-card {{activeGoal==='sugar' ? 'active' : ''}}" data-goal="sugar" bindtap="onTapGoal">
+        <view class="goal-title">控糖</view>
+        <view class="goal-sub">低 GI</view>
+      </view>
+    </view>
+
+    <!-- 主体：左分类（可滚） + 右列表（可滚） -->
+    <view class="main">
+      <!-- 分类栏（可滚） -->
+      <scroll-view class="category" scroll-y>
+        <view
+          class="cat-item {{activeCategoryId === item.id ? 'active' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onChooseCategory"
+        >
+          {{item.name}}
+        </view>
+      </scroll-view>
+
+      <!-- 食谱列表：一行两列（右侧可滚） -->
+      <scroll-view class="list" scroll-y>
+        <view class="grid">
+          <view class="card" wx:for="{{filteredRecipes}}" wx:key="id" bindtap="onOpenRecipe" data-id="{{item.id}}">
+            <image class="card-img" mode="aspectFill" src="{{item.cover}}" />
+            <view class="card-body">
+              <view class="card-row">
+                <view class="card-name">{{item.name}}</view>
+                <view class="card-cal">{{item.kcal}} 千卡</view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="empty" wx:if="{{filteredRecipes.length === 0}}">
+          <text class="empty-text">暂无匹配食谱</text>
+        </view>
+      </scroll-view>
+    </view>
   </view>
 </view>

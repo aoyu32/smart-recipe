@@ -1,0 +1,20 @@
+<!-- components/search-box/search-box.wxml -->
+<view class="search-container">
+  <view class="search-box">
+    <image class="search-icon" src="/assets/index/home-search.png" mode="aspectFit"></image>
+    <input
+      class="search-input"
+      placeholder="{{placeholder}}"
+      placeholder-style="color: #999;"
+      confirm-type="search"
+      value="{{value}}"
+      bindinput="onInput"
+      bindconfirm="onConfirm"
+    />
+    <view class="search-divider"></view>
+    <view class="search-btn" bindtap="onTapSearch">
+      <text>{{buttonText}}</text>
+    </view>
+  </view>
+</view>
+
