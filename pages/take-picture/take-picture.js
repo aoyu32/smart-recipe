@@ -70,32 +70,48 @@ Page({
   },
 
   onShow() {
-    // 页面显示时，如果不在拍摄状态，重置
-    if (this.data.currentStep !== 'capture') {
-      this.resetPage();
-    }
+    // 页面显示时，重置为拍摄状态
+    // 确保每次进入页面都显示拍摄界面
+    this.setData({
+      currentStep: 'capture',
+      capturedImagePath: '',
+      showContent: false,
+      contentType: '',
+      aiResponseList: [],
+      aiLoading: false,
+      currentMealType: ''
+    });
   },
 
   onHide() {
-    // 页面隐藏时停止相机
-    this.stopCamera();
+    // 页面隐藏时关闭摄像头
+    // 将currentStep改为非'capture'状态，这样camera组件会被销毁
+    if (this.data.currentStep === 'capture') {
+      this.setData({
+        currentStep: 'action'
+      });
+    }
+    // 重置相机上下文
+    cameraContext = null;
   },
 
   onUnload() {
-    // 页面卸载时停止相机
-    this.stopCamera();
-  },
-
-
-  // 停止相机
-  stopCamera() {
-    // 相机组件会在页面隐藏时自动停止，无需手动调用
-    // 只需重置页面状态
-    this.resetPage();
+    // 页面卸载时关闭摄像头
+    // 将currentStep改为非'capture'状态，这样camera组件会被销毁
+    if (this.data.currentStep === 'capture') {
+      this.setData({
+        currentStep: 'action'
+      });
+    }
+    // 重置相机上下文
+    cameraContext = null;
   },
 
   // 重置页面
   resetPage() {
+    // 重置相机上下文
+    cameraContext = null;
+    
     this.setData({
       currentStep: 'capture',
       capturedImagePath: '',
