@@ -86,7 +86,8 @@
         <!-- 早餐 -->
         <view class="meal-section">
           <view class="meal-header">
-            <text class="meal-time">🌅 {{todayRecipe.meals.breakfast.time}}</text>
+            <image class="meal-icon" src="/assets/index/icon-zaocan.png" mode="aspectFit"></image>
+            <text class="meal-time">{{todayRecipe.meals.breakfast.time}}</text>
             <text class="meal-time-range">{{todayRecipe.meals.breakfast.timeRange}}</text>
             <text class="meal-calories">{{todayRecipe.meals.breakfast.calories}}千卡</text>
           </view>
@@ -126,7 +127,8 @@
         <!-- 午餐 -->
         <view class="meal-section">
           <view class="meal-header">
-            <text class="meal-time">☀️ {{todayRecipe.meals.lunch.time}}</text>
+            <image class="meal-icon" src="/assets/index/icon-wucan.png" mode="aspectFit"></image>
+            <text class="meal-time">{{todayRecipe.meals.lunch.time}}</text>
             <text class="meal-time-range">{{todayRecipe.meals.lunch.timeRange}}</text>
             <text class="meal-calories">{{todayRecipe.meals.lunch.calories}}千卡</text>
           </view>
@@ -166,7 +168,8 @@
         <!-- 晚餐 -->
         <view class="meal-section">
           <view class="meal-header">
-            <text class="meal-time">🌙 {{todayRecipe.meals.dinner.time}}</text>
+            <image class="meal-icon" src="/assets/index/icon-wancan.png" mode="aspectFit"></image>
+            <text class="meal-time">{{todayRecipe.meals.dinner.time}}</text>
             <text class="meal-time-range">{{todayRecipe.meals.dinner.timeRange}}</text>
             <text class="meal-calories">{{todayRecipe.meals.dinner.calories}}千卡</text>
           </view>
@@ -208,11 +211,15 @@
     <!-- 快捷入口 -->
     <view class="quick-entry-section">
       <view class="quick-entry-item" bindtap="onNavigate" data-page="diary">
-        <view class="entry-icon">📝</view>
+        <view class="entry-icon">
+          <image class="entry-icon-image" src="/assets/index/icon-reji.png" mode="aspectFit"></image>
+        </view>
         <text class="entry-text">饮食日记</text>
       </view>
       <view class="quick-entry-item" bindtap="onNavigate" data-page="health">
-        <view class="entry-icon">💚</view>
+        <view class="entry-icon">
+          <image class="entry-icon-image" src="/assets/index/icon-jiankangdangan.png" mode="aspectFit"></image>
+        </view>
         <text class="entry-text">健康档案</text>
       </view>
     </view>
@@ -225,9 +232,7 @@
       <view class="checkin-list">
         <view class="checkin-item {{item.checked ? 'checked' : ''}}" wx:for="{{checkinMeals}}" wx:key="type" bindtap="onCheckin" data-type="{{item.type}}">
           <view class="checkin-icon-wrapper">
-            <text class="checkin-emoji">
-              {{item.type === 'breakfast' ? '🌅' : item.type === 'lunch' ? '☀️' : '🌙'}}
-            </text>
+            <image class="checkin-icon" src="{{item.type === 'breakfast' ? '/assets/index/icon-zaocan.png' : item.type === 'lunch' ? '/assets/index/icon-wucan.png' : '/assets/index/icon-wancan.png'}}" mode="aspectFit"></image>
           </view>
           <text class="checkin-label">{{item.label}}</text>
           <view class="checkin-status">
@@ -239,8 +244,11 @@
     <!-- 食物排行榜 -->
     <view class="section ranking-section">
       <view class="section-header">
-        <text class="section-title">🏆 食物排行榜</text>
-        <text class="section-more" bindtap="onViewRanking">TOP 10 ></text>
+        <view class="section-title-wrapper">
+          <image class="section-title-icon" src="/assets/index/icon-paihangbang.png" mode="aspectFit"></image>
+          <text class="section-title">食物排行榜</text>
+        </view>
+        <text class="section-more" bindtap="onViewRanking">TOP 10</text>
       </view>
       <view class="ranking-list">
         <view class="ranking-item" wx:for="{{rankings}}" wx:key="id" bindtap="onRecipeTap" data-id="{{item.id}}">
@@ -251,8 +259,14 @@
           <view class="ranking-info">
             <text class="ranking-name">{{item.name}}</text>
             <view class="ranking-meta">
-              <text class="ranking-likes">❤️ {{item.likes}}</text>
-              <text class="ranking-views">👁 {{item.views}}</text>
+              <view class="ranking-likes">
+                <image class="ranking-icon" src="/assets/index/icon-shouchang.png" mode="aspectFit"></image>
+                <text class="ranking-icon-text">{{item.likes}}</text>
+              </view>
+              <view class="ranking-views">
+                <image class="ranking-icon" src="/assets/index/icon-liulan.png" mode="aspectFit"></image>
+                <text class="ranking-icon-text">{{item.views}}</text>
+              </view>
             </view>
           </view>
         </view>

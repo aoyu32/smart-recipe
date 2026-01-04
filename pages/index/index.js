@@ -25,17 +25,42 @@ Page({
     rankings: []
   },
 
+  // 获取当前日期和星期几
+  getCurrentDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+    const weekday = weekdays[now.getDay()];
+    
+    return {
+      date: `${year}年${month}月${day}日`,
+      weekday: weekday
+    };
+  },
+
   onLoad() {
     const systemInfo = wx.getSystemInfoSync();
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
     const headerPaddingTop = menuButtonInfo.top;
+    
+    // 获取当前日期和星期几
+    const { date, weekday } = this.getCurrentDate();
+    
+    // 更新今日食谱数据中的日期和星期几
+    const updatedTodayRecipe = {
+      ...todayRecipe,
+      date: date,
+      weekday: weekday
+    };
     
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight,
       menuButtonInfo: menuButtonInfo,
       headerPaddingTop: headerPaddingTop,
       banners: banners,
-      todayRecipe: todayRecipe,
+      todayRecipe: updatedTodayRecipe,
       rankings: rankings
     });
   },

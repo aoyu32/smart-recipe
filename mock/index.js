@@ -254,7 +254,7 @@ const rankings = [
     id: 2, 
     rank: 2, 
     name: '宫保鸡丁', 
-    image: 'https://images.unsplash.com/photo-1603073163308-9c0f6f0c0e5c?w=200&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1608877907149-a206d75ba011?w=200&h=200&fit=crop',
     likes: 1123, 
     views: 4567,
     tags: ['川菜', '下饭']
@@ -272,7 +272,7 @@ const rankings = [
     id: 4, 
     rank: 4, 
     name: '麻婆豆腐', 
-    image: 'https://images.unsplash.com/photo-1633964913295-ceb43826d1e5?w=200&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop',
     likes: 876, 
     views: 2345,
     tags: ['川菜', '麻辣']
