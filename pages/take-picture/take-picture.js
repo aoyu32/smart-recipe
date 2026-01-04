@@ -7,29 +7,26 @@ Page({
     capturedImagePath: '',
     statusBarHeight: 0,
     menuButtonInfo: {},
-    frameSize: 0,
-    
-    // 缩放相关
-    zoomLevel: 1,
-    isZooming: false,
-    touchStartDistance: 0,
-    initialZoom: 1
+    frameSize: 0
   },
 
   onLoad() {
     const systemInfo = wx.getSystemInfoSync();
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
     
-    // 计算框框大小（屏幕宽度 - 左右边距）
-    const frameSize = systemInfo.windowWidth - 60;
+    // 计算框框大小（屏幕宽度 - 左右边距，留一点边距）
+    const frameSize = systemInfo.windowWidth - 40;
     
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight,
       menuButtonInfo: menuButtonInfo,
       frameSize: frameSize
     });
-    
-    // 创建相机上下文
+  },
+
+  // 相机准备就绪
+  onCameraReady() {
+    // 相机组件ready后创建上下文
     cameraContext = wx.createCameraContext();
   },
 
@@ -50,6 +47,7 @@ Page({
     this.stopCamera();
   },
 
+
   // 停止相机
   stopCamera() {
     // 相机组件会在页面隐藏时自动停止，无需手动调用
@@ -61,75 +59,8 @@ Page({
   resetPage() {
     this.setData({
       currentStep: 'capture',
-      capturedImagePath: '',
-      zoomLevel: 1,
-      isZooming: false,
-      touchStartDistance: 0,
-      initialZoom: 1
+      capturedImagePath: ''
     });
-  },
-
-  // 触摸开始
-  onTouchStart(e) {
-    if (e.touches.length === 2) {
-      // 双指触摸，记录初始距离
-      const touch1 = e.touches[0];
-      const touch2 = e.touches[1];
-      const distance = this.getDistance(touch1, touch2);
-      
-      this.setData({
-        touchStartDistance: distance,
-        initialZoom: this.data.zoomLevel,
-        isZooming: true
-      });
-    }
-  },
-
-  // 触摸移动
-  onTouchMove(e) {
-    if (e.touches.length === 2) {
-      // 双指缩放
-      const touch1 = e.touches[0];
-      const touch2 = e.touches[1];
-      const distance = this.getDistance(touch1, touch2);
-      
-      // 计算缩放比例
-      const scale = distance / this.data.touchStartDistance;
-      let newZoom = this.data.initialZoom * scale;
-      
-      // 限制缩放范围 1-3倍
-      newZoom = Math.max(1, Math.min(3, newZoom));
-      
-      this.setData({
-        zoomLevel: parseFloat(newZoom.toFixed(1))
-      });
-      
-      // 设置相机缩放
-      if (cameraContext) {
-        cameraContext.setZoom({
-          zoom: newZoom
-        });
-      }
-    }
-  },
-
-  // 触摸结束
-  onTouchEnd(e) {
-    if (e.touches.length < 2) {
-      // 延迟隐藏缩放指示器
-      setTimeout(() => {
-        this.setData({
-          isZooming: false
-        });
-      }, 500);
-    }
-  },
-
-  // 计算两点距离
-  getDistance(touch1, touch2) {
-    const dx = touch1.pageX - touch2.pageX;
-    const dy = touch1.pageY - touch2.pageY;
-    return Math.sqrt(dx * dx + dy * dy);
   },
 
   // 拍照

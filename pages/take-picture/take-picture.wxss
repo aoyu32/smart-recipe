@@ -60,22 +60,6 @@ page {
   color: #FFFFFF;
 }
 
-.zoom-indicator {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.6);
-  padding: 20rpx 40rpx;
-  border-radius: 50rpx;
-}
-
-.zoom-text {
-  font-size: 48rpx;
-  color: #FFFFFF;
-  font-weight: bold;
-}
-
 .camera-controls {
   padding: 60rpx 30rpx;
   padding-bottom: calc(60rpx + env(safe-area-inset-bottom));
@@ -101,13 +85,19 @@ page {
   height: 60rpx;
 }
 
-.album-icon {
-  font-size: 60rpx;
+.album-icon-wrapper {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.control-text {
-  font-size: 24rpx;
-  color: #FFFFFF;
+.album-icon {
+  width: 50rpx;
+  height: 50rpx;
 }
 
 .capture-btn {
@@ -280,7 +270,7 @@ page {
 .action-buttons {
   display: flex;
   gap: 30rpx;
-  padding: 40rpx 30rpx;
+  padding: 40rpx 30rpx 20rpx;
 }
 
 .action-card {
@@ -320,8 +310,10 @@ page {
 }
 
 .action-footer {
-  padding: 20rpx 30rpx;
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  padding: 0 30rpx;
+  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
 }
 
 .footer-btn {

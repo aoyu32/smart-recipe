@@ -7,9 +7,7 @@
       device-position="back" 
       flash="off"
       binderror="onCameraError"
-      bindtouchstart="onTouchStart"
-      bindtouchmove="onTouchMove"
-      bindtouchend="onTouchEnd"
+      bindready="onCameraReady"
     >
       <cover-view class="camera-overlay">
         <cover-view class="camera-header" style="padding-top: {{statusBarHeight}}px; height: {{menuButtonInfo.height}}px;">
@@ -19,15 +17,13 @@
         <cover-view class="camera-guide">
           <cover-view class="guide-frame" style="width: {{frameSize}}px; height: {{frameSize}}px;"></cover-view>
           <cover-view class="guide-text">将食物放入框内</cover-view>
-          <cover-view class="zoom-indicator" wx:if="{{isZooming}}">
-            <cover-view class="zoom-text">{{zoomLevel}}x</cover-view>
-          </cover-view>
         </cover-view>
         
         <cover-view class="camera-controls">
           <cover-view class="control-btn album-btn" bindtap="chooseFromAlbum">
-            <cover-view class="album-icon">📷</cover-view>
-            <cover-view class="control-text">相册</cover-view>
+            <cover-view class="album-icon-wrapper">
+              <cover-image class="album-icon" src="/assets/take-picture/icon-picture.png" mode="aspectFit"></cover-image>
+            </cover-view>
           </cover-view>
           
           <cover-view class="control-btn capture-btn" bindtap="takePhoto">
