@@ -48,13 +48,13 @@
     
     <view class="action-buttons">
       <view class="action-card meal-card" bindtap="onMealCheckin">
-        <view class="card-icon">🍽️</view>
+        <image class="card-icon" src="/assets/take-picture/icon-singin.png" mode="aspectFit"></image>
         <view class="card-title">饮食打卡</view>
         <view class="card-desc">记录今日饮食</view>
       </view>
       
       <view class="action-card ai-card" bindtap="askXiaozhi">
-        <view class="card-icon">🤖</view>
+        <image class="card-icon" src="/assets/logo/logo.png" mode="aspectFit"></image>
         <view class="card-title">询问小智</view>
         <view class="card-desc">AI智能分析</view>
       </view>
@@ -63,6 +63,61 @@
     <view class="action-footer">
       <view class="footer-btn" bindtap="retake">
         <text>重新拍摄</text>
+      </view>
+    </view>
+
+    <!-- 内容区域 -->
+    <view class="content-area" wx:if="{{showContent}}">
+      <!-- 饮食打卡列表 -->
+      <view class="meal-checkin-list" wx:if="{{contentType === 'meal'}}">
+        <view class="meal-card" wx:for="{{mealCheckinList}}" wx:key="type">
+          <!-- 卡片头部 -->
+          <view class="meal-card-header">
+            <view class="meal-header-left">
+              <image class="meal-type-icon" src="{{item.icon}}" mode="aspectFit"></image>
+              <text class="meal-type-name">{{item.label}}打卡</text>
+            </view>
+            <view class="meal-header-right">
+              <view class="add-food-btn" bindtap="onAddFood" data-type="{{item.type}}">
+                <image class="add-icon" src="/assets/take-picture/icon-add.png" mode="aspectFit"></image>
+                <text class="add-text">添加食物</text>
+              </view>
+              <view class="meal-status {{item.checked ? 'checked' : ''}}">
+                <text class="status-text">{{item.checked ? '已打卡' : '未打卡'}}</text>
+              </view>
+              <image class="meal-status-icon" src="/assets/take-picture/icon-status.png" mode="aspectFit"></image>
+            </view>
+          </view>
+          
+          <!-- 食物列表 -->
+          <view class="food-list">
+            <view class="food-item {{food.placeholder ? 'placeholder' : ''}}" wx:for="{{item.foods}}" wx:for-item="food" wx:key="id">
+              <view class="food-item-content" bindtap="{{food.placeholder ? 'onFillPlaceholder' : ''}}" data-type="{{item.type}}" data-id="{{food.id}}">
+                <image class="food-image" src="{{food.image || '/assets/index/icon-wuchan.png'}}" mode="aspectFill"></image>
+                <view class="food-info">
+                  <text class="food-name" wx:if="{{!food.placeholder}}">{{food.name}}</text>
+                  <text class="food-name placeholder-text" wx:else>点击添加食物</text>
+                  <text class="food-calories" wx:if="{{!food.placeholder}}">{{food.calories}} 千卡</text>
+                </view>
+              </view>
+              <view class="food-delete" wx:if="{{!food.placeholder}}" catchtap="onDeleteFood" data-type="{{item.type}}" data-id="{{food.id}}">
+                <image class="delete-icon" src="/assets/take-picture/icon-delete.png" mode="aspectFit"></image>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- AI回复内容 -->
+      <view class="ai-response-area" wx:if="{{contentType === 'ai'}}">
+        <view class="ai-response-content">
+          <view class="ai-response-item" wx:for="{{aiResponseList}}" wx:key="index">
+            <text class="ai-text">{{item}}</text>
+          </view>
+          <view class="ai-loading" wx:if="{{aiLoading}}">
+            <text class="loading-text">小智正在思考...</text>
+          </view>
+        </view>
       </view>
     </view>
   </view>
