@@ -92,7 +92,7 @@
             <text class="meal-calories">{{todayRecipe.meals.breakfast.calories}}千卡</text>
           </view>
           <view class="food-list-vertical">
-            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.breakfast.foods}}" wx:key="id">
+            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.breakfast.foods}}" wx:key="id" bindtap="navigateToRecipeDetail" data-id="{{item.id}}">
               <image class="food-item-image" src="{{item.image}}" mode="aspectFill"></image>
               <view class="food-item-content">
                 <view class="food-item-header">
@@ -133,7 +133,7 @@
             <text class="meal-calories">{{todayRecipe.meals.lunch.calories}}千卡</text>
           </view>
           <view class="food-list-vertical">
-            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.lunch.foods}}" wx:key="id">
+            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.lunch.foods}}" wx:key="id" bindtap="navigateToRecipeDetail" data-id="{{item.id}}">
               <image class="food-item-image" src="{{item.image}}" mode="aspectFill"></image>
               <view class="food-item-content">
                 <view class="food-item-header">
@@ -174,7 +174,7 @@
             <text class="meal-calories">{{todayRecipe.meals.dinner.calories}}千卡</text>
           </view>
           <view class="food-list-vertical">
-            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.dinner.foods}}" wx:key="id">
+            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.dinner.foods}}" wx:key="id" bindtap="navigateToRecipeDetail" data-id="{{item.id}}">
               <image class="food-item-image" src="{{item.image}}" mode="aspectFill"></image>
               <view class="food-item-content">
                 <view class="food-item-header">
@@ -251,7 +251,7 @@
         <text class="section-more" bindtap="onViewRanking">TOP 10</text>
       </view>
       <view class="ranking-list">
-        <view class="ranking-item" wx:for="{{rankings}}" wx:key="id" bindtap="onRecipeTap" data-id="{{item.id}}">
+        <view class="ranking-item" wx:for="{{rankings}}" wx:key="id" bindtap="navigateToRecipeDetail" data-id="{{item.id}}">
           <view class="ranking-badge {{item.rank <= 3 ? 'top-three rank-' + item.rank : ''}}">
             {{item.rank}}
           </view>

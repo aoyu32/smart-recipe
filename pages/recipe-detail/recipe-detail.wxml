@@ -1,0 +1,130 @@
+<!--pages/recipe-detail/recipe-detail.wxml-->
+<view class="recipe-detail-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
+    <view class="navbar-content">
+      <view class="navbar-back" bindtap="goBack">
+        <image class="back-icon" src="/assets/recipe-detail/icon-back.png" mode="aspectFit"></image>
+      </view>
+      <view class="navbar-title">食谱详情</view>
+    </view>
+  </view>
+
+  <scroll-view class="detail-content" scroll-y>
+    <!-- 食谱图片 -->
+    <view class="recipe-image-wrapper">
+      <image class="recipe-image" src="{{recipeDetail.image}}" mode="aspectFill"></image>
+      <view class="image-overlay">
+        <view class="recipe-category">{{recipeDetail.category}}</view>
+      </view>
+    </view>
+
+    <!-- 食谱基本信息 -->
+    <view class="recipe-info">
+      <view class="info-left">
+        <view class="recipe-title">{{recipeDetail.name}}</view>
+      </view>
+      <view class="info-right">
+        <view class="recipe-stats">
+          <view class="stat-item">
+            <image class="stat-icon" src="/assets/recipe-detail/icon-like.png" mode="aspectFit"></image>
+            <text class="stat-text">{{recipeDetail.likes}}</text>
+          </view>
+          <view class="stat-item">
+            <image class="stat-icon" src="/assets/recipe-detail/icon-star.png" mode="aspectFit"></image>
+            <text class="stat-text">{{recipeDetail.collections}}</text>
+          </view>
+          <view class="stat-item">
+            <image class="stat-icon" src="/assets/recipe-detail/icon-view.png" mode="aspectFit"></image>
+            <text class="stat-text">{{recipeDetail.views}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 营养数据 -->
+    <view class="nutrition-section">
+      <view class="section-title">营养成分</view>
+      <view class="nutrition-grid">
+        <view class="nutrition-item">
+          <view class="nutrition-value">{{recipeDetail.nutrition.calories}}</view>
+          <view class="nutrition-label">千卡</view>
+        </view>
+        <view class="nutrition-item">
+          <view class="nutrition-value">{{recipeDetail.nutrition.protein}}</view>
+          <view class="nutrition-label">蛋白质(g)</view>
+        </view>
+        <view class="nutrition-item">
+          <view class="nutrition-value">{{recipeDetail.nutrition.carbs}}</view>
+          <view class="nutrition-label">碳水(g)</view>
+        </view>
+        <view class="nutrition-item">
+          <view class="nutrition-value">{{recipeDetail.nutrition.fat}}</view>
+          <view class="nutrition-label">脂肪(g)</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 食谱介绍 -->
+    <view class="description-section">
+      <view class="section-title">食谱介绍</view>
+      <view class="description-text">{{recipeDetail.description}}</view>
+    </view>
+
+    <!-- 食材清单 -->
+    <view class="ingredients-section">
+      <view class="section-title">食材清单</view>
+      <view class="ingredients-list">
+        <view class="ingredient-item" wx:for="{{recipeDetail.ingredients}}" wx:key="index">
+          <view class="ingredient-name">{{item.name}}</view>
+          <view class="ingredient-amount">{{item.amount}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <view class="action-left">
+      <view class="action-btn {{isLiked ? 'active' : ''}}" bindtap="toggleLike">
+        <image class="action-icon" src="/assets/recipe-detail/{{isLiked ? 'icon-like-active' : 'icon-like'}}.png" mode="aspectFit"></image>
+        <text class="action-text">{{isLiked ? '已赞' : '点赞'}}</text>
+      </view>
+      <view class="action-btn {{isCollected ? 'active' : ''}}" bindtap="toggleCollect">
+        <image class="action-icon" src="/assets/recipe-detail/{{isCollected ? 'icon-star-active' : 'icon-star'}}.png" mode="aspectFit"></image>
+        <text class="action-text">{{isCollected ? '已收藏' : '收藏'}}</text>
+      </view>
+    </view>
+    <view class="action-right">
+      <view class="add-meal-btn" bindtap="showMealOptions">
+        <image class="add-icon" src="/assets/recipe-detail/icon-add.png" mode="aspectFit"></image>
+        <text class="add-text">加入餐食</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 选择餐次弹窗 -->
+  <view class="meal-modal {{showMealModal ? 'show' : ''}}" bindtap="hideMealOptions">
+    <view class="meal-modal-content" catchtap="stopPropagation">
+      <view class="modal-title">选择餐次</view>
+      <view class="meal-options">
+        <view class="meal-option" bindtap="addToMeal" data-type="breakfast">
+          <image class="meal-icon" src="/assets/index/icon-zaocan.png" mode="aspectFit"></image>
+          <text class="meal-name">早餐</text>
+        </view>
+        <view class="meal-option" bindtap="addToMeal" data-type="lunch">
+          <image class="meal-icon" src="/assets/index/icon-wucan.png" mode="aspectFit"></image>
+          <text class="meal-name">午餐</text>
+        </view>
+        <view class="meal-option" bindtap="addToMeal" data-type="dinner">
+          <image class="meal-icon" src="/assets/index/icon-wancan.png" mode="aspectFit"></image>
+          <text class="meal-name">晚餐</text>
+        </view>
+      </view>
+      <view class="modal-cancel" bindtap="hideMealOptions">取消</view>
+    </view>
+  </view>
+</view>

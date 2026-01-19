@@ -248,7 +248,11 @@ Page({
 
   onOpenRecipe(e) {
     const id = e.currentTarget.dataset.id;
-    // 这里先占位：后续你做详情页时可跳转
-    wx.showToast({ title: `打开食谱：${id}`, icon: 'none' });
+    // 跳转到食谱详情页
+    // 将食谱ID映射到详情页ID（r1->1, r2->2, r3->3）
+    const detailId = id.replace('r', '');
+    wx.navigateTo({
+      url: `/pages/recipe-detail/recipe-detail?id=${detailId}`
+    });
   }
 });

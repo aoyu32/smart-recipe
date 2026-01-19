@@ -162,12 +162,16 @@ Page({
   },
 
   // 点击食谱
-  onRecipeTap(e) {
+  // 跳转到食谱详情页
+  navigateToRecipeDetail(e) {
     const id = e.currentTarget.dataset.id;
-    console.log('查看食谱:', id);
-    wx.showToast({
-      title: '查看食谱详情',
-      icon: 'none'
+    wx.navigateTo({
+      url: `/pages/recipe-detail/recipe-detail?id=${id}`
     });
+  },
+
+  // 点击食谱（保留兼容）
+  onRecipeTap(e) {
+    this.navigateToRecipeDetail(e);
   }
 })
