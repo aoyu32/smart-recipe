@@ -232,7 +232,16 @@ Page({
   },
 
   onSearch() {
-    this.updateFiltered();
+    const keyword = this.data.keyword.trim();
+    if (keyword) {
+      // 跳转到搜索页面
+      wx.navigateTo({
+        url: `/pages/search/search?keyword=${encodeURIComponent(keyword)}`
+      });
+    } else {
+      // 如果没有关键词，只更新本地筛选
+      this.updateFiltered();
+    }
   },
 
   onTapGoal(e) {

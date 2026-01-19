@@ -1,0 +1,102 @@
+<!--pages/search/search.wxml-->
+<view class="search-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
+    <view class="navbar-content">
+      <view class="navbar-back" bindtap="goBack">
+        <image class="back-icon" src="/assets/recipe-detail/icon-back.png" mode="aspectFit"></image>
+      </view>
+      <view class="navbar-title">食谱搜索</view>
+    </view>
+  </view>
+
+  <!-- 搜索框 -->
+  <view class="search-box-wrapper">
+    <search-box
+      value="{{keyword}}"
+      placeholder="搜索食谱、食材"
+      bind:input="onKeywordInput"
+      bind:confirm="onSearch"
+      bind:tapSearch="onSearch"
+    />
+  </view>
+
+  <scroll-view class="search-content" scroll-y>
+    <!-- 搜索结果 -->
+    <view class="search-results" wx:if="{{hasSearched}}">
+      <!-- 结果统计 -->
+      <view class="result-header">
+        <text class="result-count">找到 {{searchResults.length}} 个结果</text>
+      </view>
+
+      <!-- 结果列表 -->
+      <view class="result-list" wx:if="{{searchResults.length > 0}}">
+        <view 
+          class="result-item" 
+          wx:for="{{searchResults}}" 
+          wx:key="id"
+          bindtap="goToDetail"
+          data-id="{{item.id}}"
+        >
+          <image class="result-image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="result-info">
+            <view class="result-header">
+              <view class="result-name">{{item.name}}</view>
+              <view class="result-category">{{item.category}}</view>
+            </view>
+            <view class="result-nutrition">
+              <text class="nutrition-item">热量 {{item.nutrition.calories}}千卡</text>
+              <text class="nutrition-item">蛋白质 {{item.nutrition.protein}}g</text>
+              <text class="nutrition-item">碳水 {{item.nutrition.carbs}}g</text>
+              <text class="nutrition-item">脂肪 {{item.nutrition.fat}}g</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{searchResults.length === 0}}">
+        <image class="empty-icon" src="/assets/logo/logo.png" mode="aspectFit"></image>
+        <text class="empty-text">未找到相关食谱</text>
+        <text class="empty-hint">换个关键词试试吧</text>
+      </view>
+    </view>
+
+    <!-- 搜索历史 -->
+    <view class="search-history" wx:if="{{!hasSearched && searchHistory.length > 0}}">
+      <view class="history-header">
+        <text class="history-title">搜索历史</text>
+        <text class="history-clear" bindtap="clearHistory">清空</text>
+      </view>
+      <view class="history-tags">
+        <view 
+          class="history-tag" 
+          wx:for="{{searchHistory}}" 
+          wx:key="index"
+          bindtap="onHistoryClick"
+          data-keyword="{{item}}"
+        >
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 热门搜索 -->
+    <view class="hot-search" wx:if="{{!hasSearched}}">
+      <view class="hot-header">
+        <text class="hot-title">热门搜索</text>
+      </view>
+      <view class="hot-tags">
+        <view 
+          class="hot-tag" 
+          wx:for="{{hotKeywords}}" 
+          wx:key="index"
+          bindtap="onHotClick"
+          data-keyword="{{item}}"
+        >
+          {{item}}
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

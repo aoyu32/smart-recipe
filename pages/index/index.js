@@ -82,10 +82,9 @@ Page({
 
   performSearch(keyword) {
     if (keyword && keyword.trim()) {
-      console.log('搜索关键词:', keyword);
-      wx.showToast({
-        title: `搜索: ${keyword}`,
-        icon: 'none'
+      // 跳转到搜索页面
+      wx.navigateTo({
+        url: `/pages/search/search?keyword=${encodeURIComponent(keyword)}`
       });
     } else {
       wx.showToast({

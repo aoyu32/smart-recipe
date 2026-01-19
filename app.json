@@ -5,7 +5,8 @@
     "pages/take-picture/take-picture",
     "pages/xiaozhi/xiaozhi",
     "pages/my/my",
-    "pages/recipe-detail/recipe-detail"
+    "pages/recipe-detail/recipe-detail",
+    "pages/search/search"
   ],
   "window": {
     "navigationBarTextStyle": "black",
