@@ -498,16 +498,10 @@ Page({
 
   // 询问小智
   askXiaozhi() {
-    // 显示AI回复区域
-    this.setData({
-      showContent: true,
-      contentType: 'ai',
-      aiResponseList: [],
-      aiLoading: true
+    // 跳转到小智页面，并传递图片
+    wx.navigateTo({
+      url: `/pages/xiaozhi/xiaozhi?image=${encodeURIComponent(this.data.capturedImagePath)}`
     });
-    
-    // 模拟流式渲染AI回复
-    this.simulateAIResponse();
   },
 
   // 模拟AI流式回复

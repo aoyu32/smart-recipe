@@ -1,7 +1,165 @@
 <!--pages/xiaozhi/xiaozhi.wxml-->
-<navigation-bar title="小智" back="{{false}}" />
-<view class="container">
-  <view class="content">
-    <text>小智智能咨询页面</text>
+<view class="xiaozhi-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
+    <view class="navbar-content">
+      <view class="navbar-actions">
+        <image class="navbar-icon" src="/assets/xiaozhi/icon-zhankai.png" mode="aspectFit" bindtap="showHistory"></image>
+        <image class="navbar-icon" src="/assets/xiaozhi/icon-newchat.png" mode="aspectFit" bindtap="startNewChat"></image>
+      </view>
+      <view class="navbar-title">小智</view>
+    </view>
+  </view>
+
+  <!-- 聊天消息区域 -->
+  <scroll-view 
+    class="chat-messages" 
+    scroll-y 
+    scroll-into-view="{{scrollToView}}"
+    scroll-with-animation
+    enable-back-to-top
+  >
+    <!-- 欢迎消息 -->
+    <view class="welcome-message" wx:if="{{messages.length === 0}}">
+      <image class="welcome-logo" src="/assets/logo/logo.png" mode="aspectFit"></image>
+      <view class="welcome-text">
+        <view class="welcome-title">我是小智，很高兴见到你！</view>
+        <view class="welcome-desc">我可以为你提供营养咨询、食谱推荐、饮食分析等服务，帮助你实现健康饮食目标</view>
+      </view>
+    </view>
+
+    <!-- 消息列表 -->
+    <view class="message-list" wx:if="{{messages.length > 0}}">
+      <view 
+        class="message-item {{item.role}}" 
+        wx:for="{{messages}}" 
+        wx:key="id"
+        id="msg-{{index}}"
+      >
+        <!-- AI消息 -->
+        <view class="message-wrapper" wx:if="{{item.role === 'assistant'}}">
+          <image class="avatar" src="/assets/logo/logo.png" mode="aspectFit"></image>
+          <view class="message-content">
+            <view class="message-bubble">
+              <text class="message-text">{{item.content}}</text>
+              <image 
+                wx:if="{{item.image}}" 
+                class="message-image" 
+                src="{{item.image}}" 
+                mode="widthFix"
+                bindtap="previewImage"
+                data-url="{{item.image}}"
+              ></image>
+            </view>
+            <view class="message-time">{{item.time}}</view>
+          </view>
+        </view>
+
+        <!-- 用户消息 -->
+        <view class="message-wrapper" wx:if="{{item.role === 'user'}}">
+          <view class="message-content user-content">
+            <view class="message-bubble">
+              <text class="message-text" wx:if="{{item.content}}">{{item.content}}</text>
+              <image 
+                wx:if="{{item.image}}" 
+                class="message-image" 
+                src="{{item.image}}" 
+                mode="widthFix"
+                bindtap="previewImage"
+                data-url="{{item.image}}"
+              ></image>
+            </view>
+            <view class="message-time">{{item.time}}</view>
+          </view>
+        </view>
+
+        <!-- 加载中 -->
+        <view class="message-wrapper" wx:if="{{item.role === 'loading'}}">
+          <image class="avatar" src="/assets/logo/logo.png" mode="aspectFit"></image>
+          <view class="message-content">
+            <view class="message-bubble loading-bubble">
+              <view class="loading-dots">
+                <view class="dot"></view>
+                <view class="dot"></view>
+                <view class="dot"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部输入区域 -->
+  <view class="input-container" style="bottom: {{keyboardHeight > 0 ? keyboardHeight + 'px' : '0'}};">
+    <!-- 选中的图片预览 -->
+    <view class="selected-image-preview" wx:if="{{selectedImage}}">
+      <view class="preview-wrapper">
+        <image class="preview-img" src="{{selectedImage}}" mode="aspectFit"></image>
+        <view class="remove-btn" bindtap="removeImage">
+          <text>✕</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 输入框 -->
+    <view class="input-wrapper">
+      <view class="input-left">
+        <image class="input-icon" src="/assets/xiaozhi/icon-img.png" mode="aspectFit" bindtap="chooseImage"></image>
+      </view>
+      <input 
+        class="input-field" 
+        type="text" 
+        placeholder="给小智发送消息"
+        value="{{inputText}}"
+        bindinput="onInput"
+        confirm-type="send"
+        bindconfirm="sendMessage"
+        adjust-position="{{false}}"
+        bindfocus="onInputFocus"
+        bindblur="onInputBlur"
+      />
+      <view class="input-right">
+        <view class="send-btn {{inputText || selectedImage ? 'active' : ''}}" bindtap="sendMessage">
+          <image class="send-icon" src="/assets/xiaozhi/icon-send.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 左侧抽屉 - 对话历史 -->
+  <view class="drawer-overlay {{showDrawer ? 'show' : ''}}" bindtap="hideHistory"></view>
+  <view class="drawer-container {{showDrawer ? 'show' : ''}}">
+    <view class="drawer-header" style="padding-top: {{statusBarHeight}}px; height: {{navBarHeight}}px;">
+      <view class="drawer-header-content">
+        <view class="drawer-title">对话历史</view>
+        <image class="drawer-close-icon" src="/assets/xiaozhi/icon-shoushuo.png" mode="aspectFit" bindtap="hideHistory"></image>
+      </view>
+    </view>
+    
+    <scroll-view class="drawer-content" scroll-y>
+      <!-- 对话历史列表 -->
+      <view class="history-list" wx:if="{{historyList.length > 0}}">
+        <view 
+          class="history-item {{currentHistoryId === item.id ? 'active' : ''}}" 
+          wx:for="{{historyList}}" 
+          wx:key="id"
+          bindtap="loadHistory"
+          bindlongpress="showHistoryActions"
+          data-id="{{item.id}}"
+        >
+          <view class="history-info">
+            <view class="history-title">{{item.title}}</view>
+            <view class="history-preview">{{item.preview}}</view>
+            <view class="history-time">{{item.time}}</view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 空状态 -->
+      <view class="history-empty" wx:if="{{historyList.length === 0}}">
+        <view class="empty-text">暂无对话历史</view>
+      </view>
+    </scroll-view>
   </view>
 </view>

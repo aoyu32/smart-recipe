@@ -43,7 +43,7 @@
     </view>
     
     <view class="action-preview">
-      <image class="preview-image" src="{{capturedImagePath}}" mode="aspectFit"></image>
+      <image class="preview-image" src="{{capturedImagePath}}" mode="aspectFill"></image>
     </view>
     
     <view class="action-buttons">
