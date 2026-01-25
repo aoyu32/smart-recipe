@@ -133,12 +133,78 @@ Page({
     
     this.hideMealOptions();
     
-    wx.showToast({
-      title: `已加入${mealNames[mealType]}`,
-      icon: 'success'
-    });
+    // 检查是否是从主页编辑或添加模式进入的
+    const editingMeal = wx.getStorageSync('editingMeal');
+    const addingMeal = wx.getStorageSync('addingMeal');
     
-    // TODO: 实际保存到本地存储或发送到服务器
-    console.log('加入餐食:', mealType, this.data.recipeDetail);
+    // 构建食物数据
+    const foodData = {
+      id: this.data.recipeDetail.id,
+      name: this.data.recipeDetail.name,
+      image: this.data.recipeDetail.image,
+      amount: '1份',
+      calories: this.data.recipeDetail.nutrition.calories,
+      protein: this.data.recipeDetail.nutrition.protein,
+      carbs: this.data.recipeDetail.nutrition.carbs,
+      fat: this.data.recipeDetail.nutrition.fat,
+      category: this.data.recipeDetail.category
+    };
+    
+    if (editingMeal && editingMeal.mealType) {
+      // 替换模式
+      wx.setStorageSync('replaceMeal', {
+        mealType: editingMeal.mealType,
+        index: editingMeal.index,
+        newFood: foodData
+      });
+      
+      wx.showToast({
+        title: '替换成功',
+        icon: 'success'
+      });
+      
+      // 返回主页
+      setTimeout(() => {
+        wx.switchTab({
+          url: '/pages/index/index'
+        });
+      }, 500);
+    } else if (addingMeal && addingMeal.mealType) {
+      // 添加模式（从空状态点击添加）
+      wx.setStorageSync('addMeal', {
+        mealType: addingMeal.mealType,
+        newFood: foodData
+      });
+      
+      wx.showToast({
+        title: `已加入${mealNames[addingMeal.mealType]}`,
+        icon: 'success'
+      });
+      
+      // 返回主页
+      setTimeout(() => {
+        wx.switchTab({
+          url: '/pages/index/index'
+        });
+      }, 500);
+    } else {
+      // 普通添加模式（用户手动选择餐次）
+      wx.setStorageSync('addMeal', {
+        mealType: mealType,
+        newFood: foodData
+      });
+      
+      wx.showToast({
+        title: `已加入${mealNames[mealType]}`,
+        icon: 'success'
+      });
+      
+      // 返回主页
+      setTimeout(() => {
+        wx.switchTab({
+          url: '/pages/index/index'
+        });
+      }, 500);
+    }
   }
 })

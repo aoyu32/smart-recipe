@@ -24,7 +24,7 @@
     </view>
   </view>
 </view>
-<scroll-view class="scrollarea" scroll-y type="list">
+<scroll-view class="scrollarea" scroll-y type="list" bindtap="onPageTap">
   <view class="container">
     <!-- 轮播图 -->
     <view class="banner-section">
@@ -104,8 +104,15 @@
             <text class="meal-time-range">{{todayRecipe.meals.breakfast.timeRange}}</text>
             <text class="meal-calories">{{todayRecipe.meals.breakfast.calories}}千卡</text>
           </view>
-          <view class="food-list-vertical">
-            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.breakfast.foods}}" wx:key="id" bindtap="navigateToRecipeDetail" data-id="{{item.id}}">
+          <view class="food-list-vertical" wx:if="{{todayRecipe.meals.breakfast.foods.length > 0}}">
+            <view class="food-item-horizontal {{editingMealType === 'breakfast' && editingItemIndex === index ? 'editing' : ''}}" 
+                  wx:for="{{todayRecipe.meals.breakfast.foods}}" 
+                  wx:key="id" 
+                  bindlongpress="onFoodLongPress"
+                  catchtap="{{editingMealType === 'breakfast' && editingItemIndex === index ? 'cancelEdit' : 'navigateToRecipeDetail'}}"
+                  data-meal-type="breakfast"
+                  data-index="{{index}}"
+                  data-id="{{item.id}}">
               <image class="food-item-image" src="{{item.image}}" mode="aspectFill"></image>
               <view class="food-item-content">
                 <view class="food-item-header">
@@ -134,7 +141,23 @@
                   <view class="food-category">{{item.category}}</view>
                 </view>
               </view>
+              
+              <!-- 编辑删除按钮 -->
+              <view class="food-actions">
+                <view class="food-action-btn edit" catchtap="editFoodItem" data-meal-type="breakfast" data-index="{{index}}">
+                  <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+                </view>
+                <view class="food-action-btn delete" catchtap="deleteFoodItem" data-meal-type="breakfast" data-index="{{index}}">
+                  <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
+                </view>
+              </view>
             </view>
+          </view>
+          
+          <!-- 空状态 -->
+          <view class="meal-empty-state" wx:else bindtap="addRecipe" data-meal-type="breakfast">
+            <image class="empty-icon" src="/assets/index/icon-zaocan.png" mode="aspectFit"></image>
+            <text class="empty-text">暂无早餐食谱，点击添加</text>
           </view>
         </view>
         <!-- 午餐 -->
@@ -145,8 +168,15 @@
             <text class="meal-time-range">{{todayRecipe.meals.lunch.timeRange}}</text>
             <text class="meal-calories">{{todayRecipe.meals.lunch.calories}}千卡</text>
           </view>
-          <view class="food-list-vertical">
-            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.lunch.foods}}" wx:key="id" bindtap="navigateToRecipeDetail" data-id="{{item.id}}">
+          <view class="food-list-vertical" wx:if="{{todayRecipe.meals.lunch.foods.length > 0}}">
+            <view class="food-item-horizontal {{editingMealType === 'lunch' && editingItemIndex === index ? 'editing' : ''}}" 
+                  wx:for="{{todayRecipe.meals.lunch.foods}}" 
+                  wx:key="id" 
+                  bindlongpress="onFoodLongPress"
+                  catchtap="{{editingMealType === 'lunch' && editingItemIndex === index ? 'cancelEdit' : 'navigateToRecipeDetail'}}"
+                  data-meal-type="lunch"
+                  data-index="{{index}}"
+                  data-id="{{item.id}}">
               <image class="food-item-image" src="{{item.image}}" mode="aspectFill"></image>
               <view class="food-item-content">
                 <view class="food-item-header">
@@ -175,7 +205,23 @@
                   <view class="food-category">{{item.category}}</view>
                 </view>
               </view>
+              
+              <!-- 编辑删除按钮 -->
+              <view class="food-actions">
+                <view class="food-action-btn edit" catchtap="editFoodItem" data-meal-type="lunch" data-index="{{index}}">
+                  <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+                </view>
+                <view class="food-action-btn delete" catchtap="deleteFoodItem" data-meal-type="lunch" data-index="{{index}}">
+                  <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
+                </view>
+              </view>
             </view>
+          </view>
+          
+          <!-- 空状态 -->
+          <view class="meal-empty-state" wx:else bindtap="addRecipe" data-meal-type="lunch">
+            <image class="empty-icon" src="/assets/index/icon-wucan.png" mode="aspectFit"></image>
+            <text class="empty-text">暂无午餐食谱，点击添加</text>
           </view>
         </view>
         <!-- 晚餐 -->
@@ -186,8 +232,15 @@
             <text class="meal-time-range">{{todayRecipe.meals.dinner.timeRange}}</text>
             <text class="meal-calories">{{todayRecipe.meals.dinner.calories}}千卡</text>
           </view>
-          <view class="food-list-vertical">
-            <view class="food-item-horizontal" wx:for="{{todayRecipe.meals.dinner.foods}}" wx:key="id" bindtap="navigateToRecipeDetail" data-id="{{item.id}}">
+          <view class="food-list-vertical" wx:if="{{todayRecipe.meals.dinner.foods.length > 0}}">
+            <view class="food-item-horizontal {{editingMealType === 'dinner' && editingItemIndex === index ? 'editing' : ''}}" 
+                  wx:for="{{todayRecipe.meals.dinner.foods}}" 
+                  wx:key="id" 
+                  bindlongpress="onFoodLongPress"
+                  catchtap="{{editingMealType === 'dinner' && editingItemIndex === index ? 'cancelEdit' : 'navigateToRecipeDetail'}}"
+                  data-meal-type="dinner"
+                  data-index="{{index}}"
+                  data-id="{{item.id}}">
               <image class="food-item-image" src="{{item.image}}" mode="aspectFill"></image>
               <view class="food-item-content">
                 <view class="food-item-header">
@@ -216,7 +269,23 @@
                   <view class="food-category">{{item.category}}</view>
                 </view>
               </view>
+              
+              <!-- 编辑删除按钮 -->
+              <view class="food-actions">
+                <view class="food-action-btn edit" catchtap="editFoodItem" data-meal-type="dinner" data-index="{{index}}">
+                  <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+                </view>
+                <view class="food-action-btn delete" catchtap="deleteFoodItem" data-meal-type="dinner" data-index="{{index}}">
+                  <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
+                </view>
+              </view>
             </view>
+          </view>
+          
+          <!-- 空状态 -->
+          <view class="meal-empty-state" wx:else bindtap="addRecipe" data-meal-type="dinner">
+            <image class="empty-icon" src="/assets/index/icon-wancan.png" mode="aspectFit"></image>
+            <text class="empty-text">暂无晚餐食谱，点击添加</text>
           </view>
         </view>
       </view>
