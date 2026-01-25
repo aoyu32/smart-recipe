@@ -1,7 +1,136 @@
 <!--pages/my/my.wxml-->
-<navigation-bar title="我的" back="{{false}}" />
-<view class="container">
-  <view class="content">
-    <text>我的页面</text>
+<view class="my-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="navbar-content" style="height: {{navBarHeight}}px;">
+      <view class="navbar-title">我的</view>
+    </view>
   </view>
+
+  <scroll-view class="my-content" scroll-y>
+    <!-- 用户信息卡片 -->
+    <view class="user-card">
+      <view class="user-header">
+        <image class="user-avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
+        <view class="user-info">
+          <view class="user-name">{{userInfo.name}}</view>
+          <view class="user-id">ID: {{userInfo.id}}</view>
+        </view>
+      </view>
+      
+      <!-- BMI信息 -->
+      <view class="bmi-section">
+        <view class="bmi-data">
+          <view class="bmi-item">
+            <text class="bmi-item-label">身高</text>
+            <text class="bmi-item-value">{{userInfo.height}}cm</text>
+          </view>
+          <view class="bmi-divider"></view>
+          <view class="bmi-item">
+            <text class="bmi-item-label">体重</text>
+            <text class="bmi-item-value">{{userInfo.weight}}kg</text>
+          </view>
+          <view class="bmi-divider"></view>
+          <view class="bmi-item">
+            <text class="bmi-item-label">BMI</text>
+            <text class="bmi-item-value">{{userInfo.bmi}}</text>
+          </view>
+          <view class="bmi-divider"></view>
+          <view class="bmi-item">
+            <text class="bmi-item-label">状态</text>
+            <text class="bmi-item-status {{userInfo.bmiStatus}}">{{userInfo.bmiText}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 健康目标 -->
+    <view class="health-goal-card">
+      <view class="card-header">
+        <image class="card-icon" src="/assets/my/icon-goal.png" mode="aspectFit"></image>
+        <text class="card-title">健康目标</text>
+        <text class="card-target-bmi">目标BMI: {{healthGoal.targetBMI}}</text>
+      </view>
+      <view class="goal-content">
+        <view class="goal-item">
+          <text class="goal-label">当前目标</text>
+          <text class="goal-value">{{healthGoal.target}}</text>
+        </view>
+        <view class="goal-item">
+          <text class="goal-label">目标体重</text>
+          <text class="goal-value">{{healthGoal.targetWeight}}kg</text>
+        </view>
+        <view class="goal-item">
+          <text class="goal-label">每日热量</text>
+          <text class="goal-value">{{healthGoal.dailyCalories}}千卡</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 快捷功能 -->
+    <view class="function-section">
+      <view class="function-item" bindtap="navigateTo" data-page="/pages/health-profile/health-profile">
+        <view class="function-left">
+          <image class="function-icon" src="/assets/my/icon-health.png" mode="aspectFit"></image>
+          <text class="function-name">健康档案</text>
+        </view>
+        <image class="function-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+      </view>
+      
+      <view class="function-item" bindtap="navigateTo" data-page="/pages/diet-diary/diet-diary">
+        <view class="function-left">
+          <image class="function-icon" src="/assets/my/icon-diary.png" mode="aspectFit"></image>
+          <text class="function-name">饮食日记</text>
+        </view>
+        <image class="function-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+      </view>
+      
+      <view class="function-item" bindtap="navigateTo" data-page="/pages/data-stats/data-stats">
+        <view class="function-left">
+          <image class="function-icon" src="/assets/my/icon-stats.png" mode="aspectFit"></image>
+          <text class="function-name">数据统计</text>
+        </view>
+        <image class="function-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+      </view>
+    </view>
+
+    <!-- 我的内容 -->
+    <view class="content-section">
+      <view class="content-item" bindtap="navigateTo" data-page="/pages/my-collection/my-collection">
+        <view class="content-left">
+          <image class="content-icon" src="/assets/my/icon-collection.png" mode="aspectFit"></image>
+          <text class="content-name">我的收藏</text>
+        </view>
+        <view class="content-right">
+          <text class="content-count">{{myContent.collections}}</text>
+          <image class="content-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+        </view>
+      </view>
+      
+      <view class="content-item" bindtap="navigateTo" data-page="/pages/my-recipe/my-recipe">
+        <view class="content-left">
+          <image class="content-icon" src="/assets/my/icon-recipe.png" mode="aspectFit"></image>
+          <text class="content-name">我的食谱</text>
+        </view>
+        <view class="content-right">
+          <text class="content-count">{{myContent.recipes}}</text>
+          <image class="content-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <!-- 设置 -->
+    <view class="settings-section">
+      <view class="settings-item" bindtap="navigateTo" data-page="/pages/settings/settings">
+        <view class="settings-left">
+          <image class="settings-icon" src="/assets/my/icon-settings.png" mode="aspectFit"></image>
+          <text class="settings-name">设置</text>
+        </view>
+        <image class="settings-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
 </view>
