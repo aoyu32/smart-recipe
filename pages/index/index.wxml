@@ -34,20 +34,20 @@
         </swiper-item>
       </swiper>
     </view>
-    <!-- 今日食谱卡片（整合AI生成和食谱展示） -->
+    <!-- 今日食谱卡片 -->
     <view class="today-recipe-wrapper">
       <!-- AI智能生成按钮 -->
-      <view class="ai-generate-btn" bindtap="onAIGenerate">
+      <view class="ai-generate-btn {{recipeCardExpanded ? 'expanded' : 'collapsed'}}" bindtap="toggleRecipeCard">
         <view class="ai-icon">
-          <image src="/assets/index/icon-meihua.png" mode="aspectFit"></image>
+          <image src="/assets/index/icon-today.png" mode="aspectFit"></image>
         </view>
-        <text class="ai-text">一键智能生成今日食谱</text>
-        <view class="ai-arrow">
-          <image src="/assets/index/icon-xiaozhi.png" mode="aspectFit"></image>
+        <text class="ai-text">{{recipeCardExpanded ? '收起今日食谱' : '查看今日食谱'}}</text>
+        <view class="ai-arrow {{recipeCardExpanded ? 'expanded' : ''}}">
+          <image src="/assets/index/{{recipeCardExpanded ? 'icon-down' : 'icon-right'}}.png" mode="aspectFit"></image>
         </view>
       </view>
       <!-- 今日食谱卡片 -->
-      <view class="today-recipe-card">
+      <view class="today-recipe-card {{recipeCardExpanded ? 'expanded' : 'collapsed'}}">
         <!-- 卡片头部 -->
         <view class="recipe-card-header">
           <view class="recipe-title-row">
@@ -56,6 +56,19 @@
               <view class="recipe-date">
                 <text class="date-text">{{todayRecipe.date}}</text>
                 <text class="weekday-text">{{todayRecipe.weekday}}</text>
+              </view>
+            </view>
+            <view class="title-right">
+              <view class="ai-generate-icon {{isGenerating ? 'generating' : ''}}" catchtap="onAIGenerate">
+                <view class="generate-bg"></view>
+                <view class="generate-glow"></view>
+                <image class="generate-icon" src="/assets/index/icon-generate.png" mode="aspectFit"></image>
+                <view class="generate-particles">
+                  <view class="particle particle-1"></view>
+                  <view class="particle particle-2"></view>
+                  <view class="particle particle-3"></view>
+                  <view class="particle particle-4"></view>
+                </view>
               </view>
             </view>
           </view>

@@ -6,7 +6,8 @@
     "pages/xiaozhi/xiaozhi",
     "pages/my/my",
     "pages/recipe-detail/recipe-detail",
-    "pages/search/search"
+    "pages/search/search",
+    "pages/diet-diary/diet-diary"
   ],
   "window": {
     "navigationBarTextStyle": "black",

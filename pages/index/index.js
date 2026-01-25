@@ -8,6 +8,12 @@ Page({
     menuButtonInfo: {},
     headerPaddingTop: 0,
     
+    // 食谱卡片展开状态
+    recipeCardExpanded: true,
+    
+    // AI生成状态
+    isGenerating: false,
+    
     // 轮播图数据
     banners: [],
     
@@ -95,15 +101,41 @@ Page({
   },
 
   // AI智能生成
-  onAIGenerate() {
+  onAIGenerate(e) {
+    // 阻止事件冒泡，避免触发展开/收起
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    // 如果正在生成，不重复触发
+    if (this.data.isGenerating) {
+      return;
+    }
+    
+    this.setData({
+      isGenerating: true
+    });
+    
     wx.showLoading({ title: '智能生成中...' });
+    
     setTimeout(() => {
       wx.hideLoading();
+      this.setData({
+        isGenerating: false
+      });
       wx.showToast({
         title: '生成成功！',
         icon: 'success'
       });
-    }, 1500);
+      // 这里可以重新加载食谱数据
+    }, 2000);
+  },
+
+  // 切换食谱卡片展开/收起
+  toggleRecipeCard() {
+    this.setData({
+      recipeCardExpanded: !this.data.recipeCardExpanded
+    });
   },
 
   // 查看更多食谱
@@ -126,11 +158,17 @@ Page({
   // 快捷入口导航
   onNavigate(e) {
     const page = e.currentTarget.dataset.page;
-    console.log('导航到:', page);
-    wx.showToast({
-      title: `进入${page === 'diary' ? '饮食日记' : '健康档案'}`,
-      icon: 'none'
-    });
+    
+    if (page === 'diary') {
+      wx.navigateTo({
+        url: '/pages/diet-diary/diet-diary'
+      });
+    } else if (page === 'health') {
+      wx.showToast({
+        title: '健康档案开发中',
+        icon: 'none'
+      });
+    }
   },
 
   // 饮食打卡

@@ -1,0 +1,381 @@
+/* pages/diet-diary/diet-diary.wxss */
+page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #F5F5F5;
+}
+
+.diary-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 自定义导航栏 */
+.custom-navbar {
+  background: linear-gradient(135deg, #B6CF99 0%, #9BC184 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 30rpx;
+  position: relative;
+}
+
+.navbar-back {
+  position: absolute;
+  left: 30rpx;
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.navbar-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1;
+}
+
+.diary-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 日期选择器 */
+.date-selector {
+  background-color: #FFFFFF;
+  margin: 30rpx 30rpx 20rpx;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.date-picker {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  flex: 1;
+}
+
+.calendar-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.date-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.weekday-text {
+  font-size: 24rpx;
+  color: #999;
+  padding: 4rpx 12rpx;
+  background-color: #F5F5F5;
+  border-radius: 8rpx;
+}
+
+.date-nav {
+  display: flex;
+  gap: 15rpx;
+}
+
+.nav-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #F5F5F5;
+  border-radius: 12rpx;
+}
+
+.nav-arrow {
+  font-size: 40rpx;
+  color: #666;
+  font-weight: 300;
+}
+
+/* 总摄入量卡片 */
+.summary-card {
+  background-color: #FFFFFF;
+  margin: 0 30rpx 20rpx;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25rpx;
+}
+
+.summary-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.summary-status {
+  font-size: 24rpx;
+  color: #B6CF99;
+  padding: 6rpx 16rpx;
+  background-color: rgba(182, 207, 153, 0.15);
+  border-radius: 20rpx;
+}
+
+.summary-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: linear-gradient(135deg, #F8FFF4 0%, #F0F9E8 100%);
+  border-radius: 15rpx;
+  padding: 25rpx 20rpx;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #B6CF99;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #666;
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 50rpx;
+  background: #E0E0E0;
+}
+
+/* 餐次列表 */
+.meals-list {
+  padding: 0 30rpx;
+}
+
+.meal-card {
+  background-color: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.meal-card.checked {
+  border-color: #B6CF99;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FFF4 100%);
+}
+
+.meal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.meal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  flex: 1;
+}
+
+.meal-icon {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.meal-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.meal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+}
+
+.meal-calories {
+  font-size: 26rpx;
+  color: #B6CF99;
+  font-weight: 500;
+}
+
+.check-icon {
+  width: 44rpx;
+  height: 44rpx;
+}
+
+/* 食物列表 */
+.meal-foods {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.food-item {
+  display: flex;
+  gap: 15rpx;
+  padding: 15rpx;
+  background-color: #F8F8F8;
+  border-radius: 12rpx;
+}
+
+.food-image {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 10rpx;
+  flex-shrink: 0;
+}
+
+.food-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.food-name-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.food-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.food-amount {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.food-nutrients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.nutrient-item {
+  font-size: 22rpx;
+  color: #666;
+  padding: 4rpx 12rpx;
+  background-color: #FFFFFF;
+  border-radius: 8rpx;
+}
+
+/* 空状态 */
+.empty-meal {
+  padding: 40rpx 0;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 底部占位 */
+.bottom-placeholder {
+  height: 40rpx;
+}
+
+/* 日期选择弹窗 */
+.date-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+}
+
+.date-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.date-modal-content {
+  width: 600rpx;
+  background-color: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 40rpx;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30rpx;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-close {
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: #999;
+}
+
+.date-picker-btn {
+  padding: 30rpx;
+  background-color: #F5F5F5;
+  border-radius: 12rpx;
+  text-align: center;
+  font-size: 30rpx;
+  color: #333;
+}

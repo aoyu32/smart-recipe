@@ -89,10 +89,17 @@ Page({
   navigateTo(e) {
     const page = e.currentTarget.dataset.page;
     
+    // 特殊处理饮食日记页面
+    if (page === '/pages/diet-diary/diet-diary') {
+      wx.navigateTo({
+        url: page
+      });
+      return;
+    }
+    
     // 检查页面是否存在
     const pages = [
       '/pages/health-profile/health-profile',
-      '/pages/diet-diary/diet-diary',
       '/pages/data-stats/data-stats',
       '/pages/my-collection/my-collection',
       '/pages/my-recipe/my-recipe',
