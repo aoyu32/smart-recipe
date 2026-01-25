@@ -164,9 +164,8 @@ Page({
         url: '/pages/diet-diary/diet-diary'
       });
     } else if (page === 'health') {
-      wx.showToast({
-        title: '健康档案开发中',
-        icon: 'none'
+      wx.navigateTo({
+        url: '/pages/health-profile/health-profile'
       });
     }
   },

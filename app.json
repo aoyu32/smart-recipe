@@ -7,7 +7,8 @@
     "pages/my/my",
     "pages/recipe-detail/recipe-detail",
     "pages/search/search",
-    "pages/diet-diary/diet-diary"
+    "pages/diet-diary/diet-diary",
+    "pages/health-profile/health-profile"
   ],
   "window": {
     "navigationBarTextStyle": "black",

@@ -1,0 +1,492 @@
+<!--pages/health-profile/health-profile.wxml-->
+<view class="health-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="navbar-content" style="height: {{navBarHeight}}px;">
+      <view class="navbar-back" bindtap="goBack">
+        <image class="back-icon" src="/assets/recipe-detail/icon-back.png" mode="aspectFit"></image>
+      </view>
+      <view class="navbar-title">健康档案</view>
+    </view>
+  </view>
+
+  <scroll-view class="health-content" scroll-y>
+    <!-- 当前健康目标 -->
+    <view class="section current-goal-section">
+      <view class="section-header">
+        <text class="section-title">我的健康目标</text>
+        <text class="section-action" wx:if="{{currentGoal}}" bindtap="editGoal">编辑</text>
+      </view>
+      
+      <!-- 未设置状态 -->
+      <view class="empty-state" wx:if="{{!currentGoal}}" bindtap="addGoal">
+        <image class="empty-icon" src="/assets/health-profile/icon-add.png" mode="aspectFit"></image>
+        <text class="empty-text">添加健康目标</text>
+      </view>
+      
+      <!-- 已设置状态 -->
+      <view class="goal-card active" wx:else>
+        <view class="goal-header">
+          <view class="goal-title">{{currentGoal.target}}</view>
+          <view class="goal-status active">进行中</view>
+        </view>
+        <view class="goal-info">
+          <!-- 减重/增重/保持健康 -->
+          <block wx:if="{{currentGoal.target === '减重' || currentGoal.target === '增重' || currentGoal.target === '保持健康'}}">
+            <view class="goal-info-item">
+              <text class="info-label">目标体重</text>
+              <text class="info-value">{{currentGoal.targetWeight}}kg</text>
+            </view>
+            <view class="goal-info-item">
+              <text class="info-label">目标BMI</text>
+              <text class="info-value">{{currentGoal.targetBMI}}</text>
+            </view>
+            <view class="goal-info-item">
+              <text class="info-label">每日热量</text>
+              <text class="info-value">{{currentGoal.dailyCalories}}kcal</text>
+            </view>
+          </block>
+          
+          <!-- 增肌 -->
+          <block wx:if="{{currentGoal.target === '增肌'}}">
+            <view class="goal-info-item">
+              <text class="info-label">目标体重</text>
+              <text class="info-value">{{currentGoal.targetWeight}}kg</text>
+            </view>
+            <view class="goal-info-item">
+              <text class="info-label">目标肌肉量</text>
+              <text class="info-value">{{currentGoal.targetMuscle}}kg</text>
+            </view>
+            <view class="goal-info-item">
+              <text class="info-label">每日蛋白质</text>
+              <text class="info-value">{{currentGoal.dailyProtein}}g</text>
+            </view>
+            <view class="goal-info-item">
+              <text class="info-label">每日热量</text>
+              <text class="info-value">{{currentGoal.dailyCalories}}kcal</text>
+            </view>
+          </block>
+          
+          <!-- 控糖 -->
+          <block wx:if="{{currentGoal.target === '控糖'}}">
+            <view class="goal-info-item">
+              <text class="info-label">目标血糖</text>
+              <text class="info-value">{{currentGoal.targetBloodSugar}}mmol/L</text>
+            </view>
+            <view class="goal-info-item">
+              <text class="info-label">每日碳水</text>
+              <text class="info-value">{{currentGoal.dailyCarbs}}g</text>
+            </view>
+            <view class="goal-info-item">
+              <text class="info-label">每日热量</text>
+              <text class="info-value">{{currentGoal.dailyCalories}}kcal</text>
+            </view>
+          </block>
+          
+          <!-- 降压 -->
+          <block wx:if="{{currentGoal.target === '降压'}}">
+            <view class="goal-info-item">
+              <text class="info-label">目标血压</text>
+              <text class="info-value">{{currentGoal.targetBloodPressure}}</text>
+            </view>
+            <view class="goal-info-item">
+              <text class="info-label">每日钠摄入</text>
+              <text class="info-value">{{currentGoal.dailySodium}}mg</text>
+            </view>
+            <view class="goal-info-item">
+              <text class="info-label">每日热量</text>
+              <text class="info-value">{{currentGoal.dailyCalories}}kcal</text>
+            </view>
+          </block>
+        </view>
+        <view class="goal-dates">
+          <text class="goal-date">开始：{{currentGoal.startDate}}</text>
+          <text class="goal-date">结束：{{currentGoal.endDate || '未设置'}}</text>
+        </view>
+        <view class="goal-actions">
+          <view class="goal-action-btn cancel" bindtap="cancelGoal">
+            <text>取消目标</text>
+          </view>
+          <view class="goal-action-btn complete" bindtap="completeGoal">
+            <text>完成目标</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 健康状况 -->
+    <view class="section health-info-section">
+      <view class="section-header">
+        <text class="section-title">健康状况</text>
+        <text class="section-action" bindtap="editHealthInfo">{{healthInfo ? '编辑' : '设置'}}</text>
+      </view>
+      
+      <!-- 未设置状态 -->
+      <view class="empty-state" wx:if="{{!healthInfo}}" bindtap="editHealthInfo">
+        <image class="empty-icon" src="/assets/health-profile/icon-add.png" mode="aspectFit"></image>
+        <text class="empty-text">设置健康状况</text>
+      </view>
+      
+      <!-- 已设置状态 -->
+      <view class="health-info-grid" wx:else>
+        <view class="info-grid-item">
+          <text class="grid-label">身高</text>
+          <text class="grid-value">{{healthInfo.height}}cm</text>
+        </view>
+        <view class="info-grid-item">
+          <text class="grid-label">体重</text>
+          <text class="grid-value">{{healthInfo.weight}}kg</text>
+        </view>
+        <view class="info-grid-item">
+          <text class="grid-label">年龄</text>
+          <text class="grid-value">{{healthInfo.age}}岁</text>
+        </view>
+        <view class="info-grid-item">
+          <text class="grid-label">性别</text>
+          <text class="grid-value">{{healthInfo.gender}}</text>
+        </view>
+        <view class="info-grid-item">
+          <text class="grid-label">BMI</text>
+          <text class="grid-value">{{healthInfo.bmi}}</text>
+        </view>
+        <view class="info-grid-item">
+          <text class="grid-label">运动量</text>
+          <text class="grid-value">{{healthInfo.activityLevel}}</text>
+        </view>
+        <view class="info-grid-item">
+          <text class="grid-label">血压</text>
+          <text class="grid-value">{{healthInfo.bloodPressure || '未设置'}}{{healthInfo.bloodPressure && healthInfo.bloodPressure !== '未设置' ? 'mmHg' : ''}}</text>
+        </view>
+        <view class="info-grid-item">
+          <text class="grid-label">血糖</text>
+          <text class="grid-value">{{healthInfo.bloodSugar ? healthInfo.bloodSugar + 'mmol/L' : '未设置'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 特殊禁忌 -->
+    <view class="section restrictions-section">
+      <view class="section-header">
+        <text class="section-title">特殊禁忌</text>
+        <text class="section-action" bindtap="addRestriction">添加</text>
+      </view>
+      
+      <!-- 未设置状态 -->
+      <view class="empty-state" wx:if="{{restrictions.length === 0}}" bindtap="addRestriction">
+        <image class="empty-icon" src="/assets/health-profile/icon-add.png" mode="aspectFit"></image>
+        <text class="empty-text">添加特殊禁忌</text>
+      </view>
+      
+      <!-- 已设置状态 -->
+      <view class="restrictions-list" wx:else>
+        <view class="restriction-item {{item.type}}" wx:for="{{restrictions}}" wx:key="id">
+          <view class="restriction-left">
+            <view class="restriction-type {{item.type}}">
+              <text class="type-text">{{item.type === 'allergy' ? '过敏' : '疾病'}}</text>
+            </view>
+            <view class="restriction-info">
+              <text class="restriction-name">{{item.name}}</text>
+              <text class="restriction-desc">{{item.description}}</text>
+            </view>
+          </view>
+          <view class="restriction-actions">
+            <view class="action-btn delete" bindtap="deleteRestriction" data-id="{{item.id}}">
+              <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 历史目标 -->
+    <view class="section history-section">
+      <view class="section-header">
+        <text class="section-title">历史目标</text>
+        <text class="section-action" bindtap="toggleHistoryEdit">{{isHistoryEditing ? '完成' : '编辑'}}</text>
+      </view>
+      
+      <!-- 空状态 -->
+      <view class="empty-state-simple" wx:if="{{goalHistory.length === 0}}">
+        <text class="empty-text-simple">暂无历史目标</text>
+      </view>
+      
+      <!-- 历史列表 -->
+      <view class="history-list" wx:else>
+        <view class="goal-card {{item.status}}" wx:for="{{goalHistory}}" wx:key="id">
+          <view class="goal-header">
+            <view class="goal-title">{{item.target}}</view>
+            <view class="goal-header-right">
+              <view class="goal-status {{item.status}}">{{item.status === 'completed' ? '已完成' : '已取消'}}</view>
+              <view class="history-delete-btn" wx:if="{{isHistoryEditing}}" bindtap="deleteHistory" data-id="{{item.id}}">
+                <image class="delete-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
+              </view>
+            </view>
+          </view>
+          <view class="goal-info">
+            <!-- 减重/增重/保持健康 -->
+            <block wx:if="{{item.target === '减重5kg' || item.target === '增重' || item.target === '保持健康'}}">
+              <view class="goal-info-item">
+                <text class="info-label">目标体重</text>
+                <text class="info-value">{{item.targetWeight}}kg</text>
+              </view>
+              <view class="goal-info-item">
+                <text class="info-label">目标BMI</text>
+                <text class="info-value">{{item.targetBMI}}</text>
+              </view>
+              <view class="goal-info-item">
+                <text class="info-label">每日热量</text>
+                <text class="info-value">{{item.dailyCalories}}kcal</text>
+              </view>
+            </block>
+            
+            <!-- 增肌 -->
+            <block wx:if="{{item.target === '增肌'}}">
+              <view class="goal-info-item">
+                <text class="info-label">目标体重</text>
+                <text class="info-value">{{item.targetWeight}}kg</text>
+              </view>
+              <view class="goal-info-item">
+                <text class="info-label">目标肌肉量</text>
+                <text class="info-value">{{item.targetMuscle}}kg</text>
+              </view>
+              <view class="goal-info-item">
+                <text class="info-label">每日蛋白质</text>
+                <text class="info-value">{{item.dailyProtein}}g</text>
+              </view>
+              <view class="goal-info-item">
+                <text class="info-label">每日热量</text>
+                <text class="info-value">{{item.dailyCalories}}kcal</text>
+              </view>
+            </block>
+            
+            <!-- 控制血糖 -->
+            <block wx:if="{{item.target === '控制血糖'}}">
+              <view class="goal-info-item">
+                <text class="info-label">目标血糖</text>
+                <text class="info-value">{{item.targetBloodSugar}}mmol/L</text>
+              </view>
+              <view class="goal-info-item">
+                <text class="info-label">每日碳水</text>
+                <text class="info-value">{{item.dailyCarbs}}g</text>
+              </view>
+              <view class="goal-info-item">
+                <text class="info-label">每日热量</text>
+                <text class="info-value">{{item.dailyCalories}}kcal</text>
+              </view>
+            </block>
+          </view>
+          <view class="goal-date">{{item.startDate}} ~ {{item.endDate}}</view>
+          <view class="goal-result">结果：{{item.result}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 健康目标编辑弹窗 -->
+  <view class="modal {{showGoalModal ? 'show' : ''}}" bindtap="hideGoalModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">{{isEditingGoal ? '编辑' : '添加'}}健康目标</text>
+        <view class="modal-close" bindtap="hideGoalModal">✕</view>
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="form-label">目标类型</text>
+          <picker mode="selector" range="{{goalTypes}}" value="{{goalForm.typeIndex}}" bindchange="onGoalTypeChange">
+            <view class="form-input">{{goalTypes[goalForm.typeIndex] || '请选择'}}</view>
+          </picker>
+        </view>
+        
+        <!-- 减重/增重/保持健康 -->
+        <view wx:if="{{goalForm.typeIndex <= 2}}">
+          <view class="form-item">
+            <text class="form-label">目标体重(kg)</text>
+            <input class="form-input" type="digit" placeholder="请输入目标体重" value="{{goalForm.targetWeight}}" bindinput="onGoalWeightInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">目标BMI</text>
+            <input class="form-input" type="digit" placeholder="请输入目标BMI" value="{{goalForm.targetBMI}}" bindinput="onGoalBMIInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">每日热量(kcal)</text>
+            <input class="form-input" type="number" placeholder="请输入每日热量" value="{{goalForm.dailyCalories}}" bindinput="onGoalCaloriesInput" />
+          </view>
+        </view>
+        
+        <!-- 增肌 -->
+        <view wx:if="{{goalForm.typeIndex === 3}}">
+          <view class="form-item">
+            <text class="form-label">目标体重(kg)</text>
+            <input class="form-input" type="digit" placeholder="请输入目标体重" value="{{goalForm.targetWeight}}" bindinput="onGoalWeightInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">目标肌肉量(kg)</text>
+            <input class="form-input" type="digit" placeholder="请输入目标肌肉量" value="{{goalForm.targetMuscle}}" bindinput="onGoalMuscleInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">每日蛋白质(g)</text>
+            <input class="form-input" type="number" placeholder="建议体重×1.5-2g" value="{{goalForm.dailyProtein}}" bindinput="onGoalProteinInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">每日热量(kcal)</text>
+            <input class="form-input" type="number" placeholder="请输入每日热量" value="{{goalForm.dailyCalories}}" bindinput="onGoalCaloriesInput" />
+          </view>
+        </view>
+        
+        <!-- 控糖 -->
+        <view wx:if="{{goalForm.typeIndex === 4}}">
+          <view class="form-item">
+            <text class="form-label">目标空腹血糖(mmol/L)</text>
+            <input class="form-input" type="digit" placeholder="正常范围3.9-6.1" value="{{goalForm.targetBloodSugar}}" bindinput="onGoalBloodSugarInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">每日碳水化合物(g)</text>
+            <input class="form-input" type="number" placeholder="建议控制在150-200g" value="{{goalForm.dailyCarbs}}" bindinput="onGoalCarbsInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">每日热量(kcal)</text>
+            <input class="form-input" type="number" placeholder="请输入每日热量" value="{{goalForm.dailyCalories}}" bindinput="onGoalCaloriesInput" />
+          </view>
+        </view>
+        
+        <!-- 降压 -->
+        <view wx:if="{{goalForm.typeIndex === 5}}">
+          <view class="form-item">
+            <text class="form-label">目标血压(mmHg)</text>
+            <input class="form-input" placeholder="如：120/80" value="{{goalForm.targetBloodPressure}}" bindinput="onGoalBloodPressureInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">每日钠摄入(mg)</text>
+            <input class="form-input" type="number" placeholder="建议<2000mg" value="{{goalForm.dailySodium}}" bindinput="onGoalSodiumInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-label">每日热量(kcal)</text>
+            <input class="form-input" type="number" placeholder="请输入每日热量" value="{{goalForm.dailyCalories}}" bindinput="onGoalCaloriesInput" />
+          </view>
+        </view>
+        
+        <view class="form-item">
+          <text class="form-label">结束日期</text>
+          <picker mode="date" value="{{goalForm.endDate}}" bindchange="onGoalEndDateChange">
+            <view class="form-input">{{goalForm.endDate || '请选择结束日期'}}</view>
+          </picker>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="hideGoalModal">取消</view>
+        <view class="modal-btn confirm" bindtap="saveGoal">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 健康状况编辑弹窗 -->
+  <view class="modal {{showHealthModal ? 'show' : ''}}" bindtap="hideHealthModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">{{healthInfo ? '编辑' : '设置'}}健康状况</text>
+        <view class="modal-close" bindtap="hideHealthModal">✕</view>
+      </view>
+      <view class="modal-body">
+        <view class="form-row">
+          <view class="form-item half">
+            <text class="form-label">身高(cm)</text>
+            <input class="form-input" type="number" placeholder="身高" value="{{healthForm.height}}" bindinput="onHealthHeightInput" />
+          </view>
+          <view class="form-item half">
+            <text class="form-label">体重(kg)</text>
+            <input class="form-input" type="digit" placeholder="体重" value="{{healthForm.weight}}" bindinput="onHealthWeightInput" />
+          </view>
+        </view>
+        <view class="form-row">
+          <view class="form-item half">
+            <text class="form-label">年龄</text>
+            <input class="form-input" type="number" placeholder="年龄" value="{{healthForm.age}}" bindinput="onHealthAgeInput" />
+          </view>
+          <view class="form-item half">
+            <text class="form-label">性别</text>
+            <picker mode="selector" range="{{genders}}" value="{{healthForm.genderIndex}}" bindchange="onGenderChange">
+              <view class="form-input">{{genders[healthForm.genderIndex] || '请选择'}}</view>
+            </picker>
+          </view>
+        </view>
+        <view class="form-item">
+          <text class="form-label">运动量</text>
+          <picker mode="selector" range="{{activityLevels}}" value="{{healthForm.activityIndex}}" bindchange="onActivityChange">
+            <view class="form-input">{{activityLevels[healthForm.activityIndex] || '请选择'}}</view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="form-label">血压(mmHg)</text>
+          <input class="form-input" placeholder="如：120/80" value="{{healthForm.bloodPressure}}" bindinput="onBloodPressureInput" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">血糖(mmol/L)</text>
+          <input class="form-input" type="digit" placeholder="空腹血糖值" value="{{healthForm.bloodSugar}}" bindinput="onBloodSugarInput" />
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="hideHealthModal">取消</view>
+        <view class="modal-btn confirm" bindtap="saveHealthInfo">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 特殊禁忌添加弹窗 -->
+  <view class="modal {{showRestrictionModal ? 'show' : ''}}" bindtap="hideRestrictionModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">添加特殊禁忌</text>
+        <view class="modal-close" bindtap="hideRestrictionModal">✕</view>
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="form-label">类型</text>
+          <picker mode="selector" range="{{restrictionTypes}}" value="{{restrictionForm.typeIndex}}" bindchange="onRestrictionTypeChange">
+            <view class="form-input">{{restrictionTypes[restrictionForm.typeIndex] || '请选择'}}</view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="form-label">名称</text>
+          <input class="form-input" placeholder="如：海鲜过敏" value="{{restrictionForm.name}}" bindinput="onRestrictionNameInput" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">描述</text>
+          <textarea class="form-textarea" placeholder="详细描述禁忌内容" value="{{restrictionForm.description}}" bindinput="onRestrictionDescInput"></textarea>
+        </view>
+        <view class="form-item">
+          <text class="form-label">严重程度</text>
+          <picker mode="selector" range="{{severityLevels}}" value="{{restrictionForm.severityIndex}}" bindchange="onSeverityChange">
+            <view class="form-input">{{severityLevels[restrictionForm.severityIndex] || '请选择'}}</view>
+          </picker>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="hideRestrictionModal">取消</view>
+        <view class="modal-btn confirm" bindtap="saveRestriction">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 完成目标弹窗 -->
+  <view class="modal {{showCompleteModal ? 'show' : ''}}" bindtap="hideCompleteModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">完成目标</text>
+        <view class="modal-close" bindtap="hideCompleteModal">✕</view>
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="form-label">完成情况</text>
+          <textarea class="form-textarea" placeholder="请描述目标完成情况，如：成功减重5kg，体重从70kg降至65kg" value="{{completeForm.result}}" bindinput="onCompleteResultInput"></textarea>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="hideCompleteModal">取消</view>
+        <view class="modal-btn confirm" bindtap="saveCompleteGoal">确认完成</view>
+      </view>
+    </view>
+  </view>
+</view>
