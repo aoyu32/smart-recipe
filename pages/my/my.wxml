@@ -13,7 +13,12 @@
       <view class="user-header">
         <image class="user-avatar" src="{{userInfo.avatar}}" mode="aspectFill"></image>
         <view class="user-info">
-          <view class="user-name">{{userInfo.name}}</view>
+          <view class="user-name-row">
+            <view class="user-name">{{userInfo.name}}</view>
+            <view class="edit-btn" bindtap="editProfile">
+              <image class="edit-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+            </view>
+          </view>
           <view class="user-id">ID: {{userInfo.id}}</view>
         </view>
       </view>
@@ -121,10 +126,18 @@
 
     <!-- 设置 -->
     <view class="settings-section">
-      <view class="settings-item" bindtap="navigateTo" data-page="/pages/settings/settings">
+      <view class="settings-item" bindtap="navigateTo" data-page="/pages/diet-preference/diet-preference">
         <view class="settings-left">
-          <image class="settings-icon" src="/assets/my/icon-settings.png" mode="aspectFit"></image>
-          <text class="settings-name">设置</text>
+          <image class="settings-icon" src="/assets/my/icon-preference.png" mode="aspectFit"></image>
+          <text class="settings-name">饮食偏好设置</text>
+        </view>
+        <image class="settings-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+      </view>
+      
+      <view class="settings-item" bindtap="navigateTo" data-page="/pages/account-security/account-security">
+        <view class="settings-left">
+          <image class="settings-icon" src="/assets/my/icon-security.png" mode="aspectFit"></image>
+          <text class="settings-name">账号和安全</text>
         </view>
         <image class="settings-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
       </view>

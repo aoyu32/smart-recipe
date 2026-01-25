@@ -85,6 +85,19 @@ Page({
     // });
   },
 
+  // 编辑个人信息
+  editProfile() {
+    wx.navigateTo({
+      url: '/pages/edit-profile/edit-profile',
+      fail: () => {
+        wx.showToast({
+          title: '页面开发中',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
   // 页面导航
   navigateTo(e) {
     const page = e.currentTarget.dataset.page;
@@ -103,7 +116,8 @@ Page({
       '/pages/data-stats/data-stats',
       '/pages/my-collection/my-collection',
       '/pages/my-recipe/my-recipe',
-      '/pages/settings/settings'
+      '/pages/diet-preference/diet-preference',
+      '/pages/account-security/account-security'
     ];
     
     if (pages.includes(page)) {
