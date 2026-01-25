@@ -20,10 +20,10 @@
       </view>
       <view class="date-nav">
         <view class="nav-btn" bindtap="prevDay">
-          <text class="nav-arrow">‹</text>
+          <image class="nav-arrow-icon" src="/assets/diet-diary/icon-left.png" mode="aspectFit"></image>
         </view>
         <view class="nav-btn" bindtap="nextDay">
-          <text class="nav-arrow">›</text>
+          <image class="nav-arrow-icon" src="/assets/diet-diary/icon-right.png" mode="aspectFit"></image>
         </view>
       </view>
     </view>
