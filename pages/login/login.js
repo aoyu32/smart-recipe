@@ -1,8 +1,8 @@
 // pages/login/login.js
 Page({
   data: {
-    email: '',
-    password: '',
+    email: 'user@qq.com',
+    password: '123456',
     showPassword: false
   },
 

@@ -11,7 +11,8 @@
     "pages/diet-diary/diet-diary",
     "pages/health-profile/health-profile",
     "pages/register/register",
-    "pages/reset-password/reset-password"
+    "pages/reset-password/reset-password",
+    "pages/account-security/account-security"
   ],
   "window": {
     "navigationBarTextStyle": "black",

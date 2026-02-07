@@ -103,37 +103,23 @@ Page({
     const page = e.currentTarget.dataset.page;
     
     // 特殊处理已开发的页面
-    if (page === '/pages/diet-diary/diet-diary' || page === '/pages/health-profile/health-profile') {
+    const developedPages = [
+      '/pages/diet-diary/diet-diary',
+      '/pages/health-profile/health-profile',
+      '/pages/account-security/account-security'
+    ];
+    
+    if (developedPages.includes(page)) {
       wx.navigateTo({
         url: page
       });
       return;
     }
     
-    // 检查页面是否存在
-    const pages = [
-      '/pages/data-stats/data-stats',
-      '/pages/my-collection/my-collection',
-      '/pages/my-recipe/my-recipe',
-      '/pages/diet-preference/diet-preference',
-      '/pages/account-security/account-security'
-    ];
-    
-    if (pages.includes(page)) {
-      wx.navigateTo({
-        url: page,
-        fail: () => {
-          wx.showToast({
-            title: '页面开发中',
-            icon: 'none'
-          });
-        }
-      });
-    } else {
-      wx.showToast({
-        title: '页面开发中',
-        icon: 'none'
-      });
-    }
+    // 其他页面显示开发中
+    wx.showToast({
+      title: '页面开发中',
+      icon: 'none'
+    });
   }
 })

@@ -1,0 +1,166 @@
+<!--pages/account-security/account-security.wxml-->
+<navigation-bar title="账号与安全" back="{{true}}"></navigation-bar>
+
+<view class="security-container">
+  <!-- 账号信息 -->
+  <view class="info-section">
+    <view class="info-item" bindtap="editNickname">
+      <view class="item-left">
+        <text class="item-label">昵称</text>
+      </view>
+      <view class="item-right">
+        <text class="item-value">{{nickname}}</text>
+        <image class="arrow-icon" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+      </view>
+    </view>
+
+    <view class="info-item" bindtap="changeEmail">
+      <view class="item-left">
+        <text class="item-label">绑定邮箱</text>
+      </view>
+      <view class="item-right">
+        <text class="item-value">{{email}}</text>
+        <image class="arrow-icon" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 安全设置 -->
+  <view class="action-section">
+    <view class="action-item" bindtap="changePassword">
+      <view class="item-left">
+        <text class="item-label">修改密码</text>
+      </view>
+      <view class="item-right">
+        <image class="arrow-icon" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-section">
+    <view class="logout-btn" bindtap="handleLogout">
+      <text>退出登录</text>
+    </view>
+  </view>
+</view>
+
+<!-- 修改昵称弹窗 -->
+<view class="modal-overlay" wx:if="{{showNicknameModal}}" bindtap="closeNicknameModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">修改昵称</text>
+    </view>
+    <view class="modal-body">
+      <input 
+        class="modal-input" 
+        type="text" 
+        placeholder="请输入新昵称" 
+        value="{{newNickname}}"
+        bindinput="onNicknameInput"
+        maxlength="20"
+      />
+    </view>
+    <view class="modal-footer">
+      <view class="modal-btn cancel-btn" bindtap="closeNicknameModal">
+        <text>取消</text>
+      </view>
+      <view class="modal-btn confirm-btn" bindtap="confirmNickname">
+        <text>确定</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 换绑邮箱弹窗 -->
+<view class="modal-overlay" wx:if="{{showEmailModal}}" bindtap="closeEmailModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">换绑邮箱</text>
+    </view>
+    <view class="modal-body">
+      <input 
+        class="modal-input" 
+        type="text" 
+        placeholder="请输入新邮箱" 
+        value="{{newEmail}}"
+        bindinput="onEmailInput"
+      />
+      <view class="code-row">
+        <input 
+          class="modal-input code-input" 
+          type="text" 
+          placeholder="请输入验证码" 
+          value="{{code}}"
+          bindinput="onCodeInput"
+        />
+        <view class="code-btn {{codeSending || countdown > 0 ? 'disabled' : ''}}" bindtap="sendCode">
+          <text>{{codeButtonText}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <view class="modal-btn cancel-btn" bindtap="closeEmailModal">
+        <text>取消</text>
+      </view>
+      <view class="modal-btn confirm-btn" bindtap="confirmEmail">
+        <text>确定</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 修改密码弹窗 -->
+<view class="modal-overlay" wx:if="{{showPasswordModal}}" bindtap="closePasswordModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">修改密码</text>
+    </view>
+    <view class="modal-body">
+      <view class="password-input-wrapper">
+        <input 
+          class="modal-input" 
+          password="{{!showOldPassword}}"
+          placeholder="请输入原密码" 
+          value="{{oldPassword}}"
+          bindinput="onOldPasswordInput"
+        />
+        <view class="password-eye" wx:if="{{oldPassword}}" bindtap="toggleOldPassword">
+          <image class="eye-icon" src="/assets/auth/{{showOldPassword ? 'icon-eye' : 'icon-uneye'}}.png" mode="aspectFit"></image>
+        </view>
+      </view>
+      <view class="password-input-wrapper">
+        <input 
+          class="modal-input" 
+          password="{{!showNewPassword}}"
+          placeholder="请输入新密码（6-20位）" 
+          value="{{newPassword}}"
+          bindinput="onNewPasswordInput"
+        />
+        <view class="password-eye" wx:if="{{newPassword}}" bindtap="toggleNewPassword">
+          <image class="eye-icon" src="/assets/auth/{{showNewPassword ? 'icon-eye' : 'icon-uneye'}}.png" mode="aspectFit"></image>
+        </view>
+      </view>
+      <view class="password-input-wrapper">
+        <input 
+          class="modal-input" 
+          password="{{!showConfirmPassword}}"
+          placeholder="请确认新密码" 
+          value="{{confirmPassword}}"
+          bindinput="onConfirmPasswordInput"
+        />
+        <view class="password-eye" wx:if="{{confirmPassword}}" bindtap="toggleConfirmPassword">
+          <image class="eye-icon" src="/assets/auth/{{showConfirmPassword ? 'icon-eye' : 'icon-uneye'}}.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <view class="modal-btn cancel-btn" bindtap="closePasswordModal">
+        <text>取消</text>
+      </view>
+      <view class="modal-btn confirm-btn" bindtap="confirmPassword">
+        <text>确定</text>
+      </view>
+    </view>
+  </view>
+</view>
