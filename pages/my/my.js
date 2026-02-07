@@ -13,7 +13,9 @@ Page({
       weight: 65,
       bmi: 22.5,
       bmiStatus: 'normal', // normal, low, high
-      bmiText: '标准'
+      bmiText: '标准',
+      birthday: '1995-01-01',
+      gender: '男'
     },
     
     // 健康目标
@@ -28,7 +30,16 @@ Page({
     myContent: {
       collections: 28,
       recipes: 12
-    }
+    },
+    
+    // 编辑弹窗
+    showEditModal: false,
+    tempAvatar: '',
+    tempName: '',
+    tempHeight: '',
+    tempWeight: '',
+    tempBirthday: '',
+    tempGender: 0 // 0:男, 1:女
   },
 
   onLoad(options) {
@@ -87,15 +98,155 @@ Page({
 
   // 编辑个人信息
   editProfile() {
-    wx.navigateTo({
-      url: '/pages/edit-profile/edit-profile',
-      fail: () => {
-        wx.showToast({
-          title: '页面开发中',
-          icon: 'none'
+    const userInfo = this.data.userInfo;
+    const genderIndex = userInfo.gender === '女' ? 1 : 0;
+    
+    this.setData({
+      showEditModal: true,
+      tempAvatar: userInfo.avatar,
+      tempName: userInfo.name,
+      tempHeight: userInfo.height.toString(),
+      tempWeight: userInfo.weight.toString(),
+      tempBirthday: userInfo.birthday,
+      tempGender: genderIndex
+    });
+  },
+
+  // 关闭编辑弹窗
+  closeEditModal() {
+    this.setData({
+      showEditModal: false
+    });
+  },
+
+  // 阻止冒泡
+  stopPropagation() {},
+
+  // 选择头像
+  chooseAvatar() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const tempFilePath = res.tempFilePaths[0];
+        this.setData({
+          tempAvatar: tempFilePath
         });
       }
     });
+  },
+
+  // 昵称输入
+  onNameInput(e) {
+    this.setData({
+      tempName: e.detail.value
+    });
+  },
+
+  // 身高输入
+  onHeightInput(e) {
+    this.setData({
+      tempHeight: e.detail.value
+    });
+  },
+
+  // 体重输入
+  onWeightInput(e) {
+    this.setData({
+      tempWeight: e.detail.value
+    });
+  },
+
+  // 生日选择
+  onBirthdayChange(e) {
+    this.setData({
+      tempBirthday: e.detail.value
+    });
+  },
+
+  // 性别选择
+  onGenderChange(e) {
+    this.setData({
+      tempGender: parseInt(e.detail.value)
+    });
+  },
+
+  // 确认编辑
+  confirmEdit() {
+    const { tempName, tempHeight, tempWeight, tempAvatar, tempBirthday, tempGender } = this.data;
+    
+    // 验证昵称
+    if (!tempName || tempName.trim() === '') {
+      wx.showToast({
+        title: '请输入昵称',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 验证身高
+    const height = parseFloat(tempHeight);
+    if (isNaN(height) || height < 100 || height > 250) {
+      wx.showToast({
+        title: '请输入有效身高(100-250cm)',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 验证体重
+    const weight = parseFloat(tempWeight);
+    if (isNaN(weight) || weight < 30 || weight > 200) {
+      wx.showToast({
+        title: '请输入有效体重(30-200kg)',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    // 更新用户信息
+    const userInfo = this.data.userInfo;
+    userInfo.avatar = tempAvatar;
+    userInfo.name = tempName.trim();
+    userInfo.height = height;
+    userInfo.weight = weight;
+    userInfo.birthday = tempBirthday;
+    userInfo.gender = tempGender === 1 ? '女' : '男';
+    
+    // 重新计算BMI
+    this.calculateBMI(userInfo);
+    
+    this.setData({ userInfo });
+    wx.setStorageSync('userInfo', userInfo);
+    
+    this.closeEditModal();
+    
+    wx.showToast({
+      title: '修改成功',
+      icon: 'success'
+    });
+  },
+
+  // 计算BMI
+  calculateBMI(userInfo) {
+    const height = userInfo.height / 100; // 转换为米
+    const weight = userInfo.weight;
+    const bmi = (weight / (height * height)).toFixed(1);
+    
+    userInfo.bmi = parseFloat(bmi);
+    
+    // 判断BMI状态
+    if (bmi < 18.5) {
+      userInfo.bmiStatus = 'low';
+      userInfo.bmiText = '偏瘦';
+    } else if (bmi >= 18.5 && bmi < 24) {
+      userInfo.bmiStatus = 'normal';
+      userInfo.bmiText = '标准';
+    } else {
+      userInfo.bmiStatus = 'high';
+      userInfo.bmiText = '偏胖';
+    }
   },
 
   // 页面导航

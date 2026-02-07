@@ -62,10 +62,5 @@
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
     "navigation-bar": "/components/navigation-bar/navigation-bar"
-  },
-  "permission": {
-    "scope.camera": {
-      "desc": "需要使用您的相机拍摄食物照片"
-    }
   }
 }

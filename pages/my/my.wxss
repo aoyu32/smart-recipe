@@ -378,3 +378,214 @@ page {
 .bottom-placeholder {
   height: 40rpx;
 }
+
+/* 编辑弹窗 - 参考账号安全页面样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  width: 640rpx;
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50rpx);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 40rpx 40rpx 30rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  display: block;
+}
+
+.modal-body {
+  padding: 30rpx 40rpx;
+}
+
+.form-item {
+  margin-bottom: 24rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.avatar-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+/* 头像选择器 */
+.avatar-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx;
+  background-color: #F7F7F7;
+  border-radius: 16rpx;
+  transition: all 0.3s;
+}
+
+.avatar-selector:active {
+  background-color: #EFEFEF;
+}
+
+.avatar-preview {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50rpx;
+  border: 3rpx solid #E0E0E0;
+  margin-bottom: 12rpx;
+}
+
+.avatar-tip {
+  font-size: 22rpx;
+  color: #999;
+}
+
+/* 输入框带单位 */
+.input-with-unit {
+  display: flex;
+  align-items: center;
+  background-color: #F7F7F7;
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+}
+
+.modal-input {
+  flex: 1;
+  height: 80rpx;
+  font-size: 28rpx;
+  color: #333;
+  background-color: #F7F7F7;
+  border-radius: 12rpx;
+  padding: 0 24rpx;
+}
+
+.modal-input-small {
+  flex: 1;
+  height: 70rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.input-unit {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 8rpx;
+}
+
+/* 表单行 - 两列布局 */
+.form-row {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 24rpx;
+}
+
+.form-item-half {
+  flex: 1;
+}
+
+.form-item-half .form-label {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+/* 选择器输入框 */
+.picker-input {
+  background-color: #F7F7F7;
+  border-radius: 12rpx;
+  padding: 24rpx;
+}
+
+.picker-text {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.picker-input-small {
+  background-color: #F7F7F7;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  text-align: center;
+}
+
+.picker-text-small {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.modal-footer {
+  display: flex;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-btn:active {
+  opacity: 0.7;
+}
+
+.cancel-btn {
+  color: #666;
+  border-right: 1rpx solid #F0F0F0;
+}
+
+.confirm-btn {
+  color: #B6CF99;
+  font-weight: 600;
+}

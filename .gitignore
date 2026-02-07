@@ -1,1 +1,38 @@
-miniprogram_npm
+# 依赖包
+node_modules/
+miniprogram_npm/
+
+# 日志文件
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# 编辑器和IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 微信开发者工具
+.wechat_devtools/
+project.private.config.json
+
+# 构建产物
+dist/
+build/
+
+# 临时文件
+*.tmp
+.cache/
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 系统文件
+Thumbs.db
+desktop.ini
