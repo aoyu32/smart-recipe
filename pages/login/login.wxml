@@ -1,0 +1,61 @@
+<!--pages/login/login.wxml-->
+<view class="login-container">
+  <!-- Logo区域 -->
+  <view class="logo-section">
+    <image class="logo" src="/assets/logo/logo.png" mode="aspectFit"></image>
+    <image class="logo-text" src="/assets/logo/logo-text.png" mode="aspectFit"></image>
+    <text class="slogan">智能饮食，健康生活</text>
+  </view>
+
+  <!-- 登录表单 -->
+  <view class="form-section">
+    <view class="form-item">
+      <view class="input-wrapper">
+        <image class="input-icon" src="/assets/auth/icon-account.png" mode="aspectFit"></image>
+        <input 
+          class="form-input with-icon with-clear" 
+          type="text" 
+          placeholder="请输入邮箱" 
+          value="{{email}}"
+          bindinput="onEmailInput"
+          placeholder-class="input-placeholder"
+        />
+        <view class="clear-btn" wx:if="{{email}}" bindtap="clearEmail">
+          <image class="clear-icon" src="/assets/auth/icon-close.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="input-wrapper">
+        <image class="input-icon" src="/assets/auth/icon-lock.png" mode="aspectFit"></image>
+        <input 
+          class="form-input with-icon with-toggle" 
+          password="{{!showPassword}}"
+          placeholder="请输入密码" 
+          value="{{password}}"
+          bindinput="onPasswordInput"
+          placeholder-class="input-placeholder"
+        />
+        <view class="password-toggle" wx:if="{{password}}" bindtap="togglePassword">
+          <image class="toggle-icon" src="/assets/auth/{{showPassword ? 'icon-eye' : 'icon-uneye'}}.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-actions">
+      <view class="forgot-password" bindtap="goToResetPassword">
+        <text>忘记密码？</text>
+      </view>
+    </view>
+
+    <view class="submit-btn" bindtap="handleLogin">
+      <text>登录</text>
+    </view>
+
+    <view class="register-link">
+      <text class="link-text">还没有账号？</text>
+      <text class="link-action" bindtap="goToRegister">立即注册</text>
+    </view>
+  </view>
+</view>

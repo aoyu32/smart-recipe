@@ -43,7 +43,7 @@
     </view>
     
     <view class="action-preview">
-      <image class="preview-image" src="{{capturedImagePath}}" mode="aspectFill"></image>
+      <image class="preview-image" src="{{capturedImagePath}}" mode="aspectFit"></image>
     </view>
     
     <view class="action-buttons">
@@ -124,4 +124,4 @@
 </view>
 
 <!-- 隐藏的canvas用于图片裁剪 -->
-<canvas canvas-id="cropCanvas" style="position: fixed; left: -9999px; top: -9999px; width: {{frameSize}}px; height: {{frameSize}}px;"></canvas>
+<canvas canvas-id="cropCanvas" style="position: fixed; left: -9999px; top: -9999px; width: 1500px; height: 1500px;"></canvas>

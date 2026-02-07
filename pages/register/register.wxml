@@ -1,0 +1,101 @@
+<!--pages/register/register.wxml-->
+<view class="register-container">
+  <!-- 顶部导航 -->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-back" bindtap="goBack">
+      <image class="back-icon" src="/assets/auth/icon-back.png" mode="aspectFit"></image>
+    </view>
+    <view class="nav-title">注册账号</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- Logo区域 -->
+  <view class="logo-section">
+    <image class="logo" src="/assets/logo/logo.png" mode="aspectFit"></image>
+    <image class="logo-text" src="/assets/logo/logo-text.png" mode="aspectFit"></image>
+    <text class="slogan">智能饮食，健康生活</text>
+  </view>
+
+  <!-- 注册表单 -->
+  <view class="form-section">
+    <view class="form-item">
+      <view class="input-wrapper">
+        <image class="input-icon" src="/assets/auth/icon-account.png" mode="aspectFit"></image>
+        <input 
+          class="form-input with-icon with-clear" 
+          type="text" 
+          placeholder="请输入邮箱" 
+          value="{{email}}"
+          bindinput="onEmailInput"
+          placeholder-class="input-placeholder"
+        />
+        <view class="clear-btn" wx:if="{{email}}" bindtap="clearEmail">
+          <image class="clear-icon" src="/assets/auth/icon-close.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item code-row">
+      <view class="input-wrapper code-input-wrapper">
+        <image class="input-icon" src="/assets/auth/icon-verify.png" mode="aspectFit"></image>
+        <input 
+          class="form-input with-icon with-clear" 
+          type="text" 
+          placeholder="请输入验证码" 
+          value="{{code}}"
+          bindinput="onCodeInput"
+          placeholder-class="input-placeholder"
+        />
+        <view class="clear-btn" wx:if="{{code}}" bindtap="clearCode">
+          <image class="clear-icon" src="/assets/auth/icon-close.png" mode="aspectFit"></image>
+        </view>
+      </view>
+      <view class="code-btn {{codeSending || countdown > 0 ? 'disabled' : ''}}" bindtap="sendCode">
+        <text>{{codeButtonText}}</text>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="input-wrapper">
+        <image class="input-icon" src="/assets/auth/icon-lock.png" mode="aspectFit"></image>
+        <input 
+          class="form-input with-icon with-toggle" 
+          password="{{!showPassword}}"
+          placeholder="请输入密码（6-20位）" 
+          value="{{password}}"
+          bindinput="onPasswordInput"
+          placeholder-class="input-placeholder"
+        />
+        <view class="password-toggle" wx:if="{{password}}" bindtap="togglePassword">
+          <image class="toggle-icon" src="/assets/auth/{{showPassword ? 'icon-eye' : 'icon-uneye'}}.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <view class="input-wrapper">
+        <image class="input-icon" src="/assets/auth/icon-lock.png" mode="aspectFit"></image>
+        <input 
+          class="form-input with-icon with-toggle" 
+          password="{{!showConfirmPassword}}"
+          placeholder="请确认密码" 
+          value="{{confirmPassword}}"
+          bindinput="onConfirmPasswordInput"
+          placeholder-class="input-placeholder"
+        />
+        <view class="password-toggle" wx:if="{{confirmPassword}}" bindtap="toggleConfirmPassword">
+          <image class="toggle-icon" src="/assets/auth/{{showConfirmPassword ? 'icon-eye' : 'icon-uneye'}}.png" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+
+    <view class="submit-btn" bindtap="handleRegister">
+      <text>注册</text>
+    </view>
+
+    <view class="login-link">
+      <text class="link-text">已有账号？</text>
+      <text class="link-action" bindtap="goToLogin">立即登录</text>
+    </view>
+  </view>
+</view>

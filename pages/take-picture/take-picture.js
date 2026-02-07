@@ -185,8 +185,6 @@ Page({
     wx.getImageInfo({
       src: imagePath,
       success: (imageInfo) => {
-        const canvas = wx.createCanvasContext('cropCanvas', this);
-        
         // 计算裁剪区域（居中裁剪正方形）
         const imgWidth = imageInfo.width;
         const imgHeight = imageInfo.height;
@@ -194,20 +192,32 @@ Page({
         const cropX = (imgWidth - cropSize) / 2;
         const cropY = (imgHeight - cropSize) / 2;
         
+        // 使用更高的分辨率进行裁剪，保证图片质量
+        const canvasSize = Math.min(cropSize, 1500); // 限制最大尺寸为1500px
+        
+        const canvas = wx.createCanvasContext('cropCanvas', this);
+        
         // 绘制裁剪后的图片
         canvas.drawImage(
           imagePath,
           cropX, cropY, cropSize, cropSize,
-          0, 0, frameSize, frameSize
+          0, 0, canvasSize, canvasSize
         );
         
         canvas.draw(false, () => {
           wx.canvasToTempFilePath({
             canvasId: 'cropCanvas',
-            destWidth: frameSize,
-            destHeight: frameSize,
+            x: 0,
+            y: 0,
+            width: canvasSize,
+            height: canvasSize,
+            destWidth: canvasSize,
+            destHeight: canvasSize,
+            fileType: 'jpg',
+            quality: 0.9,
             success: (res) => {
               wx.hideLoading();
+              console.log('裁剪成功:', res.tempFilePath);
               // 为所有餐次添加预填充项（如果还没有的话）
               this.addPlaceholderIfNeeded();
               
@@ -220,12 +230,12 @@ Page({
                   contentType: 'meal'
                 });
               } else {
-                // 拍摄后默认激活饮食打卡
+                // 拍摄后不自动显示内容，等待用户点击按钮
                 this.setData({
                   capturedImagePath: res.tempFilePath,
                   currentStep: 'action',
-                  showContent: true,
-                  contentType: 'meal'
+                  showContent: false,
+                  contentType: ''
                 });
               }
             },
@@ -244,20 +254,21 @@ Page({
                   contentType: 'meal'
                 });
               } else {
-                // 拍摄后默认激活饮食打卡
+                // 拍摄后不自动显示内容，等待用户点击按钮
                 this.setData({
                   capturedImagePath: imagePath,
                   currentStep: 'action',
-                  showContent: true,
-                  contentType: 'meal'
+                  showContent: false,
+                  contentType: ''
                 });
               }
             }
           }, this);
         });
       },
-      fail: () => {
+      fail: (err) => {
         wx.hideLoading();
+        console.error('获取图片信息失败:', err);
         // 为所有餐次添加预填充项（如果还没有的话）
         this.addPlaceholderIfNeeded();
         
@@ -270,12 +281,12 @@ Page({
             contentType: 'meal'
           });
         } else {
-          // 拍摄后默认激活饮食打卡
+          // 拍摄后不自动显示内容，等待用户点击按钮
           this.setData({
             capturedImagePath: imagePath,
             currentStep: 'action',
-            showContent: true,
-            contentType: 'meal'
+            showContent: false,
+            contentType: ''
           });
         }
       }
@@ -498,10 +509,16 @@ Page({
 
   // 询问小智
   askXiaozhi() {
-    // 跳转到小智页面，并传递图片
-    wx.navigateTo({
-      url: `/pages/xiaozhi/xiaozhi?image=${encodeURIComponent(this.data.capturedImagePath)}`
+    // 显示AI回复区域并开始模拟回复
+    this.setData({
+      showContent: true,
+      contentType: 'ai',
+      aiResponseList: [],
+      aiLoading: true
     });
+    
+    // 开始模拟AI流式回复
+    this.simulateAIResponse();
   },
 
   // 模拟AI流式回复

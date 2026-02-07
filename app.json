@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/login/login",
     "pages/index/index",
     "pages/recipe/recipe",
     "pages/take-picture/take-picture",
@@ -8,7 +9,9 @@
     "pages/recipe-detail/recipe-detail",
     "pages/search/search",
     "pages/diet-diary/diet-diary",
-    "pages/health-profile/health-profile"
+    "pages/health-profile/health-profile",
+    "pages/register/register",
+    "pages/reset-password/reset-password"
   ],
   "window": {
     "navigationBarTextStyle": "black",
