@@ -1,0 +1,314 @@
+/* pages/edit-recipe/edit-recipe.wxss */
+page {
+    height: 100vh;
+    background-color: #F5F5F5;
+}
+
+.edit-recipe-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 自定义导航栏 */
+.custom-navbar {
+    background: linear-gradient(135deg, #B6CF99 0%, #9BC184 100%);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.navbar-content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 30rpx;
+    position: relative;
+}
+
+.navbar-left {
+    position: absolute;
+    left: 30rpx;
+    width: 80rpx;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+}
+
+.back-icon {
+    width: 48rpx;
+    height: 48rpx;
+}
+
+.navbar-title {
+    font-size: 34rpx;
+    font-weight: 600;
+    color: #FFFFFF;
+    text-align: center;
+}
+
+/* 编辑内容 */
+.edit-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* 表单区块 */
+.form-section {
+    background-color: #FFFFFF;
+    margin-bottom: 20rpx;
+    padding: 30rpx;
+}
+
+.section-title {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20rpx;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20rpx;
+}
+
+/* 图片上传 */
+.image-upload {
+    width: 100%;
+    height: 400rpx;
+    border-radius: 16rpx;
+    overflow: hidden;
+    background-color: #F7F7F7;
+}
+
+.upload-image {
+    width: 100%;
+    height: 100%;
+}
+
+.upload-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16rpx;
+}
+
+.upload-icon {
+    width: 80rpx;
+    height: 80rpx;
+    opacity: 0.3;
+}
+
+.upload-text {
+    font-size: 26rpx;
+    color: #999;
+}
+
+/* 表单项 */
+.form-item {
+    margin-bottom: 24rpx;
+}
+
+.form-item:last-child {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: block;
+    font-size: 28rpx;
+    color: #666;
+    margin-bottom: 12rpx;
+}
+
+.form-input {
+    width: 100%;
+    height: 80rpx;
+    padding: 0 24rpx;
+    background-color: #F7F7F7;
+    border-radius: 12rpx;
+    font-size: 28rpx;
+    color: #333;
+}
+
+.picker-input {
+    width: 100%;
+    height: 80rpx;
+    padding: 0 24rpx;
+    background-color: #F7F7F7;
+    border-radius: 12rpx;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.picker-text {
+    font-size: 28rpx;
+    color: #333;
+}
+
+.picker-arrow {
+    width: 24rpx;
+    height: 24rpx;
+    opacity: 0.4;
+}
+
+.form-textarea {
+    width: 100%;
+    min-height: 200rpx;
+    padding: 20rpx;
+    background-color: #F7F7F7;
+    border-radius: 12rpx;
+    font-size: 28rpx;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 营养成分网格 */
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20rpx;
+}
+
+.nutrition-input-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12rpx;
+}
+
+.nutrition-label {
+    font-size: 26rpx;
+    color: #666;
+}
+
+.nutrition-input {
+    height: 70rpx;
+    padding: 0 20rpx;
+    background-color: #F7F7F7;
+    border-radius: 12rpx;
+    font-size: 28rpx;
+    color: #333;
+    text-align: left;
+}
+
+/* 添加食材按钮 */
+.add-ingredient-btn {
+    display: flex;
+    align-items: center;
+    gap: 6rpx;
+    padding: 12rpx 20rpx;
+    background-color: #E8F5E0;
+    border-radius: 30rpx;
+}
+
+.add-small-icon {
+    width: 24rpx;
+    height: 24rpx;
+}
+
+.add-small-text {
+    font-size: 24rpx;
+    color: #B6CF99;
+}
+
+/* 食材列表 */
+.ingredients-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16rpx;
+}
+
+.ingredient-input-item {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+    padding: 16rpx;
+    background-color: #F7F7F7;
+    border-radius: 12rpx;
+}
+
+.ingredient-name-input {
+    flex: 1;
+    height: 60rpx;
+    padding: 0 16rpx;
+    background-color: #FFFFFF;
+    border-radius: 8rpx;
+    font-size: 26rpx;
+    color: #333;
+}
+
+.ingredient-amount-input {
+    width: 160rpx;
+    height: 60rpx;
+    padding: 0 16rpx;
+    background-color: #FFFFFF;
+    border-radius: 8rpx;
+    font-size: 26rpx;
+    color: #333;
+}
+
+.delete-ingredient-btn {
+    width: 48rpx;
+    height: 48rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.delete-icon {
+    width: 32rpx;
+    height: 32rpx;
+}
+
+.empty-ingredients {
+    padding: 60rpx 0;
+    text-align: center;
+}
+
+.empty-text {
+    font-size: 26rpx;
+    color: #999;
+}
+
+/* 保存按钮区域 */
+.save-section {
+    padding: 30rpx;
+    background-color: #FFFFFF;
+    margin-bottom: 20rpx;
+}
+
+.save-btn {
+    width: 100%;
+    height: 88rpx;
+    background: linear-gradient(135deg, #B6CF99 0%, #9BC184 100%);
+    border-radius: 44rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8rpx 20rpx rgba(182, 207, 153, 0.3);
+    transition: all 0.3s;
+}
+
+.save-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 4rpx 12rpx rgba(182, 207, 153, 0.3);
+}
+
+.save-btn-text {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+/* 底部占位 */
+.bottom-placeholder {
+    height: 40rpx;
+}

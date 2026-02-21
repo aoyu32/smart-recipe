@@ -1,0 +1,110 @@
+<!--pages/diet-preference/diet-preference.wxml-->
+<view class="preference-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="navbar-content" style="height: {{navBarHeight}}px;">
+      <view class="navbar-left" bindtap="goBack">
+        <image class="back-icon" src="/assets/recipe-detail/icon-back.png" mode="aspectFit"></image>
+      </view>
+      <view class="navbar-title">饮食偏好设置</view>
+    </view>
+  </view>
+
+  <scroll-view class="preference-content" scroll-y>
+    <!-- 喜欢的食物 -->
+    <view class="preference-section">
+      <view class="section-header">
+        <view class="section-title-row">
+          <image class="section-icon like-icon" src="/assets/recipe-detail/icon-like-active.png" mode="aspectFit"></image>
+          <text class="section-title">喜欢的食物</text>
+        </view>
+        <view class="add-btn-small" bindtap="showAddModal" data-type="like">
+          <image class="add-icon-small" src="/assets/health-profile/icon-add.png" mode="aspectFit"></image>
+          <text class="add-text-small">添加</text>
+        </view>
+      </view>
+      
+      <view class="food-list" wx:if="{{likedFoods.length > 0}}">
+        <view class="food-item" wx:for="{{likedFoods}}" wx:key="index">
+          <text class="food-name">{{item}}</text>
+          <view class="food-actions">
+            <view class="action-icon-btn" bindtap="editFood" data-type="like" data-index="{{index}}" data-name="{{item}}">
+              <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+            </view>
+            <view class="action-icon-btn" bindtap="deleteFood" data-type="like" data-index="{{index}}">
+              <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="empty-hint" wx:else>
+        <text class="empty-text">暂无喜欢的食物，点击上方添加按钮</text>
+      </view>
+    </view>
+
+    <!-- 不喜欢的食物 -->
+    <view class="preference-section">
+      <view class="section-header">
+        <view class="section-title-row">
+          <image class="section-icon dislike-icon" src="/assets/recipe-detail/icon-close.png" mode="aspectFit"></image>
+          <text class="section-title">不喜欢的食物</text>
+        </view>
+        <view class="add-btn-small" bindtap="showAddModal" data-type="dislike">
+          <image class="add-icon-small" src="/assets/health-profile/icon-add.png" mode="aspectFit"></image>
+          <text class="add-text-small">添加</text>
+        </view>
+      </view>
+      
+      <view class="food-list" wx:if="{{dislikedFoods.length > 0}}">
+        <view class="food-item" wx:for="{{dislikedFoods}}" wx:key="index">
+          <text class="food-name">{{item}}</text>
+          <view class="food-actions">
+            <view class="action-icon-btn" bindtap="editFood" data-type="dislike" data-index="{{index}}" data-name="{{item}}">
+              <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+            </view>
+            <view class="action-icon-btn" bindtap="deleteFood" data-type="dislike" data-index="{{index}}">
+              <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="empty-hint" wx:else>
+        <text class="empty-text">暂无不喜欢的食物，点击上方添加按钮</text>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 添加/编辑弹窗 -->
+  <view class="modal-overlay" wx:if="{{showModal}}" bindtap="hideModal">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-title">{{isEdit ? '编辑食物' : '添加食物'}}</text>
+      </view>
+      <view class="modal-body">
+        <view class="modal-label">食物名称</view>
+        <input 
+          class="modal-input" 
+          type="text" 
+          placeholder="请输入食物名称" 
+          value="{{inputValue}}"
+          bindinput="onInputChange"
+          maxlength="20"
+          focus="{{showModal}}"
+        />
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel-btn" bindtap="hideModal">
+          <text>取消</text>
+        </view>
+        <view class="modal-btn confirm-btn" bindtap="confirmAdd">
+          <text>确定</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

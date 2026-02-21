@@ -119,7 +119,7 @@ Page({
   startCountdown() {
     const timer = setInterval(() => {
       const countdown = this.data.countdown - 1;
-      
+
       if (countdown <= 0) {
         clearInterval(timer);
         this.setData({

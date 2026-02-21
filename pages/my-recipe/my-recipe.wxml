@@ -1,0 +1,53 @@
+<!--pages/my-recipe/my-recipe.wxml-->
+<view class="my-recipe-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="navbar-content" style="height: {{navBarHeight}}px;">
+      <view class="navbar-left" bindtap="goBack">
+        <image class="back-icon" src="/assets/recipe-detail/icon-back.png" mode="aspectFit"></image>
+      </view>
+      <view class="navbar-title">我的食谱</view>
+    </view>
+  </view>
+
+  <!-- 食谱列表 -->
+  <scroll-view class="recipe-content" scroll-y wx:if="{{!isEmpty}}">
+    <view class="recipe-grid">
+      <view class="recipe-card" wx:for="{{myRecipes}}" wx:key="id" bindtap="viewRecipe" data-id="{{item.id}}">
+        <image class="card-img" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="card-body">
+          <view class="card-name">{{item.name}}</view>
+          <view class="card-row">
+            <view class="card-left">
+              <view class="card-category">{{item.category}}</view>
+              <view class="card-cal">{{item.nutrition.calories}} 千卡</view>
+            </view>
+            <view class="card-actions">
+              <view class="card-action-btn" catchtap="editRecipe" data-id="{{item.id}}">
+                <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+              </view>
+              <view class="card-action-btn" catchtap="deleteRecipe" data-id="{{item.id}}">
+                <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{isEmpty}}">
+    <image class="empty-icon" src="/assets/my/icon-recipe.png" mode="aspectFit"></image>
+    <text class="empty-text">还没有自定义食谱</text>
+    <text class="empty-tip">点击下方按钮创建你的专属食谱~</text>
+  </view>
+
+  <!-- 添加按钮 -->
+  <view class="add-btn" bindtap="addRecipe">
+    <image class="add-icon" src="/assets/health-profile/icon-add.png" mode="aspectFit"></image>
+  </view>
+</view>

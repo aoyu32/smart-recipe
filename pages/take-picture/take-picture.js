@@ -8,11 +8,11 @@ Page({
     statusBarHeight: 0,
     menuButtonInfo: {},
     frameSize: 0,
-    
+
     // 内容区域
     showContent: false,
     contentType: '', // 'meal' 或 'ai'
-    
+
     // 饮食打卡数据
     mealCheckinList: [
       {
@@ -40,10 +40,10 @@ Page({
         foods: [{ id: 'placeholder-dinner', placeholder: true, image: '', name: '', calories: 0 }]
       }
     ],
-    
+
     // 当前选中的餐次类型（用于添加食物）
     currentMealType: '',
-    
+
     // AI回复
     aiResponseList: [],
     aiLoading: false
@@ -52,10 +52,10 @@ Page({
   onLoad() {
     const systemInfo = wx.getSystemInfoSync();
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
-    
+
     // 计算框框大小（屏幕宽度 - 左右边距，留一点边距）
     const frameSize = systemInfo.windowWidth - 40;
-    
+
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight,
       menuButtonInfo: menuButtonInfo,
@@ -111,7 +111,7 @@ Page({
   resetPage() {
     // 重置相机上下文
     cameraContext = null;
-    
+
     this.setData({
       currentStep: 'capture',
       capturedImagePath: '',
@@ -128,7 +128,7 @@ Page({
     if (!cameraContext) {
       cameraContext = wx.createCameraContext();
     }
-    
+
     cameraContext.takePhoto({
       quality: 'high',
       success: (res) => {
@@ -150,7 +150,7 @@ Page({
     const mealCheckinList = this.data.mealCheckinList.map(item => {
       // 检查是否已有预填充项
       const hasPlaceholder = (item.foods || []).some(f => f.placeholder);
-      
+
       if (!hasPlaceholder) {
         // 如果没有预填充项，添加一个
         const foods = [...(item.foods || [])];
@@ -161,16 +161,16 @@ Page({
           name: '',
           calories: 0
         });
-        
+
         return {
           ...item,
           foods: foods
         };
       }
-      
+
       return item;
     });
-    
+
     this.setData({ mealCheckinList });
   },
 
@@ -178,9 +178,9 @@ Page({
   cropToFrame(imagePath) {
     const frameSize = this.data.frameSize;
     const currentMealType = this.data.currentMealType; // 保存当前状态，避免在异步过程中被修改
-    
+
     wx.showLoading({ title: '处理中...' });
-    
+
     // 获取图片信息
     wx.getImageInfo({
       src: imagePath,
@@ -191,19 +191,19 @@ Page({
         const cropSize = Math.min(imgWidth, imgHeight);
         const cropX = (imgWidth - cropSize) / 2;
         const cropY = (imgHeight - cropSize) / 2;
-        
+
         // 使用更高的分辨率进行裁剪，保证图片质量
         const canvasSize = Math.min(cropSize, 1500); // 限制最大尺寸为1500px
-        
+
         const canvas = wx.createCanvasContext('cropCanvas', this);
-        
+
         // 绘制裁剪后的图片
         canvas.drawImage(
           imagePath,
           cropX, cropY, cropSize, cropSize,
           0, 0, canvasSize, canvasSize
         );
-        
+
         canvas.draw(false, () => {
           wx.canvasToTempFilePath({
             canvasId: 'cropCanvas',
@@ -220,7 +220,7 @@ Page({
               console.log('裁剪成功:', res.tempFilePath);
               // 为所有餐次添加预填充项（如果还没有的话）
               this.addPlaceholderIfNeeded();
-              
+
               // 如果是从添加食物进入的，直接显示打卡列表
               if (currentMealType) {
                 this.setData({
@@ -244,7 +244,7 @@ Page({
               console.error('裁剪失败:', err);
               // 为所有餐次添加预填充项（如果还没有的话）
               this.addPlaceholderIfNeeded();
-              
+
               // 如果裁剪失败，直接使用原图
               if (currentMealType) {
                 this.setData({
@@ -271,7 +271,7 @@ Page({
         console.error('获取图片信息失败:', err);
         // 为所有餐次添加预填充项（如果还没有的话）
         this.addPlaceholderIfNeeded();
-        
+
         // 获取图片信息失败，直接使用原图
         if (currentMealType) {
           this.setData({
@@ -334,14 +334,14 @@ Page({
   onAddFood(e) {
     const mealType = e.currentTarget.dataset.type;
     const mealItem = this.data.mealCheckinList.find(item => item.type === mealType);
-    
+
     if (!mealItem) return;
-    
+
     // 为该餐次添加一个新的预填充项
     const mealCheckinList = this.data.mealCheckinList.map(item => {
       if (item.type === mealType) {
         const foods = [...(item.foods || [])];
-        
+
         // 检查是否已有预填充项，如果没有则添加一个
         const hasPlaceholder = foods.some(f => f.placeholder);
         if (!hasPlaceholder) {
@@ -353,7 +353,7 @@ Page({
             calories: 0
           });
         }
-        
+
         return {
           ...item,
           foods: foods
@@ -361,7 +361,7 @@ Page({
       }
       return item;
     });
-    
+
     // 保存当前选中的餐次类型，返回拍摄界面
     this.setData({
       mealCheckinList: mealCheckinList,
@@ -376,7 +376,7 @@ Page({
   onFillPlaceholder(e) {
     const mealType = e.currentTarget.dataset.type;
     const placeholderId = e.currentTarget.dataset.id;
-    
+
     // 检查是否有拍摄的图片
     if (!this.data.capturedImagePath) {
       wx.showToast({
@@ -385,10 +385,10 @@ Page({
       });
       return;
     }
-    
+
     const mealItem = this.data.mealCheckinList.find(item => item.type === mealType);
     if (!mealItem) return;
-    
+
     // 生成食物信息
     const foodData = {
       id: Date.now(),
@@ -397,7 +397,7 @@ Page({
       calories: this.generateCalories(), // 生成热量（实际应该调用AI识别）
       placeholder: false
     };
-    
+
     // 更新打卡列表：将预填充项转换为实际食物
     const mealCheckinList = this.data.mealCheckinList.map(item => {
       if (item.type === mealType) {
@@ -408,9 +408,9 @@ Page({
           }
           return food;
         });
-        
+
         const totalCalories = foods.filter(f => !f.placeholder).reduce((sum, food) => sum + (food.calories || 0), 0);
-        
+
         return {
           ...item,
           foods: foods,
@@ -420,9 +420,9 @@ Page({
       }
       return item;
     });
-    
+
     this.setData({ mealCheckinList });
-    
+
     wx.showToast({
       title: `已添加到${mealItem.label}`,
       icon: 'success',
@@ -434,7 +434,7 @@ Page({
   onDeleteFood(e) {
     const mealType = e.currentTarget.dataset.type;
     const foodId = e.currentTarget.dataset.id;
-    
+
     wx.showModal({
       title: '确认删除',
       content: '确定要删除这个食物吗？',
@@ -455,7 +455,7 @@ Page({
                 }
                 return food;
               });
-              
+
               // 检查预填充项数量，如果多于一个，删除多余的，只保留第一个
               const placeholders = foods.filter(f => f.placeholder);
               if (placeholders.length > 1) {
@@ -472,9 +472,9 @@ Page({
                   return true; // 保留所有非预填充项
                 });
               }
-              
+
               const totalCalories = foods.filter(f => !f.placeholder).reduce((sum, food) => sum + (food.calories || 0), 0);
-              
+
               return {
                 ...item,
                 foods: foods,
@@ -484,9 +484,9 @@ Page({
             }
             return item;
           });
-          
+
           this.setData({ mealCheckinList });
-          
+
           wx.showToast({
             title: '已删除',
             icon: 'success'
@@ -516,7 +516,7 @@ Page({
       aiResponseList: [],
       aiLoading: true
     });
-    
+
     // 开始模拟AI流式回复
     this.simulateAIResponse();
   },
@@ -524,10 +524,10 @@ Page({
   // 模拟AI流式回复
   simulateAIResponse() {
     const fullResponse = '这是一份营养均衡的餐食，包含优质蛋白质和丰富的蔬菜。\n\n主要营养成分：\n• 蛋白质：约25g\n• 碳水化合物：约30g\n• 脂肪：约15g\n• 总热量：约450千卡\n\n建议：\n1. 可以搭配一些主食，如米饭或全麦面包\n2. 建议增加一些水果作为餐后甜点\n3. 整体营养搭配合理，适合作为正餐';
-    
+
     const sentences = fullResponse.split('\n');
     let currentIndex = 0;
-    
+
     const addNextSentence = () => {
       if (currentIndex < sentences.length) {
         const newList = [...this.data.aiResponseList, sentences[currentIndex]];
@@ -536,14 +536,14 @@ Page({
           aiLoading: currentIndex < sentences.length - 1
         });
         currentIndex++;
-        
+
         // 模拟流式输出，每200ms添加一句
         setTimeout(addNextSentence, 200);
       } else {
         this.setData({ aiLoading: false });
       }
     };
-    
+
     addNextSentence();
   },
 

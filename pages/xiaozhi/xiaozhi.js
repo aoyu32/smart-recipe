@@ -21,10 +21,10 @@ Page({
   onLoad(options) {
     const systemInfo = wx.getSystemInfoSync();
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
-    
+
     // 计算导航栏高度
     const navBarHeight = menuButtonInfo.height + (menuButtonInfo.top - systemInfo.statusBarHeight) * 2;
-    
+
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight,
       navBarHeight: navBarHeight
@@ -41,11 +41,11 @@ Page({
 
     // 加载对话历史（使用mock数据）
     this.loadHistoryList();
-    
+
     // 监听键盘高度变化
     wx.onKeyboardHeightChange(res => {
       console.log('键盘高度变化:', res.height);
-      
+
       if (res.height > 0) {
         // 键盘弹起，立即调整输入框位置（不使用动画）
         this.setData({
@@ -99,20 +99,20 @@ Page({
 
     const historyList = [...this.data.historyList];
     const currentId = this.data.currentHistoryId || Date.now();
-    
+
     // 获取第一条用户消息作为标题
     const firstUserMsg = this.data.messages.find(msg => msg.role === 'user');
     const title = firstUserMsg ? (firstUserMsg.content || '图片咨询') : '新对话';
-    
+
     // 获取最后一条消息作为预览
     const lastMsg = this.data.messages[this.data.messages.length - 1];
-    const preview = lastMsg.role === 'user' 
-      ? (lastMsg.content || '[图片]') 
+    const preview = lastMsg.role === 'user'
+      ? (lastMsg.content || '[图片]')
       : lastMsg.content.substring(0, 30) + '...';
 
     // 查找是否已存在
     const existIndex = historyList.findIndex(item => item.id === currentId);
-    
+
     const historyItem = {
       id: currentId,
       title: title.substring(0, 20),
@@ -158,18 +158,18 @@ Page({
   loadHistory(e) {
     const id = e.currentTarget.dataset.id;
     const history = this.data.historyList.find(item => item.id === id);
-    
+
     if (history) {
       // 重新设置messageIdCounter
       const maxId = Math.max(...history.messages.map(msg => msg.id), 0);
-      
+
       this.setData({
         messages: history.messages,
         currentHistoryId: id,
         messageIdCounter: maxId + 1,
         showDrawer: false
       });
-      
+
       // 滚动到底部
       this.scrollToBottom();
     }
@@ -178,7 +178,7 @@ Page({
   // 显示历史记录操作菜单
   showHistoryActions(e) {
     const id = e.currentTarget.dataset.id;
-    
+
     wx.showActionSheet({
       itemList: ['删除对话'],
       itemColor: '#FF4444',
@@ -200,11 +200,11 @@ Page({
       success: (res) => {
         if (res.confirm) {
           const historyList = this.data.historyList.filter(item => item.id !== id);
-          
+
           this.setData({
             historyList: historyList
           });
-          
+
           // 如果删除的是当前对话，清空消息
           if (this.data.currentHistoryId === id) {
             this.setData({
@@ -213,7 +213,7 @@ Page({
               messageIdCounter: 0
             });
           }
-          
+
           wx.showToast({
             title: '已删除',
             icon: 'success'
@@ -254,9 +254,9 @@ Page({
   // 发送消息
   sendMessage() {
     const { inputText, selectedImage } = this.data;
-    
+
     console.log('发送消息 - 文本:', inputText, '图片:', selectedImage);
-    
+
     // 如果没有文本也没有图片，不发送
     if (!inputText.trim() && !selectedImage) {
       return;
@@ -274,7 +274,7 @@ Page({
     console.log('用户消息对象:', userMessage);
 
     const messages = [...this.data.messages, userMessage];
-    
+
     this.setData({
       messages: messages,
       inputText: '',
@@ -319,7 +319,7 @@ Page({
       this.removeLoadingMessage();
 
       let aiResponse = '';
-      
+
       // 根据用户消息生成回复
       if (userMessage.image) {
         aiResponse = '我看到了这张图片。这是一份营养丰富的餐食，包含了优质蛋白质、碳水化合物和蔬菜。\n\n营养分析：\n• 热量：约450千卡\n• 蛋白质：28克\n• 碳水化合物：52克\n• 脂肪：12克\n\n建议：这是一份均衡的餐食，适合作为午餐或晚餐。如果是减脂期，可以适当减少主食的量。';
@@ -345,7 +345,7 @@ Page({
       });
 
       this.scrollToBottom();
-      
+
       // 保存对话到历史
       this.saveCurrentChat();
     }, 1500);
@@ -358,7 +358,7 @@ Page({
     if (this.data.messages.length > 0) {
       this.saveCurrentChat();
     }
-    
+
     // 清空当前对话
     this.setData({
       messages: [],

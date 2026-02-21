@@ -15,10 +15,10 @@ Page({
   onLoad(options) {
     const systemInfo = wx.getSystemInfoSync();
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
-    
+
     // 计算导航栏高度
     const navBarHeight = menuButtonInfo.height + (menuButtonInfo.top - systemInfo.statusBarHeight) * 2;
-    
+
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight,
       navBarHeight: navBarHeight
@@ -53,23 +53,23 @@ Page({
   // 保存搜索历史
   saveSearchHistory(keyword) {
     if (!keyword || keyword.trim() === '') return;
-    
+
     try {
       let history = wx.getStorageSync('searchHistory') || [];
-      
+
       // 移除重复项
       history = history.filter(item => item !== keyword);
-      
+
       // 添加到开头
       history.unshift(keyword);
-      
+
       // 最多保存10条
       if (history.length > 10) {
         history = history.slice(0, 10);
       }
-      
+
       wx.setStorageSync('searchHistory', history);
-      
+
       this.setData({
         searchHistory: history
       });
@@ -112,7 +112,7 @@ Page({
   // 执行搜索
   onSearch() {
     const keyword = this.data.keyword.trim();
-    
+
     if (!keyword) {
       wx.showToast({
         title: '请输入搜索内容',
@@ -138,9 +138,9 @@ Page({
       const results = allRecipes.filter(recipe => {
         const searchText = keyword.toLowerCase();
         return recipe.name.toLowerCase().includes(searchText) ||
-               recipe.category.toLowerCase().includes(searchText) ||
-               recipe.description.toLowerCase().includes(searchText) ||
-               recipe.ingredients.some(ing => ing.name.toLowerCase().includes(searchText));
+          recipe.category.toLowerCase().includes(searchText) ||
+          recipe.description.toLowerCase().includes(searchText) ||
+          recipe.ingredients.some(ing => ing.name.toLowerCase().includes(searchText));
       });
 
       this.setData({

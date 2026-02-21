@@ -1,0 +1,44 @@
+<!--pages/my-collection/my-collection.wxml-->
+<view class="collection-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="navbar-content" style="height: {{navBarHeight}}px;">
+      <view class="navbar-left" bindtap="goBack">
+        <image class="back-icon" src="/assets/recipe-detail/icon-back.png" mode="aspectFit"></image>
+      </view>
+      <view class="navbar-title">我的收藏</view>
+      <view class="navbar-right"></view>
+    </view>
+  </view>
+
+  <!-- 收藏列表 -->
+  <scroll-view class="collection-content" scroll-y wx:if="{{!isEmpty}}">
+    <view class="recipe-grid">
+      <view class="recipe-card" wx:for="{{collectionList}}" wx:key="id" bindtap="viewRecipe" data-id="{{item.id}}">
+        <image class="card-img" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="card-body">
+          <view class="card-name">{{item.name}}</view>
+          <view class="card-row">
+            <view class="card-left">
+              <view class="card-category">{{item.category}}</view>
+              <view class="card-cal">{{item.nutrition.calories}} 千卡</view>
+            </view>
+            <view class="card-collect" catchtap="toggleCollect" data-id="{{item.id}}">
+              <image class="collect-icon" src="/assets/recipe-detail/icon-star-active.png" mode="aspectFit"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{isEmpty}}">
+    <image class="empty-icon" src="/assets/my/icon-collection.png" mode="aspectFit"></image>
+    <text class="empty-text">还没有收藏任何食谱</text>
+    <text class="empty-tip">去发现更多美味食谱吧~</text>
+  </view>
+</view>

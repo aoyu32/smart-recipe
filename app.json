@@ -12,7 +12,11 @@
     "pages/health-profile/health-profile",
     "pages/register/register",
     "pages/reset-password/reset-password",
-    "pages/account-security/account-security"
+    "pages/account-security/account-security",
+    "pages/my-collection/my-collection",
+    "pages/my-recipe/my-recipe",
+    "pages/edit-recipe/edit-recipe",
+    "pages/diet-preference/diet-preference"
   ],
   "window": {
     "navigationBarTextStyle": "black",

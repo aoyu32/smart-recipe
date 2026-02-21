@@ -1,0 +1,106 @@
+<!--pages/edit-recipe/edit-recipe.wxml-->
+<view class="edit-recipe-container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="navbar-content" style="height: {{navBarHeight}}px;">
+      <view class="navbar-left" bindtap="goBack">
+        <image class="back-icon" src="/assets/recipe-detail/icon-back.png" mode="aspectFit"></image>
+      </view>
+      <view class="navbar-title">{{isEdit ? '编辑食谱' : '添加食谱'}}</view>
+    </view>
+  </view>
+
+  <scroll-view class="edit-content" scroll-y>
+    <!-- 食谱图片 -->
+    <view class="form-section">
+      <view class="section-title">食谱图片</view>
+      <view class="image-upload" bindtap="chooseImage">
+        <image wx:if="{{recipeData.image}}" class="upload-image" src="{{recipeData.image}}" mode="aspectFill"></image>
+        <view wx:else class="upload-placeholder">
+          <image class="upload-icon" src="/assets/health-profile/icon-add.png" mode="aspectFit"></image>
+          <text class="upload-text">点击上传图片</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="form-section">
+      <view class="section-title">基本信息</view>
+      <view class="form-item">
+        <text class="form-label">食谱名称</text>
+        <input class="form-input" placeholder="请输入食谱名称" value="{{recipeData.name}}" bindinput="onNameInput" maxlength="30" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">分类</text>
+        <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+          <view class="picker-input">
+            <text class="picker-text">{{recipeData.category || '请选择分类'}}</text>
+            <image class="picker-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 营养成分 -->
+    <view class="form-section">
+      <view class="section-title">营养成分</view>
+      <view class="nutrition-grid">
+        <view class="nutrition-input-item">
+          <text class="nutrition-label">热量</text>
+          <input class="nutrition-input" type="digit" placeholder="热量/千卡" value="{{recipeData.nutrition.calories}}" bindinput="onNutritionInput" data-field="calories" />
+        </view>
+        <view class="nutrition-input-item">
+          <text class="nutrition-label">蛋白质</text>
+          <input class="nutrition-input" type="digit" placeholder="蛋白质/g" value="{{recipeData.nutrition.protein}}" bindinput="onNutritionInput" data-field="protein" />
+        </view>
+        <view class="nutrition-input-item">
+          <text class="nutrition-label">碳水化合物</text>
+          <input class="nutrition-input" type="digit" placeholder="碳水/g" value="{{recipeData.nutrition.carbs}}" bindinput="onNutritionInput" data-field="carbs" />
+        </view>
+        <view class="nutrition-input-item">
+          <text class="nutrition-label">脂肪</text>
+          <input class="nutrition-input" type="digit" placeholder="脂肪/g" value="{{recipeData.nutrition.fat}}" bindinput="onNutritionInput" data-field="fat" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 食谱介绍 -->
+    <view class="form-section">
+      <view class="section-title">食谱介绍</view>
+      <textarea class="form-textarea" placeholder="请输入食谱介绍" value="{{recipeData.description}}" bindinput="onDescriptionInput" maxlength="500" />
+    </view>
+
+    <!-- 食材清单 -->
+    <view class="form-section">
+      <view class="section-header">
+        <text class="section-title">食材清单</text>
+        <view class="add-ingredient-btn" bindtap="addIngredient">
+          <image class="add-small-icon" src="/assets/health-profile/icon-add.png" mode="aspectFit"></image>
+          <text class="add-small-text">添加食材</text>
+        </view>
+      </view>
+      <view class="ingredients-list">
+        <view class="ingredient-input-item" wx:for="{{recipeData.ingredients}}" wx:key="index">
+          <input class="ingredient-name-input" placeholder="食材名称" value="{{item.name}}" bindinput="onIngredientNameInput" data-index="{{index}}" />
+          <input class="ingredient-amount-input" placeholder="用量" value="{{item.amount}}" bindinput="onIngredientAmountInput" data-index="{{index}}" />
+          <view class="delete-ingredient-btn" bindtap="deleteIngredient" data-index="{{index}}">
+            <image class="delete-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
+          </view>
+        </view>
+        <view wx:if="{{recipeData.ingredients.length === 0}}" class="empty-ingredients">
+          <text class="empty-text">暂无食材，点击上方按钮添加</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 保存按钮 -->
+    <view class="save-section">
+      <view class="save-btn" bindtap="saveRecipe">
+        <text class="save-btn-text">{{isEdit ? '保存修改' : '保存食谱'}}</text>
+      </view>
+    </view>
+
+    <!-- 底部占位 -->
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+</view>

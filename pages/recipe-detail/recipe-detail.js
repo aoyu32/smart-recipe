@@ -4,6 +4,7 @@ const mockRecipeDetail = require('../../mock/recipe-detail.js');
 Page({
   data: {
     recipeId: '',
+    isCustom: false,
     recipeDetail: {},
     isLiked: false,
     isCollected: false,
@@ -15,34 +16,49 @@ Page({
   onLoad(options) {
     const systemInfo = wx.getSystemInfoSync();
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
-    
+
     // 计算导航栏高度
     const navBarHeight = menuButtonInfo.height + (menuButtonInfo.top - systemInfo.statusBarHeight) * 2;
-    
+
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight,
       navBarHeight: navBarHeight
     });
-    
+
     const recipeId = options.id || '1';
+    const isCustom = options.custom === 'true';
+
     this.setData({
-      recipeId: recipeId
+      recipeId: recipeId,
+      isCustom: isCustom
     });
-    
+
     // 加载食谱详情
-    this.loadRecipeDetail(recipeId);
+    this.loadRecipeDetail(recipeId, isCustom);
   },
 
   // 加载食谱详情
-  loadRecipeDetail(id) {
-    // 使用mock数据
-    const detail = mockRecipeDetail.getRecipeById(id);
-    
+  loadRecipeDetail(id, isCustom) {
+    let detail = null;
+
+    if (isCustom) {
+      // 从自定义食谱中获取
+      const myRecipes = wx.getStorageSync('myRecipes') || [];
+      detail = myRecipes.find(item => item.id === id);
+    } else {
+      // 使用mock数据
+      detail = mockRecipeDetail.getRecipeById(id);
+    }
+
     if (detail) {
+      // 检查是否已收藏
+      const collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
+      const isCollected = collectedRecipes.includes(id);
+
       this.setData({
         recipeDetail: detail,
         isLiked: detail.isLiked || false,
-        isCollected: detail.isCollected || false
+        isCollected: isCollected
       });
     } else {
       wx.showToast({
@@ -63,18 +79,18 @@ Page({
   toggleLike() {
     const isLiked = !this.data.isLiked;
     const recipeDetail = { ...this.data.recipeDetail };
-    
+
     if (isLiked) {
       recipeDetail.likes += 1;
     } else {
       recipeDetail.likes -= 1;
     }
-    
+
     this.setData({
       isLiked: isLiked,
       recipeDetail: recipeDetail
     });
-    
+
     wx.showToast({
       title: isLiked ? '已点赞' : '已取消点赞',
       icon: 'success',
@@ -86,18 +102,39 @@ Page({
   toggleCollect() {
     const isCollected = !this.data.isCollected;
     const recipeDetail = { ...this.data.recipeDetail };
-    
+    const recipeId = this.data.recipeId;
+
     if (isCollected) {
       recipeDetail.collections += 1;
+      // 添加到收藏列表
+      let collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
+      if (!collectedRecipes.includes(recipeId)) {
+        collectedRecipes.push(recipeId);
+        wx.setStorageSync('collectedRecipes', collectedRecipes);
+
+        // 更新我的内容统计
+        const myContent = wx.getStorageSync('myContent') || { collections: 0, recipes: 0 };
+        myContent.collections = collectedRecipes.length;
+        wx.setStorageSync('myContent', myContent);
+      }
     } else {
       recipeDetail.collections -= 1;
+      // 从收藏列表移除
+      let collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
+      collectedRecipes = collectedRecipes.filter(id => id !== recipeId);
+      wx.setStorageSync('collectedRecipes', collectedRecipes);
+
+      // 更新我的内容统计
+      const myContent = wx.getStorageSync('myContent') || { collections: 0, recipes: 0 };
+      myContent.collections = collectedRecipes.length;
+      wx.setStorageSync('myContent', myContent);
     }
-    
+
     this.setData({
       isCollected: isCollected,
       recipeDetail: recipeDetail
     });
-    
+
     wx.showToast({
       title: isCollected ? '已收藏' : '已取消收藏',
       icon: 'success',
@@ -120,7 +157,7 @@ Page({
   },
 
   // 阻止冒泡
-  stopPropagation() {},
+  stopPropagation() { },
 
   // 加入餐食
   addToMeal(e) {
@@ -130,13 +167,13 @@ Page({
       lunch: '午餐',
       dinner: '晚餐'
     };
-    
+
     this.hideMealOptions();
-    
+
     // 检查是否是从主页编辑或添加模式进入的
     const editingMeal = wx.getStorageSync('editingMeal');
     const addingMeal = wx.getStorageSync('addingMeal');
-    
+
     // 构建食物数据
     const foodData = {
       id: this.data.recipeDetail.id,
@@ -149,7 +186,7 @@ Page({
       fat: this.data.recipeDetail.nutrition.fat,
       category: this.data.recipeDetail.category
     };
-    
+
     if (editingMeal && editingMeal.mealType) {
       // 替换模式
       wx.setStorageSync('replaceMeal', {
@@ -157,12 +194,12 @@ Page({
         index: editingMeal.index,
         newFood: foodData
       });
-      
+
       wx.showToast({
         title: '替换成功',
         icon: 'success'
       });
-      
+
       // 返回主页
       setTimeout(() => {
         wx.switchTab({
@@ -175,12 +212,12 @@ Page({
         mealType: addingMeal.mealType,
         newFood: foodData
       });
-      
+
       wx.showToast({
         title: `已加入${mealNames[addingMeal.mealType]}`,
         icon: 'success'
       });
-      
+
       // 返回主页
       setTimeout(() => {
         wx.switchTab({
@@ -193,12 +230,12 @@ Page({
         mealType: mealType,
         newFood: foodData
       });
-      
+
       wx.showToast({
         title: `已加入${mealNames[mealType]}`,
         icon: 'success'
       });
-      
+
       // 返回主页
       setTimeout(() => {
         wx.switchTab({

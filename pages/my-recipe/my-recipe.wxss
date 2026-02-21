@@ -1,0 +1,211 @@
+/* pages/my-recipe/my-recipe.wxss */
+page {
+    height: 100vh;
+    background-color: #F5F5F5;
+}
+
+.my-recipe-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 自定义导航栏 */
+.custom-navbar {
+    background: linear-gradient(135deg, #B6CF99 0%, #9BC184 100%);
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 30rpx;
+    position: relative;
+}
+
+.navbar-left {
+    position: absolute;
+    left: 30rpx;
+    width: 80rpx;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+}
+
+.back-icon {
+    width: 48rpx;
+    height: 48rpx;
+}
+
+.navbar-title {
+    font-size: 34rpx;
+    font-weight: 600;
+    color: #FFFFFF;
+    text-align: center;
+}
+
+/* 食谱内容 */
+.recipe-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* 食谱网格 */
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20rpx;
+    padding: 20rpx 30rpx;
+}
+
+.recipe-card {
+    background-color: #FFFFFF;
+    border-radius: 18rpx;
+    overflow: hidden;
+    box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-img {
+    width: 100%;
+    height: 200rpx;
+    background-color: #EEE;
+}
+
+.card-body {
+    padding: 16rpx;
+}
+
+.card-name {
+    font-size: 28rpx;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 10rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10rpx;
+}
+
+.card-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+    min-width: 0;
+}
+
+.card-category {
+    display: inline-block;
+    font-size: 20rpx;
+    color: #B6CF99;
+    background-color: rgba(182, 207, 153, 0.15);
+    padding: 4rpx 10rpx;
+    border-radius: 8rpx;
+    flex-shrink: 0;
+}
+
+.card-cal {
+    font-size: 22rpx;
+    color: #666;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8rpx;
+    flex-shrink: 0;
+}
+
+.card-action-btn {
+    width: 44rpx;
+    height: 44rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #F7F7F7;
+    transition: all 0.3s;
+}
+
+.card-action-btn:active {
+    background-color: #E8F5E0;
+}
+
+.action-icon {
+    width: 28rpx;
+    height: 28rpx;
+}
+
+/* 空状态 */
+.empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100rpx 60rpx;
+}
+
+.empty-icon {
+    width: 200rpx;
+    height: 200rpx;
+    opacity: 0.3;
+    margin-bottom: 40rpx;
+}
+
+.empty-text {
+    font-size: 32rpx;
+    color: #999;
+    margin-bottom: 16rpx;
+}
+
+.empty-tip {
+    font-size: 26rpx;
+    color: #BBB;
+}
+
+/* 添加按钮 */
+.add-btn {
+    position: fixed;
+    right: 40rpx;
+    bottom: 100rpx;
+    width: 100rpx;
+    height: 100rpx;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #B6CF99 0%, #9BC184 100%);
+    box-shadow: 0 8rpx 20rpx rgba(182, 207, 153, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: all 0.3s;
+}
+
+.add-btn:active {
+    transform: scale(0.95);
+}
+
+.add-icon {
+    width: 48rpx;
+    height: 48rpx;
+}
+
+/* 底部占位 */
+.bottom-placeholder {
+    height: 40rpx;
+}
