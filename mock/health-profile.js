@@ -129,10 +129,22 @@ const goalTemplates = [
   }
 ];
 
+// 获取健康档案数据
+function getHealthProfile() {
+  return {
+    currentGoal,
+    healthInfo,
+    goalHistory,
+    restrictions,
+    goalTemplates
+  };
+}
+
 module.exports = {
   currentGoal,
   healthInfo,
   goalHistory,
   restrictions,
-  goalTemplates
+  goalTemplates,
+  getHealthProfile
 };

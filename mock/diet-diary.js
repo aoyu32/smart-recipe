@@ -338,6 +338,12 @@ const diaryRecords = [
   }
 ];
 
+// 获取日记列表
+function getDiaryList() {
+  return diaryRecords;
+}
+
 module.exports = {
-  diaryRecords
+  diaryRecords,
+  getDiaryList
 };
