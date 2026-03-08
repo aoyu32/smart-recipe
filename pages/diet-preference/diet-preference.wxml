@@ -25,13 +25,13 @@
       </view>
       
       <view class="food-list" wx:if="{{likedFoods.length > 0}}">
-        <view class="food-item" wx:for="{{likedFoods}}" wx:key="index">
-          <text class="food-name">{{item}}</text>
+        <view class="food-item" wx:for="{{likedFoods}}" wx:key="id">
+          <text class="food-name">{{item.name}}</text>
           <view class="food-actions">
-            <view class="action-icon-btn" bindtap="editFood" data-type="like" data-index="{{index}}" data-name="{{item}}">
-              <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+            <view class="action-icon-btn" bindtap="editFood" data-type="like" data-index="{{index}}" data-id="{{item.id}}" data-name="{{item.name}}">
+              <image class="action-icon" src="/assets/diet-preference/icon-edit.png" mode="aspectFit"></image>
             </view>
-            <view class="action-icon-btn" bindtap="deleteFood" data-type="like" data-index="{{index}}">
+            <view class="action-icon-btn" bindtap="deleteFood" data-type="like" data-index="{{index}}" data-id="{{item.id}}">
               <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
             </view>
           </view>
@@ -57,13 +57,13 @@
       </view>
       
       <view class="food-list" wx:if="{{dislikedFoods.length > 0}}">
-        <view class="food-item" wx:for="{{dislikedFoods}}" wx:key="index">
-          <text class="food-name">{{item}}</text>
+        <view class="food-item" wx:for="{{dislikedFoods}}" wx:key="id">
+          <text class="food-name">{{item.name}}</text>
           <view class="food-actions">
-            <view class="action-icon-btn" bindtap="editFood" data-type="dislike" data-index="{{index}}" data-name="{{item}}">
-              <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+            <view class="action-icon-btn" bindtap="editFood" data-type="dislike" data-index="{{index}}" data-id="{{item.id}}" data-name="{{item.name}}">
+              <image class="action-icon" src="/assets/diet-preference/icon-edit.png" mode="aspectFit"></image>
             </view>
-            <view class="action-icon-btn" bindtap="deleteFood" data-type="dislike" data-index="{{index}}">
+            <view class="action-icon-btn" bindtap="deleteFood" data-type="dislike" data-index="{{index}}" data-id="{{item.id}}">
               <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
             </view>
           </view>

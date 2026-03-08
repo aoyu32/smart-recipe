@@ -1,4 +1,6 @@
 // pages/diet-preference/diet-preference.js
+import { getDietPreferenceList, addDietPreference, updateDietPreference, deleteDietPreference } from '../../api/user';
+
 Page({
     data: {
         statusBarHeight: 0,
@@ -8,6 +10,7 @@ Page({
         showModal: false,
         isEdit: false,
         editType: '', // 'like' or 'dislike'
+        editId: null,
         editIndex: -1,
         inputValue: ''
     },
@@ -31,25 +34,37 @@ Page({
     },
 
     // 加载偏好设置
-    loadPreferences() {
-        const preferences = wx.getStorageSync('dietPreferences') || {
-            liked: [],
-            disliked: []
-        };
+    async loadPreferences() {
+        try {
+            wx.showLoading({ title: '加载中...' });
 
-        this.setData({
-            likedFoods: preferences.liked || [],
-            dislikedFoods: preferences.disliked || []
-        });
-    },
+            const preferences = await getDietPreferenceList();
 
-    // 保存偏好设置
-    savePreferences() {
-        const preferences = {
-            liked: this.data.likedFoods,
-            disliked: this.data.dislikedFoods
-        };
-        wx.setStorageSync('dietPreferences', preferences);
+            console.log('后端返回的饮食偏好:', preferences);
+
+            // 分类处理
+            const likedFoods = preferences
+                .filter(item => item.preferenceType === 'like')
+                .map(item => ({ id: item.id, name: item.foodName }));
+
+            const dislikedFoods = preferences
+                .filter(item => item.preferenceType === 'dislike')
+                .map(item => ({ id: item.id, name: item.foodName }));
+
+            this.setData({
+                likedFoods,
+                dislikedFoods
+            });
+
+            wx.hideLoading();
+        } catch (error) {
+            console.error('加载饮食偏好失败:', error);
+            wx.hideLoading();
+            wx.showToast({
+                title: '加载失败',
+                icon: 'none'
+            });
+        }
     },
 
     // 返回上一页
@@ -66,6 +81,7 @@ Page({
             showModal: true,
             isEdit: false,
             editType: type,
+            editId: null,
             editIndex: -1,
             inputValue: ''
         });
@@ -73,11 +89,12 @@ Page({
 
     // 编辑食物
     editFood(e) {
-        const { type, index, name } = e.currentTarget.dataset;
+        const { type, index, id, name } = e.currentTarget.dataset;
         this.setData({
             showModal: true,
             isEdit: true,
             editType: type,
+            editId: id,
             editIndex: parseInt(index),
             inputValue: name
         });
@@ -85,30 +102,35 @@ Page({
 
     // 删除食物
     deleteFood(e) {
-        const { type, index } = e.currentTarget.dataset;
+        const { type, index, id } = e.currentTarget.dataset;
 
         wx.showModal({
             title: '提示',
             content: '确定要删除这个食物吗？',
-            success: (res) => {
+            success: async (res) => {
                 if (res.confirm) {
-                    if (type === 'like') {
-                        const likedFoods = this.data.likedFoods;
-                        likedFoods.splice(index, 1);
-                        this.setData({ likedFoods });
-                    } else {
-                        const dislikedFoods = this.data.dislikedFoods;
-                        dislikedFoods.splice(index, 1);
-                        this.setData({ dislikedFoods });
+                    try {
+                        wx.showLoading({ title: '删除中...' });
+
+                        await deleteDietPreference(id);
+
+                        wx.hideLoading();
+                        wx.showToast({
+                            title: '删除成功',
+                            icon: 'success',
+                            duration: 1500
+                        });
+
+                        // 重新加载数据
+                        this.loadPreferences();
+                    } catch (error) {
+                        console.error('删除失败:', error);
+                        wx.hideLoading();
+                        wx.showToast({
+                            title: error.message || '删除失败',
+                            icon: 'none'
+                        });
                     }
-
-                    this.savePreferences();
-
-                    wx.showToast({
-                        title: '删除成功',
-                        icon: 'success',
-                        duration: 1500
-                    });
                 }
             }
         });
@@ -133,8 +155,8 @@ Page({
     },
 
     // 确认添加/编辑
-    confirmAdd() {
-        const { inputValue, isEdit, editType, editIndex } = this.data;
+    async confirmAdd() {
+        const { inputValue, isEdit, editType, editId } = this.data;
 
         // 验证输入
         if (!inputValue || !inputValue.trim()) {
@@ -147,61 +169,42 @@ Page({
 
         const foodName = inputValue.trim();
 
-        if (isEdit) {
-            // 编辑模式
-            if (editType === 'like') {
-                const likedFoods = this.data.likedFoods;
-                likedFoods[editIndex] = foodName;
-                this.setData({ likedFoods });
+        try {
+            wx.showLoading({ title: isEdit ? '修改中...' : '添加中...' });
+
+            if (isEdit) {
+                // 编辑模式
+                await updateDietPreference(editId, { foodName });
+
+                wx.hideLoading();
+                wx.showToast({
+                    title: '修改成功',
+                    icon: 'success',
+                    duration: 1500
+                });
             } else {
-                const dislikedFoods = this.data.dislikedFoods;
-                dislikedFoods[editIndex] = foodName;
-                this.setData({ dislikedFoods });
+                // 添加模式
+                const preferenceType = editType === 'like' ? 'like' : 'dislike';
+                await addDietPreference({ preferenceType, foodName });
+
+                wx.hideLoading();
+                wx.showToast({
+                    title: '添加成功',
+                    icon: 'success',
+                    duration: 1500
+                });
             }
 
+            this.hideModal();
+            // 重新加载数据
+            this.loadPreferences();
+        } catch (error) {
+            console.error('操作失败:', error);
+            wx.hideLoading();
             wx.showToast({
-                title: '修改成功',
-                icon: 'success',
-                duration: 1500
-            });
-        } else {
-            // 添加模式
-            if (editType === 'like') {
-                // 检查是否已存在
-                if (this.data.likedFoods.includes(foodName)) {
-                    wx.showToast({
-                        title: '该食物已在列表中',
-                        icon: 'none'
-                    });
-                    return;
-                }
-
-                const likedFoods = this.data.likedFoods;
-                likedFoods.push(foodName);
-                this.setData({ likedFoods });
-            } else {
-                // 检查是否已存在
-                if (this.data.dislikedFoods.includes(foodName)) {
-                    wx.showToast({
-                        title: '该食物已在列表中',
-                        icon: 'none'
-                    });
-                    return;
-                }
-
-                const dislikedFoods = this.data.dislikedFoods;
-                dislikedFoods.push(foodName);
-                this.setData({ dislikedFoods });
-            }
-
-            wx.showToast({
-                title: '添加成功',
-                icon: 'success',
-                duration: 1500
+                title: error.message || '操作失败',
+                icon: 'none'
             });
         }
-
-        this.savePreferences();
-        this.hideModal();
     }
 })

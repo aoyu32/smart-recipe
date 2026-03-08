@@ -167,3 +167,39 @@ export const deleteRestriction = (restrictionId) => {
         method: 'DELETE'
     })
 }
+
+// ========== 饮食偏好相关API ==========
+
+// 添加饮食偏好
+export const addDietPreference = (data) => {
+    return request({
+        url: '/api/diet-preference/add',
+        method: 'POST',
+        data
+    })
+}
+
+// 获取饮食偏好列表
+export const getDietPreferenceList = () => {
+    return request({
+        url: '/api/diet-preference/list',
+        method: 'GET'
+    })
+}
+
+// 更新饮食偏好
+export const updateDietPreference = (preferenceId, data) => {
+    return request({
+        url: `/api/diet-preference/update/${preferenceId}`,
+        method: 'PUT',
+        data
+    })
+}
+
+// 删除饮食偏好
+export const deleteDietPreference = (preferenceId) => {
+    return request({
+        url: `/api/diet-preference/delete/${preferenceId}`,
+        method: 'DELETE'
+    })
+}
