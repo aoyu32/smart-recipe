@@ -74,6 +74,9 @@ page {
   right: 0;
   padding: 30rpx;
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
 }
 
 .recipe-category {
@@ -83,14 +86,15 @@ page {
   color: #FFFFFF;
   font-size: 24rpx;
   border-radius: 30rpx;
-  margin-right: 10rpx;
+  flex-shrink: 0;
 }
 
 /* 健康目标标签 */
 .recipe-tags {
-  display: inline-flex;
+  display: flex;
   gap: 10rpx;
-  margin-top: 10rpx;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .tag-item {
