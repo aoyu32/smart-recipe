@@ -162,7 +162,7 @@ Page({
     if (keyword && keyword.trim()) {
       // 跳转到搜索页面
       wx.navigateTo({
-        url: `/pages/search/search?keyword=${encodeURIComponent(keyword)}`
+        url: `/pages/search/search?keyword=${encodeURIComponent(keyword.trim())}`
       });
     } else {
       wx.showToast({

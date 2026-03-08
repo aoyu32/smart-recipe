@@ -38,17 +38,21 @@
           bindtap="goToDetail"
           data-id="{{item.id}}"
         >
-          <image class="result-image" src="{{item.image}}" mode="aspectFill"></image>
+          <image class="result-image" src="{{item.cover}}" mode="aspectFill"></image>
           <view class="result-info">
             <view class="result-header">
               <view class="result-name">{{item.name}}</view>
-              <view class="result-category">{{item.category}}</view>
+              <view class="result-tags" wx:if="{{item.tags && item.tags.length > 0}}">
+                <text class="tag-item" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="tag">
+                  <text wx:if="{{tag === 'cut'}}">减脂</text>
+                  <text wx:if="{{tag === 'bulk'}}">增脂</text>
+                  <text wx:if="{{tag === 'muscle'}}">增肌</text>
+                  <text wx:if="{{tag === 'sugar'}}">控糖</text>
+                </text>
+              </view>
             </view>
             <view class="result-nutrition">
-              <text class="nutrition-item">热量 {{item.nutrition.calories}}千卡</text>
-              <text class="nutrition-item">蛋白质 {{item.nutrition.protein}}g</text>
-              <text class="nutrition-item">碳水 {{item.nutrition.carbs}}g</text>
-              <text class="nutrition-item">脂肪 {{item.nutrition.fat}}g</text>
+              <text class="nutrition-item">{{item.kcal}} 千卡</text>
             </view>
           </view>
         </view>

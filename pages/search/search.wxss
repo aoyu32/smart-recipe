@@ -238,3 +238,19 @@ page {
   font-size: 26rpx;
   border-radius: 40rpx;
 }
+
+/* 健康目标标签 */
+.result-tags {
+  display: flex;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+
+.tag-item {
+  padding: 4rpx 12rpx;
+  background-color: #E8F5E0;
+  color: #B6CF99;
+  font-size: 20rpx;
+  border-radius: 16rpx;
+  font-weight: 500;
+}

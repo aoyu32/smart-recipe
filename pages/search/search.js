@@ -1,5 +1,5 @@
 // pages/search/search.js
-const mockRecipeDetail = require('../../mock/recipe-detail.js');
+import { searchRecipes } from '../../api/recipe';
 
 Page({
   data: {
@@ -126,22 +126,14 @@ Page({
   },
 
   // 执行搜索逻辑
-  performSearch(keyword) {
+  async performSearch(keyword) {
     wx.showLoading({
       title: '搜索中...'
     });
 
-    // 模拟搜索延迟
-    setTimeout(() => {
-      // 使用mock数据进行搜索
-      const allRecipes = mockRecipeDetail.getAllRecipes();
-      const results = allRecipes.filter(recipe => {
-        const searchText = keyword.toLowerCase();
-        return recipe.name.toLowerCase().includes(searchText) ||
-          recipe.category.toLowerCase().includes(searchText) ||
-          recipe.description.toLowerCase().includes(searchText) ||
-          recipe.ingredients.some(ing => ing.name.toLowerCase().includes(searchText));
-      });
+    try {
+      // 调用后端搜索接口
+      const results = await searchRecipes(keyword);
 
       this.setData({
         searchResults: results,
@@ -149,7 +141,21 @@ Page({
       });
 
       wx.hideLoading();
-    }, 300);
+
+      if (results.length === 0) {
+        wx.showToast({
+          title: '未找到相关食谱',
+          icon: 'none'
+        });
+      }
+    } catch (error) {
+      console.error('搜索失败：', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: '搜索失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 点击搜索历史
