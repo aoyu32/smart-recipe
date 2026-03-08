@@ -1,4 +1,6 @@
 // pages/my/my.js
+import api from '../../api/index'
+
 Page({
   data: {
     statusBarHeight: 0,
@@ -6,16 +8,16 @@ Page({
 
     // 用户信息
     userInfo: {
-      avatar: 'https://thirdwx.qlogo.cn/mmopen/vi_32/POgEwh4mIHO4nibH0KlMECNjjGxQUq24ZEaGT4poC6icRiccVGKSyXwibcPq4BWmiaIGuG1icwxaQX6grC9VemZoJ8rg/132',
-      name: '美食爱好者',
-      id: '10086',
-      height: 170,
-      weight: 65,
-      bmi: 22.5,
-      bmiStatus: 'normal', // normal, low, high
+      avatar: '',
+      name: '',
+      id: '',
+      height: 0,
+      weight: 0,
+      bmi: 0,
+      bmiStatus: 'normal',
       bmiText: '标准',
-      birthday: '1995-01-01',
-      gender: '男'
+      birthday: '',
+      gender: '未知'
     },
 
     // 健康目标
@@ -28,8 +30,8 @@ Page({
 
     // 我的内容统计
     myContent: {
-      collections: 28,
-      recipes: 12
+      collections: 0,
+      recipes: 0
     },
 
     // 编辑弹窗
@@ -39,14 +41,13 @@ Page({
     tempHeight: '',
     tempWeight: '',
     tempBirthday: '',
-    tempGender: 0 // 0:男, 1:女
+    tempGender: 0
   },
 
   onLoad() {
     const systemInfo = wx.getSystemInfoSync();
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
 
-    // 计算导航栏高度，使其与胶囊对齐
     const navBarHeight = menuButtonInfo.height + (menuButtonInfo.top - systemInfo.statusBarHeight) * 2;
 
     this.setData({
@@ -64,16 +65,43 @@ Page({
   },
 
   // 加载用户数据
-  loadUserData() {
-    // 这里可以从本地存储或服务器获取用户数据
-    // 示例：从本地存储获取
-    const userInfo = wx.getStorageSync('userInfo');
+  async loadUserData() {
+    try {
+      // 从后端获取用户信息
+      const profile = await api.user.getUserProfile();
+
+      // 处理用户信息
+      const userInfo = {
+        avatar: profile.avatar || 'https://smart-recipe.oss-cn-beijing.aliyuncs.com/default-avatar.png',
+        name: profile.nickname || '用户',
+        id: profile.id ? profile.id.toString() : '',
+        height: profile.height ? parseFloat(profile.height) : 0,
+        weight: profile.weight ? parseFloat(profile.weight) : 0,
+        bmi: profile.bmi ? parseFloat(profile.bmi) : 0,
+        bmiStatus: this.getBmiStatus(profile.bmiStatus),
+        bmiText: this.getBmiText(profile.bmiStatus),
+        birthday: profile.birthday || '',
+        gender: this.getGenderText(profile.gender)
+      };
+
+      this.setData({ userInfo });
+
+      // 保存到本地存储
+      wx.setStorageSync('userProfile', userInfo);
+
+    } catch (error) {
+      console.error('获取用户信息失败：', error);
+
+      // 如果获取失败，尝试从本地存储读取
+      const cachedProfile = wx.getStorageSync('userProfile');
+      if (cachedProfile) {
+        this.setData({ userInfo: cachedProfile });
+      }
+    }
+
+    // 加载其他数据（从本地存储）
     const healthGoal = wx.getStorageSync('healthGoal');
     const myContent = wx.getStorageSync('myContent');
-
-    if (userInfo) {
-      this.setData({ userInfo });
-    }
 
     if (healthGoal) {
       this.setData({ healthGoal });
@@ -82,6 +110,38 @@ Page({
     if (myContent) {
       this.setData({ myContent });
     }
+  },
+
+  // 获取BMI状态
+  getBmiStatus(status) {
+    const statusMap = {
+      'underweight': 'low',
+      'normal': 'normal',
+      'overweight': 'high',
+      'obese': 'high'
+    };
+    return statusMap[status] || 'normal';
+  },
+
+  // 获取BMI文本
+  getBmiText(status) {
+    const textMap = {
+      'underweight': '偏瘦',
+      'normal': '标准',
+      'overweight': '偏胖',
+      'obese': '肥胖'
+    };
+    return textMap[status] || '标准';
+  },
+
+  // 获取性别文本
+  getGenderText(gender) {
+    const genderMap = {
+      0: '未知',
+      1: '男',
+      2: '女'
+    };
+    return genderMap[gender] || '未知';
   },
 
   // 编辑健康目标

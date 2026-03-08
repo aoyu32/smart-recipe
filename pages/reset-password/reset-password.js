@@ -1,4 +1,6 @@
 // pages/reset-password/reset-password.js
+import api from '../../api/index'
+
 Page({
   data: {
     statusBarHeight: 0,
@@ -68,7 +70,7 @@ Page({
     });
   },
 
-  sendCode() {
+  async sendCode() {
     if (this.data.codeSending || this.data.countdown > 0) {
       return;
     }
@@ -96,12 +98,13 @@ Page({
       codeSending: true
     });
 
-    wx.showLoading({
-      title: '发送中...'
-    });
+    try {
+      // 调用后端发送验证码接口
+      await api.auth.sendVerificationCode({
+        email,
+        type: 'reset_password'
+      });
 
-    setTimeout(() => {
-      wx.hideLoading();
       wx.showToast({
         title: '验证码已发送',
         icon: 'success'
@@ -113,7 +116,12 @@ Page({
       });
 
       this.startCountdown();
-    }, 1000);
+    } catch (error) {
+      this.setData({
+        codeSending: false
+      });
+      console.error('发送验证码失败：', error);
+    }
   },
 
   startCountdown() {
@@ -135,7 +143,7 @@ Page({
     }, 1000);
   },
 
-  handleReset() {
+  async handleReset() {
     const { email, code, password, confirmPassword } = this.data;
 
     if (!email) {
@@ -195,12 +203,15 @@ Page({
       return;
     }
 
-    wx.showLoading({
-      title: '重置中...'
-    });
+    try {
+      // 调用后端重置密码接口
+      await api.auth.resetPassword({
+        email,
+        code,
+        password,
+        confirmPassword
+      });
 
-    setTimeout(() => {
-      wx.hideLoading();
       wx.showToast({
         title: '密码重置成功',
         icon: 'success'
@@ -209,7 +220,9 @@ Page({
       setTimeout(() => {
         wx.navigateBack();
       }, 1500);
-    }, 1000);
+    } catch (error) {
+      console.error('重置密码失败：', error);
+    }
   },
 
   goBack() {

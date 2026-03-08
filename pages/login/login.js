@@ -1,15 +1,17 @@
 // pages/login/login.js
+import api from '../../api/index'
+
 Page({
   data: {
-    email: 'user@qq.com',
-    password: '123456',
+    email: '',
+    password: '',
     showPassword: false
   },
 
   onLoad(options) {
     // 检查是否已登录
-    const isLoggedIn = wx.getStorageSync('isLoggedIn');
-    if (isLoggedIn) {
+    const token = wx.getStorageSync('token');
+    if (token) {
       // 已登录，跳转到首页
       wx.switchTab({
         url: '/pages/index/index'
@@ -46,7 +48,7 @@ Page({
   },
 
   // 登录
-  handleLogin() {
+  async handleLogin() {
     const { email, password } = this.data;
 
     // 验证邮箱
@@ -77,16 +79,22 @@ Page({
       return;
     }
 
-    // Mock登录验证 - 使用 user@qq.com 和 123456
-    if (email === 'user@qq.com' && password === '123456') {
+    try {
+      // 调用后端登录接口
+      const result = await api.auth.login({
+        email,
+        password
+      });
+
+      // 登录成功，保存token和用户信息
+      wx.setStorageSync('token', result.token);
+      wx.setStorageSync('userInfo', result);
+      wx.setStorageSync('isLoggedIn', true);
+
       wx.showToast({
         title: '登录成功',
         icon: 'success'
       });
-
-      // 保存登录状态
-      wx.setStorageSync('isLoggedIn', true);
-      wx.setStorageSync('userEmail', email);
 
       // 延迟跳转到首页
       setTimeout(() => {
@@ -94,12 +102,9 @@ Page({
           url: '/pages/index/index'
         });
       }, 1500);
-    } else {
-      wx.showToast({
-        title: '邮箱或密码错误',
-        icon: 'none',
-        duration: 2000
-      });
+    } catch (error) {
+      // 错误已在request拦截器中处理
+      console.error('登录失败：', error);
     }
   },
 

@@ -1,4 +1,6 @@
 // pages/register/register.js
+import api from '../../api/index'
+
 Page({
   data: {
     statusBarHeight: 0,
@@ -77,7 +79,7 @@ Page({
   },
 
   // 发送验证码
-  sendCode() {
+  async sendCode() {
     if (this.data.codeSending || this.data.countdown > 0) {
       return;
     }
@@ -102,17 +104,17 @@ Page({
       return;
     }
 
-    // Mock发送验证码
     this.setData({
       codeSending: true
     });
 
-    wx.showLoading({
-      title: '发送中...'
-    });
+    try {
+      // 调用后端发送验证码接口
+      await api.auth.sendVerificationCode({
+        email,
+        type: 'register'
+      });
 
-    setTimeout(() => {
-      wx.hideLoading();
       wx.showToast({
         title: '验证码已发送',
         icon: 'success'
@@ -125,7 +127,12 @@ Page({
       });
 
       this.startCountdown();
-    }, 1000);
+    } catch (error) {
+      this.setData({
+        codeSending: false
+      });
+      console.error('发送验证码失败：', error);
+    }
   },
 
   // 倒计时
@@ -149,7 +156,7 @@ Page({
   },
 
   // 注册
-  handleRegister() {
+  async handleRegister() {
     const { email, code, password, confirmPassword } = this.data;
 
     // 验证邮箱
@@ -213,13 +220,15 @@ Page({
       return;
     }
 
-    // Mock注册
-    wx.showLoading({
-      title: '注册中...'
-    });
+    try {
+      // 调用后端注册接口
+      await api.auth.register({
+        email,
+        code,
+        password,
+        confirmPassword
+      });
 
-    setTimeout(() => {
-      wx.hideLoading();
       wx.showToast({
         title: '注册成功',
         icon: 'success'
@@ -229,7 +238,9 @@ Page({
       setTimeout(() => {
         wx.navigateBack();
       }, 1500);
-    }, 1000);
+    } catch (error) {
+      console.error('注册失败：', error);
+    }
   },
 
   // 返回
