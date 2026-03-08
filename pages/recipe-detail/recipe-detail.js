@@ -1,5 +1,5 @@
 // pages/recipe-detail/recipe-detail.js
-import { getRecipeDetailById } from '../../api/recipe';
+import { getRecipeDetailById, likeRecipe, unlikeRecipe, collectRecipe, uncollectRecipe } from '../../api/recipe';
 
 Page({
   data: {
@@ -45,7 +45,6 @@ Page({
       const detail = myRecipes.find(item => item.id === id);
 
       if (detail) {
-        // 检查是否已收藏
         const collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
         const isCollected = collectedRecipes.includes(id);
 
@@ -65,14 +64,10 @@ Page({
       try {
         const detail = await getRecipeDetailById(id);
 
-        // 检查是否已收藏
-        const collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
-        const isCollected = collectedRecipes.includes(id);
-
         this.setData({
           recipeDetail: detail,
-          isLiked: false, // 后续需要从后端获取用户是否点赞
-          isCollected: isCollected
+          isLiked: detail.isLiked || false,
+          isCollected: detail.isCollected || false
         });
       } catch (error) {
         console.error('加载食谱详情失败：', error);
@@ -92,70 +87,133 @@ Page({
   },
 
   // 切换点赞
-  toggleLike() {
-    const isLiked = !this.data.isLiked;
-    const recipeDetail = { ...this.data.recipeDetail };
+  async toggleLike() {
+    const { isCustom, recipeId, isLiked } = this.data;
 
-    if (isLiked) {
-      recipeDetail.likes += 1;
+    if (isCustom) {
+      // 自定义食谱使用本地存储
+      const recipeDetail = { ...this.data.recipeDetail };
+      const newIsLiked = !isLiked;
+
+      if (newIsLiked) {
+        recipeDetail.likes += 1;
+      } else {
+        recipeDetail.likes -= 1;
+      }
+
+      this.setData({
+        isLiked: newIsLiked,
+        recipeDetail: recipeDetail
+      });
+
+      wx.showToast({
+        title: newIsLiked ? '已点赞' : '已取消点赞',
+        icon: 'success',
+        duration: 1000
+      });
     } else {
-      recipeDetail.likes -= 1;
+      // 系统食谱调用后端接口
+      try {
+        if (isLiked) {
+          await unlikeRecipe(recipeId);
+          this.setData({
+            isLiked: false,
+            'recipeDetail.likes': this.data.recipeDetail.likes - 1
+          });
+          wx.showToast({
+            title: '已取消点赞',
+            icon: 'success',
+            duration: 1000
+          });
+        } else {
+          await likeRecipe(recipeId);
+          this.setData({
+            isLiked: true,
+            'recipeDetail.likes': this.data.recipeDetail.likes + 1
+          });
+          wx.showToast({
+            title: '已点赞',
+            icon: 'success',
+            duration: 1000
+          });
+        }
+      } catch (error) {
+        console.error('点赞操作失败：', error);
+      }
     }
-
-    this.setData({
-      isLiked: isLiked,
-      recipeDetail: recipeDetail
-    });
-
-    wx.showToast({
-      title: isLiked ? '已点赞' : '已取消点赞',
-      icon: 'success',
-      duration: 1000
-    });
   },
 
   // 切换收藏
-  toggleCollect() {
-    const isCollected = !this.data.isCollected;
-    const recipeDetail = { ...this.data.recipeDetail };
-    const recipeId = this.data.recipeId;
+  async toggleCollect() {
+    const { isCustom, recipeId, isCollected } = this.data;
 
-    if (isCollected) {
-      recipeDetail.collections += 1;
-      // 添加到收藏列表
-      let collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
-      if (!collectedRecipes.includes(recipeId)) {
-        collectedRecipes.push(recipeId);
+    if (isCustom) {
+      // 自定义食谱使用本地存储
+      const recipeDetail = { ...this.data.recipeDetail };
+      const newIsCollected = !isCollected;
+
+      if (newIsCollected) {
+        recipeDetail.collections += 1;
+        let collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
+        if (!collectedRecipes.includes(recipeId)) {
+          collectedRecipes.push(recipeId);
+          wx.setStorageSync('collectedRecipes', collectedRecipes);
+
+          const myContent = wx.getStorageSync('myContent') || { collections: 0, recipes: 0 };
+          myContent.collections = collectedRecipes.length;
+          wx.setStorageSync('myContent', myContent);
+        }
+      } else {
+        recipeDetail.collections -= 1;
+        let collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
+        collectedRecipes = collectedRecipes.filter(id => id !== recipeId);
         wx.setStorageSync('collectedRecipes', collectedRecipes);
 
-        // 更新我的内容统计
         const myContent = wx.getStorageSync('myContent') || { collections: 0, recipes: 0 };
         myContent.collections = collectedRecipes.length;
         wx.setStorageSync('myContent', myContent);
       }
+
+      this.setData({
+        isCollected: newIsCollected,
+        recipeDetail: recipeDetail
+      });
+
+      wx.showToast({
+        title: newIsCollected ? '已收藏' : '已取消收藏',
+        icon: 'success',
+        duration: 1000
+      });
     } else {
-      recipeDetail.collections -= 1;
-      // 从收藏列表移除
-      let collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
-      collectedRecipes = collectedRecipes.filter(id => id !== recipeId);
-      wx.setStorageSync('collectedRecipes', collectedRecipes);
-
-      // 更新我的内容统计
-      const myContent = wx.getStorageSync('myContent') || { collections: 0, recipes: 0 };
-      myContent.collections = collectedRecipes.length;
-      wx.setStorageSync('myContent', myContent);
+      // 系统食谱调用后端接口
+      try {
+        if (isCollected) {
+          await uncollectRecipe(recipeId);
+          this.setData({
+            isCollected: false,
+            'recipeDetail.collections': this.data.recipeDetail.collections - 1
+          });
+          wx.showToast({
+            title: '已取消收藏',
+            icon: 'success',
+            duration: 1000
+          });
+        } else {
+          await collectRecipe(recipeId);
+          this.setData({
+            isCollected: true,
+            'recipeDetail.collections': this.data.recipeDetail.collections + 1
+          });
+          wx.showToast({
+            title: '已收藏',
+            icon: 'success',
+            duration: 1000
+          });
+        }
+      } catch (error) {
+        console.error('收藏操作失败：', error);
+      }
     }
-
-    this.setData({
-      isCollected: isCollected,
-      recipeDetail: recipeDetail
-    });
-
-    wx.showToast({
-      title: isCollected ? '已收藏' : '已取消收藏',
-      icon: 'success',
-      duration: 1000
-    });
   },
 
   // 显示餐次选择
@@ -186,11 +244,9 @@ Page({
 
     this.hideMealOptions();
 
-    // 检查是否是从主页编辑或添加模式进入的
     const editingMeal = wx.getStorageSync('editingMeal');
     const addingMeal = wx.getStorageSync('addingMeal');
 
-    // 构建食物数据
     const foodData = {
       id: this.data.recipeDetail.id,
       name: this.data.recipeDetail.name,
@@ -204,7 +260,6 @@ Page({
     };
 
     if (editingMeal && editingMeal.mealType) {
-      // 替换模式
       wx.setStorageSync('replaceMeal', {
         mealType: editingMeal.mealType,
         index: editingMeal.index,
@@ -216,14 +271,12 @@ Page({
         icon: 'success'
       });
 
-      // 返回主页
       setTimeout(() => {
         wx.switchTab({
           url: '/pages/index/index'
         });
       }, 500);
     } else if (addingMeal && addingMeal.mealType) {
-      // 添加模式（从空状态点击添加）
       wx.setStorageSync('addMeal', {
         mealType: addingMeal.mealType,
         newFood: foodData
@@ -234,14 +287,12 @@ Page({
         icon: 'success'
       });
 
-      // 返回主页
       setTimeout(() => {
         wx.switchTab({
           url: '/pages/index/index'
         });
       }, 500);
     } else {
-      // 普通添加模式（用户手动选择餐次）
       wx.setStorageSync('addMeal', {
         mealType: mealType,
         newFood: foodData
@@ -252,7 +303,6 @@ Page({
         icon: 'success'
       });
 
-      // 返回主页
       setTimeout(() => {
         wx.switchTab({
           url: '/pages/index/index'

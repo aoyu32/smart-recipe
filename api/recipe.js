@@ -59,3 +59,53 @@ export function getRecipeDetailById(id) {
         method: 'GET'
     });
 }
+/**
+ * 根据关键词搜索食谱
+ */
+export function searchRecipes(keyword) {
+    return request({
+        url: '/api/recipe/search',
+        method: 'GET',
+        params: { keyword }
+    });
+}
+
+/**
+ * 点赞食谱
+ */
+export function likeRecipe(id) {
+    return request({
+        url: `/api/recipe/${id}/like`,
+        method: 'POST'
+    });
+}
+
+/**
+ * 取消点赞食谱
+ */
+export function unlikeRecipe(id) {
+    return request({
+        url: `/api/recipe/${id}/like`,
+        method: 'DELETE'
+    });
+}
+
+/**
+ * 收藏食谱
+ */
+export function collectRecipe(id) {
+    return request({
+        url: `/api/recipe/${id}/collect`,
+        method: 'POST'
+    });
+}
+
+/**
+ * 取消收藏食谱
+ */
+export function uncollectRecipe(id) {
+    return request({
+        url: `/api/recipe/${id}/collect`,
+        method: 'DELETE'
+    });
+}
