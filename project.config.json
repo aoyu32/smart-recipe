@@ -2,7 +2,7 @@
   "setting": {
     "es6": true,
     "postcss": true,
-    "minified": true,
+    "minified": false,
     "uglifyFileName": false,
     "enhance": true,
     "packNpmManually": false,
@@ -13,7 +13,8 @@
       "outputPath": ""
     },
     "useCompilerPlugins": false,
-    "minifyWXML": true
+    "minifyWXML": true,
+    "urlCheck": false
   },
   "compileType": "miniprogram",
   "simulatorPluginLibVersion": {},
@@ -22,7 +23,11 @@
     "include": []
   },
   "appid": "wx4cf75599557e809b",
-  "editorSetting": {},
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  },
   "miniprogramRoot": "./",
-  "srcMiniprogramRoot": "./"
+  "srcMiniprogramRoot": "./",
+  "condition": {}
 }
