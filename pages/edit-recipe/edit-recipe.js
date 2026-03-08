@@ -1,28 +1,36 @@
 // pages/edit-recipe/edit-recipe.js
+import { getAllCategories, uploadRecipeImage, createMyRecipe, updateMyRecipe, getRecipeDetailById } from '../../api/recipe';
+
 Page({
   data: {
     statusBarHeight: 0,
     navBarHeight: 88,
     isEdit: false,
     recipeId: '',
-    categories: ['低脂高蛋白', '减脂餐', '健康早餐', '快手早餐', '增肌餐', '家常汤羹', '轻食', '快手菜', '家常菜', '川菜', '素菜', '凉菜', '主食', '烘焙'],
-    categoryIndex: 0,
+    categories: [],
+    categoryIndex: -1, // 默认-1表示未选择
+    // 健康目标标签
+    goalTags: [
+      { key: 'cut', name: '减脂', selected: false },
+      { key: 'bulk', name: '增脂', selected: false },
+      { key: 'muscle', name: '增肌', selected: false },
+      { key: 'sugar', name: '控糖', selected: false }
+    ],
     recipeData: {
       name: '',
-      category: '',
+      categoryId: null,
       image: '',
-      nutrition: {
-        calories: '',
-        protein: '',
-        carbs: '',
-        fat: ''
-      },
+      calories: '',
+      protein: '',
+      carbs: '',
+      fat: '',
       description: '',
-      ingredients: []
+      ingredients: [],
+      goalTags: []
     }
   },
 
-  onLoad(options) {
+  async onLoad(options) {
     const systemInfo = wx.getSystemInfoSync();
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
 
@@ -33,26 +41,72 @@ Page({
       navBarHeight: navBarHeight
     });
 
+    // 加载分类列表
+    await this.loadCategories();
+
     // 如果有ID，则是编辑模式
     if (options.id) {
       this.setData({
         isEdit: true,
         recipeId: options.id
       });
-      this.loadRecipe(options.id);
+      await this.loadRecipe(options.id);
+    }
+  },
+
+  // 加载分类列表
+  async loadCategories() {
+    try {
+      const categories = await getAllCategories();
+      this.setData({ categories });
+    } catch (error) {
+      console.error('加载分类失败：', error);
+      wx.showToast({
+        title: '加载分类失败',
+        icon: 'none'
+      });
     }
   },
 
   // 加载食谱数据
-  loadRecipe(id) {
-    const myRecipes = wx.getStorageSync('myRecipes') || [];
-    const recipe = myRecipes.find(item => item.id === id);
+  async loadRecipe(id) {
+    try {
+      wx.showLoading({ title: '加载中...' });
+      const recipe = await getRecipeDetailById(id);
 
-    if (recipe) {
-      const categoryIndex = this.data.categories.indexOf(recipe.category);
+      // 找到分类索引
+      const categoryIndex = this.data.categories.findIndex(cat => cat.id === recipe.categoryId);
+
+      // 处理健康目标标签
+      const goalTags = this.data.goalTags.map(tag => ({
+        ...tag,
+        selected: recipe.goalTags && recipe.goalTags.includes(tag.key)
+      }));
+
       this.setData({
-        recipeData: recipe,
-        categoryIndex: categoryIndex >= 0 ? categoryIndex : 0
+        recipeData: {
+          name: recipe.name,
+          categoryId: recipe.categoryId,
+          image: recipe.image,
+          calories: recipe.calories.toString(),
+          protein: recipe.protein.toString(),
+          carbs: recipe.carbs.toString(),
+          fat: recipe.fat.toString(),
+          description: recipe.description || '',
+          ingredients: recipe.ingredients || [],
+          goalTags: recipe.goalTags || []
+        },
+        categoryIndex: categoryIndex >= 0 ? categoryIndex : 0,
+        goalTags
+      });
+
+      wx.hideLoading();
+    } catch (error) {
+      console.error('加载食谱失败：', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
       });
     }
   },
@@ -65,18 +119,37 @@ Page({
   },
 
   // 选择图片
-  chooseImage() {
-    wx.chooseImage({
-      count: 1,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: (res) => {
-        const tempFilePath = res.tempFilePaths[0];
-        this.setData({
-          'recipeData.image': tempFilePath
-        });
-      }
-    });
+  async chooseImage() {
+    try {
+      const res = await wx.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: ['album', 'camera']
+      });
+
+      const tempFilePath = res.tempFilePaths[0];
+
+      // 上传图片
+      wx.showLoading({ title: '上传中...' });
+      const imageUrl = await uploadRecipeImage(tempFilePath);
+
+      this.setData({
+        'recipeData.image': imageUrl
+      });
+
+      wx.hideLoading();
+      wx.showToast({
+        title: '上传成功',
+        icon: 'success'
+      });
+    } catch (error) {
+      console.error('上传图片失败：', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: error.message || '上传失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 名称输入
@@ -89,9 +162,35 @@ Page({
   // 分类选择
   onCategoryChange(e) {
     const index = parseInt(e.detail.value);
+    const category = this.data.categories[index];
+    const categoryId = category.id; // 直接使用字符串ID（code）
+
+    console.log('选择分类 - index:', index, 'category:', category, 'categoryId:', categoryId);
+
     this.setData({
       categoryIndex: index,
-      'recipeData.category': this.data.categories[index]
+      'recipeData.categoryId': categoryId
+    }, () => {
+      console.log('分类更新后 - recipeData.categoryId:', this.data.recipeData.categoryId);
+    });
+  },
+
+  // 健康目标标签切换
+  toggleGoalTag(e) {
+    const key = e.currentTarget.dataset.key;
+    const goalTags = this.data.goalTags.map(tag => {
+      if (tag.key === key) {
+        return { ...tag, selected: !tag.selected };
+      }
+      return tag;
+    });
+
+    // 更新选中的标签
+    const selectedTags = goalTags.filter(tag => tag.selected).map(tag => tag.key);
+
+    this.setData({
+      goalTags,
+      'recipeData.goalTags': selectedTags
     });
   },
 
@@ -99,7 +198,7 @@ Page({
   onNutritionInput(e) {
     const field = e.currentTarget.dataset.field;
     this.setData({
-      [`recipeData.nutrition.${field}`]: e.detail.value
+      [`recipeData.${field}`]: e.detail.value
     });
   },
 
@@ -149,8 +248,11 @@ Page({
   },
 
   // 保存食谱
-  saveRecipe() {
+  async saveRecipe() {
     const { recipeData, isEdit, recipeId } = this.data;
+
+    console.log('保存食谱 - recipeData:', recipeData);
+    console.log('categoryId:', recipeData.categoryId, 'type:', typeof recipeData.categoryId);
 
     // 验证必填项
     if (!recipeData.name || !recipeData.name.trim()) {
@@ -161,7 +263,7 @@ Page({
       return;
     }
 
-    if (!recipeData.category) {
+    if (recipeData.categoryId === null || recipeData.categoryId === undefined) {
       wx.showToast({
         title: '请选择分类',
         icon: 'none'
@@ -178,7 +280,7 @@ Page({
     }
 
     // 验证营养成分
-    if (!recipeData.nutrition.calories || parseFloat(recipeData.nutrition.calories) <= 0) {
+    if (!recipeData.calories || parseFloat(recipeData.calories) <= 0) {
       wx.showToast({
         title: '请输入有效的热量值',
         icon: 'none'
@@ -193,60 +295,56 @@ Page({
 
     // 准备保存的数据
     const saveData = {
-      ...recipeData,
       name: recipeData.name.trim(),
+      image: recipeData.image,
+      categoryId: recipeData.categoryId,
+      calories: parseInt(recipeData.calories) || 0,
+      protein: parseFloat(recipeData.protein) || 0,
+      carbs: parseFloat(recipeData.carbs) || 0,
+      fat: parseFloat(recipeData.fat) || 0,
       description: recipeData.description.trim(),
       ingredients: validIngredients,
-      nutrition: {
-        calories: parseFloat(recipeData.nutrition.calories) || 0,
-        protein: parseFloat(recipeData.nutrition.protein) || 0,
-        carbs: parseFloat(recipeData.nutrition.carbs) || 0,
-        fat: parseFloat(recipeData.nutrition.fat) || 0
-      }
+      goalTags: recipeData.goalTags
     };
 
-    let myRecipes = wx.getStorageSync('myRecipes') || [];
-
-    if (isEdit) {
-      // 编辑模式：更新现有食谱
-      const index = myRecipes.findIndex(item => item.id === recipeId);
-      if (index >= 0) {
-        myRecipes[index] = {
-          ...saveData,
-          id: recipeId
-        };
-      }
-    } else {
-      // 新增模式：生成新ID
-      const newId = 'custom_' + Date.now();
-      myRecipes.push({
-        ...saveData,
-        id: newId,
-        likes: 0,
-        collections: 0,
-        views: 0,
-        isLiked: false,
-        isCollected: false
-      });
-    }
-
-    wx.setStorageSync('myRecipes', myRecipes);
-
-    // 更新我的内容统计
-    const myContent = wx.getStorageSync('myContent') || { collections: 0, recipes: 0 };
-    myContent.recipes = myRecipes.length;
-    wx.setStorageSync('myContent', myContent);
-
-    wx.showToast({
-      title: isEdit ? '保存成功' : '添加成功',
-      icon: 'success',
-      duration: 1500
+    console.log('准备保存的数据:', saveData);
+    console.log('categoryId详情:', {
+      value: saveData.categoryId,
+      type: typeof saveData.categoryId,
+      isNull: saveData.categoryId === null,
+      isUndefined: saveData.categoryId === undefined
     });
 
-    setTimeout(() => {
-      wx.navigateBack({
-        delta: 1
+    try {
+      wx.showLoading({ title: '保存中...' });
+
+      if (isEdit) {
+        // 编辑模式：更新现有食谱
+        await updateMyRecipe(recipeId, saveData);
+      } else {
+        // 新增模式
+        await createMyRecipe(saveData);
+      }
+
+      wx.hideLoading();
+      wx.showToast({
+        title: isEdit ? '保存成功' : '添加成功',
+        icon: 'success',
+        duration: 1500
       });
-    }, 1500);
+
+      setTimeout(() => {
+        wx.navigateBack({
+          delta: 1
+        });
+      }, 1500);
+    } catch (error) {
+      console.error('保存食谱失败：', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: error.message || '保存失败',
+        icon: 'none'
+      });
+    }
   }
 })

@@ -174,3 +174,30 @@ export const deleteMyRecipe = (recipeId) => {
         method: 'DELETE'
     })
 }
+
+// 上传食谱图片
+export const uploadRecipeImage = (filePath) => {
+    return new Promise((resolve, reject) => {
+        const token = wx.getStorageSync('token');
+
+        wx.uploadFile({
+            url: 'http://localhost:8000/api/file/upload/image',
+            filePath: filePath,
+            name: 'file',
+            header: {
+                'Authorization': token
+            },
+            success: (res) => {
+                const data = JSON.parse(res.data);
+                if (data.code === 200) {
+                    resolve(data.data);
+                } else {
+                    reject(new Error(data.message || '上传失败'));
+                }
+            },
+            fail: (error) => {
+                reject(error);
+            }
+        });
+    });
+}

@@ -32,12 +32,26 @@
       </view>
       <view class="form-item">
         <text class="form-label">分类</text>
-        <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+        <picker mode="selector" range="{{categories}}" range-key="name" value="{{categoryIndex}}" bindchange="onCategoryChange">
           <view class="picker-input">
-            <text class="picker-text">{{recipeData.category || '请选择分类'}}</text>
+            <text class="picker-text {{categoryIndex === -1 ? 'placeholder' : ''}}">{{categoryIndex >= 0 ? categories[categoryIndex].name : '请选择分类'}}</text>
             <image class="picker-arrow" src="/assets/my/icon-arrow.png" mode="aspectFit"></image>
           </view>
         </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">健康目标标签（可多选）</text>
+        <view class="goal-tags-selector">
+          <view 
+            class="goal-tag-item {{item.selected ? 'selected' : ''}}" 
+            wx:for="{{goalTags}}" 
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="toggleGoalTag"
+          >
+            {{item.name}}
+          </view>
+        </view>
       </view>
     </view>
 
@@ -46,20 +60,20 @@
       <view class="section-title">营养成分</view>
       <view class="nutrition-grid">
         <view class="nutrition-input-item">
-          <text class="nutrition-label">热量</text>
-          <input class="nutrition-input" type="digit" placeholder="热量/千卡" value="{{recipeData.nutrition.calories}}" bindinput="onNutritionInput" data-field="calories" />
+          <text class="nutrition-label">热量（千卡）</text>
+          <input class="nutrition-input" type="digit" placeholder="0" value="{{recipeData.calories}}" bindinput="onNutritionInput" data-field="calories" />
         </view>
         <view class="nutrition-input-item">
-          <text class="nutrition-label">蛋白质</text>
-          <input class="nutrition-input" type="digit" placeholder="蛋白质/g" value="{{recipeData.nutrition.protein}}" bindinput="onNutritionInput" data-field="protein" />
+          <text class="nutrition-label">蛋白质（g）</text>
+          <input class="nutrition-input" type="digit" placeholder="0" value="{{recipeData.protein}}" bindinput="onNutritionInput" data-field="protein" />
         </view>
         <view class="nutrition-input-item">
-          <text class="nutrition-label">碳水化合物</text>
-          <input class="nutrition-input" type="digit" placeholder="碳水/g" value="{{recipeData.nutrition.carbs}}" bindinput="onNutritionInput" data-field="carbs" />
+          <text class="nutrition-label">碳水化合物（g）</text>
+          <input class="nutrition-input" type="digit" placeholder="0" value="{{recipeData.carbs}}" bindinput="onNutritionInput" data-field="carbs" />
         </view>
         <view class="nutrition-input-item">
-          <text class="nutrition-label">脂肪</text>
-          <input class="nutrition-input" type="digit" placeholder="脂肪/g" value="{{recipeData.nutrition.fat}}" bindinput="onNutritionInput" data-field="fat" />
+          <text class="nutrition-label">脂肪（g）</text>
+          <input class="nutrition-input" type="digit" placeholder="0" value="{{recipeData.fat}}" bindinput="onNutritionInput" data-field="fat" />
         </view>
       </view>
     </view>

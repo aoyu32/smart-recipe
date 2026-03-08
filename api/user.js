@@ -203,3 +203,13 @@ export const deleteDietPreference = (preferenceId) => {
         method: 'DELETE'
     })
 }
+
+// ========== 我的内容统计相关API ==========
+
+// 获取我的内容统计
+export const getMyContentStats = () => {
+    return request({
+        url: '/api/my-content/stats',
+        method: 'GET'
+    })
+}
