@@ -83,6 +83,23 @@ page {
   color: #FFFFFF;
   font-size: 24rpx;
   border-radius: 30rpx;
+  margin-right: 10rpx;
+}
+
+/* 健康目标标签 */
+.recipe-tags {
+  display: inline-flex;
+  gap: 10rpx;
+  margin-top: 10rpx;
+}
+
+.tag-item {
+  padding: 6rpx 16rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #B6CF99;
+  font-size: 22rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
 }
 
 /* 基本信息 */
