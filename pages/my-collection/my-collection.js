@@ -1,5 +1,5 @@
 // pages/my-collection/my-collection.js
-const mockRecipeDetail = require('../../mock/recipe-detail.js');
+import { getMyCollections, cancelCollection } from '../../api/recipe';
 
 Page({
     data: {
@@ -28,28 +28,28 @@ Page({
     },
 
     // 加载收藏列表
-    loadCollections() {
-        // 从本地存储获取收藏的食谱ID列表
-        const collectedIds = wx.getStorageSync('collectedRecipes') || [];
+    async loadCollections() {
+        try {
+            wx.showLoading({ title: '加载中...' });
 
-        if (collectedIds.length === 0) {
+            const collections = await getMyCollections();
+
+            console.log('后端返回的收藏列表:', collections);
+
             this.setData({
-                isEmpty: true,
-                collectionList: []
+                collectionList: collections || [],
+                isEmpty: !collections || collections.length === 0
             });
-            return;
+
+            wx.hideLoading();
+        } catch (error) {
+            console.error('加载收藏列表失败:', error);
+            wx.hideLoading();
+            wx.showToast({
+                title: '加载失败',
+                icon: 'none'
+            });
         }
-
-        // 根据ID获取食谱详情
-        const collectionList = collectedIds.map(id => {
-            const recipe = mockRecipeDetail.getRecipeById(id);
-            return recipe ? { ...recipe, isCollected: true } : null;
-        }).filter(item => item !== null);
-
-        this.setData({
-            collectionList: collectionList,
-            isEmpty: collectionList.length === 0
-        });
     },
 
     // 返回上一页
@@ -74,32 +74,32 @@ Page({
         wx.showModal({
             title: '提示',
             content: '确定要取消收藏吗？',
-            success: (res) => {
+            success: async (res) => {
                 if (res.confirm) {
-                    this.removeCollection(id);
+                    try {
+                        wx.showLoading({ title: '处理中...' });
+
+                        await cancelCollection(id);
+
+                        wx.hideLoading();
+                        wx.showToast({
+                            title: '已取消收藏',
+                            icon: 'success',
+                            duration: 1500
+                        });
+
+                        // 重新加载列表
+                        this.loadCollections();
+                    } catch (error) {
+                        console.error('取消收藏失败:', error);
+                        wx.hideLoading();
+                        wx.showToast({
+                            title: error.message || '操作失败',
+                            icon: 'none'
+                        });
+                    }
                 }
             }
         });
-    },
-
-    // 移除收藏
-    removeCollection(id) {
-        let collectedIds = wx.getStorageSync('collectedRecipes') || [];
-        collectedIds = collectedIds.filter(item => item !== id);
-        wx.setStorageSync('collectedRecipes', collectedIds);
-
-        // 更新我的内容统计
-        const myContent = wx.getStorageSync('myContent') || { collections: 0, recipes: 0 };
-        myContent.collections = collectedIds.length;
-        wx.setStorageSync('myContent', myContent);
-
-        wx.showToast({
-            title: '已取消收藏',
-            icon: 'success',
-            duration: 1500
-        });
-
-        // 重新加载列表
-        this.loadCollections();
     }
 })

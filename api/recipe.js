@@ -119,3 +119,58 @@ export function getRecipeRankings() {
         method: 'GET'
     });
 }
+
+
+// ========== 我的收藏相关API ==========
+
+// 获取我的收藏列表
+export const getMyCollections = () => {
+    return request({
+        url: '/api/recipe-collection/list',
+        method: 'GET'
+    })
+}
+
+// 取消收藏
+export const cancelCollection = (recipeId) => {
+    return request({
+        url: `/api/recipe-collection/cancel/${recipeId}`,
+        method: 'DELETE'
+    })
+}
+
+// ========== 我的食谱相关API ==========
+
+// 创建我的食谱
+export const createMyRecipe = (data) => {
+    return request({
+        url: '/api/my-recipe/create',
+        method: 'POST',
+        data
+    })
+}
+
+// 获取我的食谱列表
+export const getMyRecipes = () => {
+    return request({
+        url: '/api/my-recipe/list',
+        method: 'GET'
+    })
+}
+
+// 更新我的食谱
+export const updateMyRecipe = (recipeId, data) => {
+    return request({
+        url: `/api/my-recipe/update/${recipeId}`,
+        method: 'PUT',
+        data
+    })
+}
+
+// 删除我的食谱
+export const deleteMyRecipe = (recipeId) => {
+    return request({
+        url: `/api/my-recipe/delete/${recipeId}`,
+        method: 'DELETE'
+    })
+}
