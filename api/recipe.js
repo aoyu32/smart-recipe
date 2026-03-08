@@ -109,3 +109,13 @@ export function uncollectRecipe(id) {
         method: 'DELETE'
     });
 }
+
+/**
+ * 查询食谱排行榜
+ */
+export function getRecipeRankings() {
+    return request({
+        url: '/api/recipe/rankings',
+        method: 'GET'
+    });
+}

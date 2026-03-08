@@ -1,5 +1,6 @@
 // index.js
-const { banners, todayRecipe, rankings } = require('../../mock/index.js');
+import { getRecipeRankings } from '../../api/recipe';
+const { banners, todayRecipe } = require('../../mock/index.js');
 
 Page({
   data: {
@@ -70,9 +71,23 @@ Page({
       menuButtonInfo: menuButtonInfo,
       headerPaddingTop: headerPaddingTop,
       banners: banners,
-      todayRecipe: updatedTodayRecipe,
-      rankings: rankings
+      todayRecipe: updatedTodayRecipe
     });
+
+    // 加载排行榜数据
+    this.loadRankings();
+  },
+
+  // 加载排行榜数据
+  async loadRankings() {
+    try {
+      const rankings = await getRecipeRankings();
+      this.setData({ rankings });
+    } catch (error) {
+      console.error('加载排行榜失败:', error);
+      // 失败时使用空数组
+      this.setData({ rankings: [] });
+    }
   },
 
   onShow() {
