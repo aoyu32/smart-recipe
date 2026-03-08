@@ -44,7 +44,29 @@ request.interceptors.response.use(
         if (res.code === 200) {
             return res.data
         } else {
-            // 处理业务错误
+            // 处理token过期或无效（业务错误码1008）
+            if (res.code === 1008 || res.code === 401) {
+                wx.showToast({
+                    title: '登录已过期，请重新登录',
+                    icon: 'none',
+                    duration: 2000
+                })
+
+                // 清除token并跳转到登录页
+                wx.removeStorageSync('token')
+                wx.removeStorageSync('userInfo')
+                wx.removeStorageSync('userProfile')
+
+                setTimeout(() => {
+                    wx.reLaunch({
+                        url: '/pages/login/login'
+                    })
+                }, 2000)
+
+                return Promise.reject(new Error('登录已过期'))
+            }
+
+            // 处理其他业务错误
             wx.showToast({
                 title: res.message || '请求失败',
                 icon: 'none',
@@ -70,13 +92,17 @@ request.interceptors.response.use(
                     message = data.message || '请求参数错误'
                     break
                 case 401:
-                    message = '未授权，请重新登录'
+                    message = '登录已过期，请重新登录'
                     // 清除token并跳转到登录页
                     wx.removeStorageSync('token')
                     wx.removeStorageSync('userInfo')
-                    wx.reLaunch({
-                        url: '/pages/auth/login/login'
-                    })
+                    wx.removeStorageSync('userProfile')
+
+                    setTimeout(() => {
+                        wx.reLaunch({
+                            url: '/pages/login/login'
+                        })
+                    }, 2000)
                     break
                 case 403:
                     message = '拒绝访问'

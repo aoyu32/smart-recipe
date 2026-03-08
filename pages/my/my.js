@@ -165,9 +165,9 @@ Page({
       showEditModal: true,
       tempAvatar: userInfo.avatar,
       tempName: userInfo.name,
-      tempHeight: userInfo.height.toString(),
-      tempWeight: userInfo.weight.toString(),
-      tempBirthday: userInfo.birthday,
+      tempHeight: userInfo.height > 0 ? userInfo.height.toString() : '',
+      tempWeight: userInfo.weight > 0 ? userInfo.weight.toString() : '',
+      tempBirthday: userInfo.birthday || '',
       tempGender: genderIndex
     });
   },
@@ -188,10 +188,51 @@ Page({
       count: 1,
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
-      success: (res) => {
+      success: async (res) => {
         const tempFilePath = res.tempFilePaths[0];
-        this.setData({
-          tempAvatar: tempFilePath
+
+        console.log('选择的图片路径：', tempFilePath);
+
+        // 显示上传中
+        wx.showLoading({
+          title: '上传中...',
+          mask: true
+        });
+
+        try {
+          // 上传头像到服务器
+          const avatarUrl = await api.user.uploadAvatar(tempFilePath);
+
+          console.log('上传成功，返回的URL：', avatarUrl);
+
+          wx.hideLoading();
+
+          // 更新临时头像
+          this.setData({
+            tempAvatar: avatarUrl
+          }, () => {
+            console.log('setData完成，当前tempAvatar：', this.data.tempAvatar);
+          });
+
+          wx.showToast({
+            title: '上传成功',
+            icon: 'success',
+            duration: 1500
+          });
+        } catch (error) {
+          wx.hideLoading();
+          console.error('上传头像失败：', error);
+          wx.showToast({
+            title: '上传失败，请重试',
+            icon: 'none'
+          });
+        }
+      },
+      fail: (error) => {
+        console.error('选择图片失败：', error);
+        wx.showToast({
+          title: '选择图片失败',
+          icon: 'none'
         });
       }
     });
@@ -233,7 +274,7 @@ Page({
   },
 
   // 确认编辑
-  confirmEdit() {
+  async confirmEdit() {
     const { tempName, tempHeight, tempWeight, tempAvatar, tempBirthday, tempGender } = this.data;
 
     // 验证昵称
@@ -247,7 +288,7 @@ Page({
 
     // 验证身高
     const height = parseFloat(tempHeight);
-    if (isNaN(height) || height < 100 || height > 250) {
+    if (tempHeight && (isNaN(height) || height < 100 || height > 250)) {
       wx.showToast({
         title: '请输入有效身高(100-250cm)',
         icon: 'none'
@@ -257,7 +298,7 @@ Page({
 
     // 验证体重
     const weight = parseFloat(tempWeight);
-    if (isNaN(weight) || weight < 30 || weight > 200) {
+    if (tempWeight && (isNaN(weight) || weight < 30 || weight > 200)) {
       wx.showToast({
         title: '请输入有效体重(30-200kg)',
         icon: 'none'
@@ -265,27 +306,41 @@ Page({
       return;
     }
 
-    // 更新用户信息
-    const userInfo = this.data.userInfo;
-    userInfo.avatar = tempAvatar;
-    userInfo.name = tempName.trim();
-    userInfo.height = height;
-    userInfo.weight = weight;
-    userInfo.birthday = tempBirthday;
-    userInfo.gender = tempGender === 1 ? '女' : '男';
+    try {
+      // 构建更新数据
+      const updateData = {
+        nickname: tempName.trim(),
+        avatar: tempAvatar,
+        gender: tempGender === 1 ? 2 : 1, // 前端：0-男，1-女；后端：1-男，2-女
+        birthday: tempBirthday || null
+      };
 
-    // 重新计算BMI
-    this.calculateBMI(userInfo);
+      // 如果有身高体重，添加到更新数据
+      if (tempHeight) {
+        updateData.height = height;
+      }
+      if (tempWeight) {
+        updateData.weight = weight;
+      }
 
-    this.setData({ userInfo });
-    wx.setStorageSync('userInfo', userInfo);
+      // 调用后端更新接口
+      await api.user.updateUserProfile(updateData);
 
-    this.closeEditModal();
+      wx.showToast({
+        title: '修改成功',
+        icon: 'success'
+      });
 
-    wx.showToast({
-      title: '修改成功',
-      icon: 'success'
-    });
+      this.closeEditModal();
+
+      // 重新加载用户数据
+      setTimeout(() => {
+        this.loadUserData();
+      }, 1500);
+
+    } catch (error) {
+      console.error('更新用户信息失败：', error);
+    }
   },
 
   // 计算BMI
