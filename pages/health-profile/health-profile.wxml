@@ -139,7 +139,7 @@
         </view>
         <view class="info-grid-item">
           <text class="grid-label">年龄</text>
-          <text class="grid-value">{{healthInfo.age}}岁</text>
+          <text class="grid-value">{{healthInfo.age ? healthInfo.age + '岁' : '-'}}</text>
         </view>
         <view class="info-grid-item">
           <text class="grid-label">性别</text>
@@ -151,7 +151,7 @@
         </view>
         <view class="info-grid-item">
           <text class="grid-label">运动量</text>
-          <text class="grid-value">{{healthInfo.activityLevel}}</text>
+          <text class="grid-value">{{healthInfo.activityLevel || '-'}}</text>
         </view>
         <view class="info-grid-item">
           <text class="grid-label">血压</text>

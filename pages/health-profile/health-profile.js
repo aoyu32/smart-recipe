@@ -1,5 +1,5 @@
 // pages/health-profile/health-profile.js
-const mockHealthProfile = require('../../mock/health-profile.js');
+import { getHealthProfile, updateHealthProfile } from '../../api/user';
 
 Page({
   data: {
@@ -52,16 +52,51 @@ Page({
   },
 
   // 加载健康档案数据
-  loadProfileData() {
-    const profileData = mockHealthProfile.getHealthProfile();
-    this.setData({
-      currentGoal: profileData.currentGoal,
-      healthInfo: profileData.healthInfo,
-      goalHistory: profileData.goalHistory,
-      restrictions: profileData.restrictions,
-      goalTemplates: profileData.goalTemplates,
-      isHistoryEditing: false
-    });
+  async loadProfileData() {
+    try {
+      wx.showLoading({ title: '加载中...' });
+
+      const profile = await getHealthProfile();
+
+      console.log('后端返回的健康档案数据:', profile);
+
+      // 性别映射
+      const genderMap = { 0: '未知', 1: '男', 2: '女' };
+      // 活动水平映射
+      const activityMap = {
+        'sedentary': '久坐',
+        'light': '轻度运动',
+        'moderate': '中度运动',
+        'heavy': '重度运动'
+      };
+
+      // 构建healthInfo对象，将null转换为空字符串或默认值
+      const healthInfo = {
+        height: profile.height || '',
+        weight: profile.weight || '',
+        age: profile.age || '',
+        gender: genderMap[profile.gender] || '未知',
+        bmi: profile.bmi || 0,
+        bmiStatus: profile.bmiStatus || 'normal',
+        activityLevel: profile.activityLevel ? activityMap[profile.activityLevel] : '',
+        bloodPressure: profile.bloodPressure || '',
+        bloodSugar: profile.bloodSugar || ''
+      };
+
+      this.setData({
+        healthInfo: healthInfo,
+        isHistoryEditing: false
+      });
+
+      wx.hideLoading();
+    } catch (error) {
+      console.error('加载健康档案失败:', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 返回上一页
@@ -310,13 +345,13 @@ Page({
     this.setData({
       showHealthModal: true,
       healthForm: {
-        height: info.height || '',
-        weight: info.weight || '',
-        age: info.age || '',
+        height: info.height ? info.height.toString() : '',
+        weight: info.weight ? info.weight.toString() : '',
+        age: info.age ? info.age.toString() : '',
         genderIndex: genderIndex >= 0 ? genderIndex : 0,
         activityIndex: activityIndex >= 0 ? activityIndex : 0,
         bloodPressure: info.bloodPressure || '',
-        bloodSugar: info.bloodSugar || ''
+        bloodSugar: info.bloodSugar ? info.bloodSugar.toString() : ''
       }
     });
   },
@@ -372,49 +407,63 @@ Page({
   },
 
   // 保存健康状况
-  saveHealthInfo() {
+  async saveHealthInfo() {
     const { healthForm, genders, activityLevels } = this.data;
 
-    // 计算BMI
-    const height = parseFloat(healthForm.height);
-    const weight = parseFloat(healthForm.weight);
-    let bmi = 0;
-    let bmiStatus = 'normal';
-
-    if (height && weight) {
-      bmi = (weight / ((height / 100) ** 2)).toFixed(1);
-      if (bmi < 18.5) {
-        bmiStatus = 'underweight';
-      } else if (bmi >= 18.5 && bmi < 24) {
-        bmiStatus = 'normal';
-      } else if (bmi >= 24 && bmi < 28) {
-        bmiStatus = 'overweight';
-      } else {
-        bmiStatus = 'obese';
-      }
+    // 验证必填字段
+    if (!healthForm.height || !healthForm.weight) {
+      wx.showToast({
+        title: '请填写身高和体重',
+        icon: 'none'
+      });
+      return;
     }
 
-    const newHealthInfo = {
-      height: healthForm.height,
-      weight: healthForm.weight,
-      age: healthForm.age,
-      gender: genders[healthForm.genderIndex],
-      bmi: bmi,
-      bmiStatus: bmiStatus,
-      activityLevel: activityLevels[healthForm.activityIndex],
-      bloodPressure: healthForm.bloodPressure,
-      bloodSugar: healthForm.bloodSugar
-    };
+    try {
+      wx.showLoading({ title: '保存中...' });
 
-    this.setData({
-      healthInfo: newHealthInfo,
-      showHealthModal: false
-    });
+      // 性别映射：男->1, 女->2
+      const genderMap = { '男': 1, '女': 2 };
+      // 活动水平映射
+      const activityMap = {
+        '久坐': 'sedentary',
+        '轻度运动': 'light',
+        '中度运动': 'moderate',
+        '重度运动': 'heavy'
+      };
 
-    wx.showToast({
-      title: '保存成功',
-      icon: 'success'
-    });
+      const data = {
+        height: parseFloat(healthForm.height),
+        weight: parseFloat(healthForm.weight),
+        age: healthForm.age ? parseInt(healthForm.age) : null,
+        gender: genderMap[genders[healthForm.genderIndex]],
+        activityLevel: activityMap[activityLevels[healthForm.activityIndex]],
+        bloodPressure: healthForm.bloodPressure || null,
+        bloodSugar: healthForm.bloodSugar ? parseFloat(healthForm.bloodSugar) : null
+      };
+
+      await updateHealthProfile(data);
+
+      wx.hideLoading();
+      wx.showToast({
+        title: '保存成功',
+        icon: 'success'
+      });
+
+      this.setData({
+        showHealthModal: false
+      });
+
+      // 重新加载数据
+      this.loadProfileData();
+    } catch (error) {
+      console.error('保存健康状况失败:', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: '保存失败',
+        icon: 'none'
+      });
+    }
   },
 
   // ========== 特殊禁忌相关 ==========

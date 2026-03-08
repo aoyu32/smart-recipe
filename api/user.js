@@ -62,3 +62,20 @@ export const uploadAvatar = (filePath) => {
         })
     })
 }
+
+// 获取健康档案
+export const getHealthProfile = () => {
+    return request({
+        url: '/api/health-profile',
+        method: 'GET'
+    })
+}
+
+// 更新健康档案
+export const updateHealthProfile = (data) => {
+    return request({
+        url: '/api/health-profile',
+        method: 'PUT',
+        data
+    })
+}
