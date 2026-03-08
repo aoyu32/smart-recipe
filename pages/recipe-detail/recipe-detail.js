@@ -1,5 +1,5 @@
 // pages/recipe-detail/recipe-detail.js
-const mockRecipeDetail = require('../../mock/recipe-detail.js');
+import { getRecipeDetailById } from '../../api/recipe';
 
 Page({
   data: {
@@ -38,33 +38,49 @@ Page({
   },
 
   // 加载食谱详情
-  loadRecipeDetail(id, isCustom) {
-    let detail = null;
-
+  async loadRecipeDetail(id, isCustom) {
     if (isCustom) {
       // 从自定义食谱中获取
       const myRecipes = wx.getStorageSync('myRecipes') || [];
-      detail = myRecipes.find(item => item.id === id);
-    } else {
-      // 使用mock数据
-      detail = mockRecipeDetail.getRecipeById(id);
-    }
+      const detail = myRecipes.find(item => item.id === id);
 
-    if (detail) {
-      // 检查是否已收藏
-      const collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
-      const isCollected = collectedRecipes.includes(id);
+      if (detail) {
+        // 检查是否已收藏
+        const collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
+        const isCollected = collectedRecipes.includes(id);
 
-      this.setData({
-        recipeDetail: detail,
-        isLiked: detail.isLiked || false,
-        isCollected: isCollected
-      });
+        this.setData({
+          recipeDetail: detail,
+          isLiked: detail.isLiked || false,
+          isCollected: isCollected
+        });
+      } else {
+        wx.showToast({
+          title: '食谱不存在',
+          icon: 'none'
+        });
+      }
     } else {
-      wx.showToast({
-        title: '食谱不存在',
-        icon: 'none'
-      });
+      // 从后端获取
+      try {
+        const detail = await getRecipeDetailById(id);
+
+        // 检查是否已收藏
+        const collectedRecipes = wx.getStorageSync('collectedRecipes') || [];
+        const isCollected = collectedRecipes.includes(id);
+
+        this.setData({
+          recipeDetail: detail,
+          isLiked: false, // 后续需要从后端获取用户是否点赞
+          isCollected: isCollected
+        });
+      } catch (error) {
+        console.error('加载食谱详情失败：', error);
+        wx.showToast({
+          title: '加载失败',
+          icon: 'none'
+        });
+      }
     }
   },
 

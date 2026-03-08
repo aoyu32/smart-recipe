@@ -1,19 +1,15 @@
 // pages/recipe/recipe.js
+import { getAllCategories, getAllRecipes, getRecipesByCategory, getRecipesByGoalTag, getRecipesByCategoryAndGoalTag } from '../../api/recipe';
+
 Page({
   data: {
     keyword: '',
     activeGoal: '',
     activeCategoryId: 'all',
-    categories: [
-      { id: 'all', name: '全部' },
-      { id: 'homestyle', name: '家常菜' },
-      { id: 'quick', name: '快手菜' },
-      { id: 'salad', name: '沙拉' },
-      { id: 'soup', name: '汤羹' },
-      { id: 'staple', name: '主食' },
-      { id: 'dessert', name: '甜品' }
-    ],
-    recipes: [
+    categories: [],
+    recipes: [],
+    filteredRecipes: [],
+    mockRecipes: [
       {
         id: 'r1',
         name: '鸡胸肉蔬菜沙拉',
@@ -209,19 +205,69 @@ Page({
     ]
   },
 
-  onLoad() {
-    this.updateFiltered();
+  async onLoad() {
+    await this.loadCategories();
+    await this.loadRecipes();
+  },
+
+  // 加载分类列表
+  async loadCategories() {
+    try {
+      const categories = await getAllCategories();
+      // 在前面添加"全部"选项
+      const allCategories = [{ id: 'all', name: '全部' }, ...categories];
+      this.setData({ categories: allCategories });
+    } catch (error) {
+      console.error('加载分类失败：', error);
+      wx.showToast({
+        title: '加载分类失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 加载食谱列表
+  async loadRecipes() {
+    try {
+      const { activeCategoryId, activeGoal } = this.data;
+      let recipes = [];
+
+      // 根据不同条件调用不同接口
+      if (activeCategoryId === 'all' && !activeGoal) {
+        // 查询所有食谱
+        recipes = await getAllRecipes();
+      } else if (activeCategoryId !== 'all' && !activeGoal) {
+        // 根据分类查询
+        recipes = await getRecipesByCategory(activeCategoryId);
+      } else if (activeCategoryId === 'all' && activeGoal) {
+        // 根据健康目标查询
+        recipes = await getRecipesByGoalTag(activeGoal);
+      } else {
+        // 根据分类和健康目标查询
+        recipes = await getRecipesByCategoryAndGoalTag(activeCategoryId, activeGoal);
+      }
+
+      this.setData({
+        recipes: recipes,
+        filteredRecipes: recipes
+      });
+    } catch (error) {
+      console.error('加载食谱失败：', error);
+      wx.showToast({
+        title: '加载食谱失败',
+        icon: 'none'
+      });
+    }
   },
 
   updateFiltered() {
-    const { recipes, activeCategoryId, keyword, activeGoal } = this.data;
+    const { recipes, keyword } = this.data;
     const kw = (keyword || '').trim().toLowerCase();
 
+    // 只进行关键词筛选，分类和目标筛选由后端完成
     const list = recipes.filter((r) => {
-      const hitCategory = activeCategoryId === 'all' ? true : r.categoryId === activeCategoryId;
-      const hitGoal = activeGoal ? (r.tags || []).includes(activeGoal) : true;
       const hitKeyword = kw ? (r.name || '').toLowerCase().includes(kw) : true;
-      return hitCategory && hitGoal && hitKeyword;
+      return hitKeyword;
     });
 
     this.setData({ filteredRecipes: list });
@@ -247,21 +293,24 @@ Page({
   onTapGoal(e) {
     const goal = e.currentTarget.dataset.goal;
     const { activeGoal } = this.data;
-    this.setData({ activeGoal: activeGoal === goal ? '' : goal }, () => this.updateFiltered());
+    const newGoal = activeGoal === goal ? '' : goal;
+    this.setData({ activeGoal: newGoal }, async () => {
+      await this.loadRecipes();
+    });
   },
 
   onChooseCategory(e) {
     const id = e.currentTarget.dataset.id;
-    this.setData({ activeCategoryId: id }, () => this.updateFiltered());
+    this.setData({ activeCategoryId: id }, async () => {
+      await this.loadRecipes();
+    });
   },
 
   onOpenRecipe(e) {
     const id = e.currentTarget.dataset.id;
-    // 跳转到食谱详情页
-    // 将食谱ID映射到详情页ID（r1->1, r2->2, r3->3）
-    const detailId = id.replace('r', '');
+    // 跳转到食谱详情页，直接使用后端返回的ID
     wx.navigateTo({
-      url: `/pages/recipe-detail/recipe-detail?id=${detailId}`
+      url: `/pages/recipe-detail/recipe-detail?id=${id}`
     });
   }
 });

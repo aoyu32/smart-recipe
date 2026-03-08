@@ -3,8 +3,8 @@ import api from '../../api/index'
 
 Page({
   data: {
-    email: '',
-    password: '',
+    email: '3256515381@qq.com',
+    password: '123456',
     showPassword: false
   },
 
