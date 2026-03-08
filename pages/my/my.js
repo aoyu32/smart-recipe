@@ -23,10 +23,9 @@ Page({
 
     // 健康目标
     healthGoal: {
-      target: '保持健康',
-      targetWeight: 65,
-      targetBMI: 21.5,
-      dailyCalories: 1800
+      hasGoal: false,
+      target: '未设置',
+      fields: []
     },
 
     // 我的内容统计
@@ -89,21 +88,7 @@ Page({
       };
 
       // 处理健康目标
-      let healthGoal = {
-        target: '未设置',
-        targetBMI: '--',
-        targetWeight: '--',
-        dailyCalories: '--'
-      };
-
-      if (currentGoal) {
-        healthGoal = {
-          target: currentGoal.target || '未设置',
-          targetBMI: currentGoal.targetBMI || '--',
-          targetWeight: currentGoal.targetWeight ? currentGoal.targetWeight + 'kg' : '--',
-          dailyCalories: currentGoal.dailyCalories ? currentGoal.dailyCalories + '千卡' : '--'
-        };
-      }
+      const healthGoal = this.formatHealthGoal(currentGoal);
 
       this.setData({
         userInfo,
@@ -136,6 +121,58 @@ Page({
     }
   },
 
+  // 格式化健康目标数据
+  formatHealthGoal(goal) {
+    if (!goal) {
+      return {
+        hasGoal: false,
+        target: '未设置',
+        fields: []
+      };
+    }
+
+    const goalType = goal.goalType;
+    let fields = [];
+
+    // 根据目标类型显示对应的三个字段
+    if (goalType === 'lose_weight' || goalType === 'gain_weight' || goalType === 'maintain') {
+      // 减重/增重/保持健康：目标体重、目标BMI、每日热量
+      fields = [
+        { label: '目标体重', value: goal.targetWeight ? goal.targetWeight + 'kg' : '--' },
+        { label: '目标BMI', value: goal.targetBMI || '--' },
+        { label: '每日热量', value: goal.dailyCalories ? goal.dailyCalories + 'kcal' : '--' }
+      ];
+    } else if (goalType === 'gain_muscle') {
+      // 增肌：目标体重、目标肌肉量、每日蛋白质
+      fields = [
+        { label: '目标体重', value: goal.targetWeight ? goal.targetWeight + 'kg' : '--' },
+        { label: '目标肌肉量', value: goal.targetMuscle ? goal.targetMuscle + 'kg' : '--' },
+        { label: '每日蛋白质', value: goal.dailyProtein ? goal.dailyProtein + 'g' : '--' }
+      ];
+    } else if (goalType === 'control_sugar') {
+      // 控糖：目标血糖、每日碳水、每日热量
+      fields = [
+        { label: '目标血糖', value: goal.targetBloodSugar ? goal.targetBloodSugar + 'mmol/L' : '--' },
+        { label: '每日碳水', value: goal.dailyCarbs ? goal.dailyCarbs + 'g' : '--' },
+        { label: '每日热量', value: goal.dailyCalories ? goal.dailyCalories + 'kcal' : '--' }
+      ];
+    } else if (goalType === 'lower_pressure') {
+      // 降压：目标血压、每日钠摄入、每日热量
+      fields = [
+        { label: '目标血压', value: goal.targetBloodPressure || '--' },
+        { label: '每日钠摄入', value: goal.dailySodium ? goal.dailySodium + 'mg' : '--' },
+        { label: '每日热量', value: goal.dailyCalories ? goal.dailyCalories + 'kcal' : '--' }
+      ];
+    }
+
+    return {
+      hasGoal: true,
+      target: goal.target || '未知目标',
+      goalType: goalType,
+      fields: fields
+    };
+  },
+
   // 获取BMI状态
   getBmiStatus(status) {
     const statusMap = {
@@ -166,6 +203,13 @@ Page({
       2: '女'
     };
     return genderMap[gender] || '未知';
+  },
+
+  // 跳转到健康档案页面
+  navigateToHealthProfile() {
+    wx.navigateTo({
+      url: '/pages/health-profile/health-profile'
+    });
   },
 
   // 编辑健康目标

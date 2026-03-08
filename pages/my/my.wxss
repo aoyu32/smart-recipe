@@ -203,12 +203,51 @@ page {
   color: #333;
 }
 
-.card-target-bmi {
-  font-size: 26rpx;
+.card-status {
+  font-size: 24rpx;
   color: #B6CF99;
   font-weight: 500;
+  padding: 6rpx 16rpx;
+  background-color: rgba(182, 207, 153, 0.15);
+  border-radius: 20rpx;
 }
 
+/* 空状态 */
+.goal-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+
+.goal-empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 目标类型行 */
+.goal-type-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 25rpx;
+  background-color: #F7F7F7;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.goal-type-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.goal-type-value {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #B6CF99;
+}
+
+/* 已设置状态 */
 .goal-content {
   display: flex;
   gap: 20rpx;
@@ -398,6 +437,7 @@ page {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -416,6 +456,7 @@ page {
     transform: translateY(50rpx);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;

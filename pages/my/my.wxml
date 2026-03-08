@@ -50,24 +50,29 @@
     </view>
 
     <!-- 健康目标 -->
-    <view class="health-goal-card">
+    <view class="health-goal-card" bindtap="navigateToHealthProfile">
       <view class="card-header">
         <image class="card-icon" src="/assets/my/icon-goal.png" mode="aspectFit"></image>
         <text class="card-title">健康目标</text>
-        <text class="card-target-bmi">目标BMI: {{healthGoal.targetBMI}}</text>
+        <text class="card-status" wx:if="{{healthGoal.hasGoal}}">进行中</text>
       </view>
-      <view class="goal-content">
-        <view class="goal-item">
-          <text class="goal-label">当前目标</text>
-          <text class="goal-value">{{healthGoal.target}}</text>
+      
+      <!-- 未设置状态 -->
+      <view class="goal-empty" wx:if="{{!healthGoal.hasGoal}}">
+        <text class="goal-empty-text">暂无健康目标，点击设置</text>
+      </view>
+      
+      <!-- 已设置状态 -->
+      <view wx:else>
+        <view class="goal-type-row">
+          <text class="goal-type-label">当前目标</text>
+          <text class="goal-type-value">{{healthGoal.target}}</text>
         </view>
-        <view class="goal-item">
-          <text class="goal-label">目标体重</text>
-          <text class="goal-value">{{healthGoal.targetWeight}}kg</text>
-        </view>
-        <view class="goal-item">
-          <text class="goal-label">每日热量</text>
-          <text class="goal-value">{{healthGoal.dailyCalories}}千卡</text>
+        <view class="goal-content">
+          <view class="goal-item" wx:for="{{healthGoal.fields}}" wx:key="label">
+            <text class="goal-label">{{item.label}}</text>
+            <text class="goal-value">{{item.value}}</text>
+          </view>
         </view>
       </view>
     </view>
