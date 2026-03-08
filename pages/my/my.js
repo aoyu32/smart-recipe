@@ -1,5 +1,6 @@
 // pages/my/my.js
 import api from '../../api/index'
+import { getCurrentHealthGoal } from '../../api/user'
 
 Page({
   data: {
@@ -67,8 +68,11 @@ Page({
   // 加载用户数据
   async loadUserData() {
     try {
-      // 从后端获取用户信息
-      const profile = await api.user.getUserProfile();
+      // 并行获取用户信息和健康目标
+      const [profile, currentGoal] = await Promise.all([
+        api.user.getUserProfile(),
+        getCurrentHealthGoal()
+      ]);
 
       // 处理用户信息
       const userInfo = {
@@ -84,29 +88,49 @@ Page({
         gender: this.getGenderText(profile.gender)
       };
 
-      this.setData({ userInfo });
+      // 处理健康目标
+      let healthGoal = {
+        target: '未设置',
+        targetBMI: '--',
+        targetWeight: '--',
+        dailyCalories: '--'
+      };
+
+      if (currentGoal) {
+        healthGoal = {
+          target: currentGoal.target || '未设置',
+          targetBMI: currentGoal.targetBMI || '--',
+          targetWeight: currentGoal.targetWeight ? currentGoal.targetWeight + 'kg' : '--',
+          dailyCalories: currentGoal.dailyCalories ? currentGoal.dailyCalories + '千卡' : '--'
+        };
+      }
+
+      this.setData({
+        userInfo,
+        healthGoal
+      });
 
       // 保存到本地存储
       wx.setStorageSync('userProfile', userInfo);
+      wx.setStorageSync('healthGoal', healthGoal);
 
     } catch (error) {
       console.error('获取用户信息失败：', error);
 
       // 如果获取失败，尝试从本地存储读取
       const cachedProfile = wx.getStorageSync('userProfile');
+      const cachedGoal = wx.getStorageSync('healthGoal');
+
       if (cachedProfile) {
         this.setData({ userInfo: cachedProfile });
+      }
+      if (cachedGoal) {
+        this.setData({ healthGoal: cachedGoal });
       }
     }
 
     // 加载其他数据（从本地存储）
-    const healthGoal = wx.getStorageSync('healthGoal');
     const myContent = wx.getStorageSync('myContent');
-
-    if (healthGoal) {
-      this.setData({ healthGoal });
-    }
-
     if (myContent) {
       this.setData({ myContent });
     }

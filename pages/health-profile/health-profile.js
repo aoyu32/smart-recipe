@@ -1,5 +1,5 @@
 // pages/health-profile/health-profile.js
-import { getHealthProfile, updateHealthProfile } from '../../api/user';
+import { getHealthProfile, updateHealthProfile, getCurrentHealthGoal, addHealthGoal, updateHealthGoal, cancelHealthGoal, completeHealthGoal, getHistoryHealthGoals, deleteHistoryGoal } from '../../api/user';
 
 Page({
   data: {
@@ -56,9 +56,16 @@ Page({
     try {
       wx.showLoading({ title: '加载中...' });
 
-      const profile = await getHealthProfile();
+      // 并行加载健康档案、当前目标和历史目标
+      const [profile, currentGoal, historyGoals] = await Promise.all([
+        getHealthProfile(),
+        getCurrentHealthGoal(),
+        getHistoryHealthGoals()
+      ]);
 
       console.log('后端返回的健康档案数据:', profile);
+      console.log('后端返回的当前目标:', currentGoal);
+      console.log('后端返回的历史目标:', historyGoals);
 
       // 性别映射
       const genderMap = { 0: '未知', 1: '男', 2: '女' };
@@ -85,6 +92,8 @@ Page({
 
       this.setData({
         healthInfo: healthInfo,
+        currentGoal: currentGoal,
+        goalHistory: historyGoals || [],
         isHistoryEditing: false
       });
 
@@ -152,18 +161,37 @@ Page({
 
   // 取消目标
   cancelGoal() {
+    const { currentGoal } = this.data;
+
+    if (!currentGoal) {
+      return;
+    }
+
     wx.showModal({
       title: '提示',
       content: '确定要取消当前目标吗？',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          this.setData({
-            currentGoal: null
-          });
-          wx.showToast({
-            title: '已取消目标',
-            icon: 'success'
-          });
+          try {
+            wx.showLoading({ title: '处理中...' });
+            await cancelHealthGoal(currentGoal.id);
+            wx.hideLoading();
+
+            wx.showToast({
+              title: '已取消目标',
+              icon: 'success'
+            });
+
+            // 重新加载数据
+            this.loadProfileData();
+          } catch (error) {
+            console.error('取消目标失败:', error);
+            wx.hideLoading();
+            wx.showToast({
+              title: '取消失败',
+              icon: 'none'
+            });
+          }
         }
       }
     });
@@ -195,8 +223,21 @@ Page({
 
   // 目标类型变化
   onGoalTypeChange(e) {
+    const newTypeIndex = parseInt(e.detail.value);
+    const { goalForm } = this.data;
+
+    // 切换类型时，清空所有特定字段，只保留通用字段
     this.setData({
-      'goalForm.typeIndex': parseInt(e.detail.value)
+      'goalForm.typeIndex': newTypeIndex,
+      'goalForm.targetWeight': '',
+      'goalForm.targetBMI': '',
+      'goalForm.targetMuscle': '',
+      'goalForm.dailyProtein': '',
+      'goalForm.targetBloodSugar': '',
+      'goalForm.dailyCarbs': '',
+      'goalForm.targetBloodPressure': '',
+      'goalForm.dailySodium': '',
+      'goalForm.dailyCalories': ''
     });
   },
 
@@ -262,37 +303,118 @@ Page({
   },
 
   // 保存目标
-  saveGoal() {
-    const { goalForm, goalTypes } = this.data;
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  async saveGoal() {
+    const { goalForm, goalTypes, isEditingGoal, currentGoal } = this.data;
 
-    const newGoal = {
-      id: Date.now(),
-      target: goalTypes[goalForm.typeIndex],
-      targetWeight: goalForm.targetWeight,
-      targetBMI: goalForm.targetBMI,
-      targetMuscle: goalForm.targetMuscle,
-      dailyProtein: goalForm.dailyProtein,
-      targetBloodSugar: goalForm.targetBloodSugar,
-      dailyCarbs: goalForm.dailyCarbs,
-      targetBloodPressure: goalForm.targetBloodPressure,
-      dailySodium: goalForm.dailySodium,
-      dailyCalories: goalForm.dailyCalories,
-      startDate: dateStr,
-      endDate: goalForm.endDate,
-      status: 'active'
+    // 目标类型映射
+    const goalTypeMap = {
+      '减重': 'lose_weight',
+      '增重': 'gain_weight',
+      '保持健康': 'maintain',
+      '增肌': 'gain_muscle',
+      '控糖': 'control_sugar',
+      '降压': 'lower_pressure'
     };
 
-    this.setData({
-      currentGoal: newGoal,
-      showGoalModal: false
-    });
+    const goalType = goalTypeMap[goalTypes[goalForm.typeIndex]];
 
-    wx.showToast({
-      title: '保存成功',
-      icon: 'success'
-    });
+    // 初始化所有字段为null
+    const data = {
+      goalType: goalType,
+      targetWeight: null,
+      targetBmi: null,
+      targetMuscle: null,
+      targetBloodSugar: null,
+      targetBloodPressure: null,
+      dailyCalories: null,
+      dailyProtein: null,
+      dailyCarbs: null,
+      dailySodium: null,
+      endDate: goalForm.endDate || null
+    };
+
+    // 根据目标类型设置对应字段，其他字段明确设置为null
+    if (goalType === 'lose_weight' || goalType === 'gain_weight' || goalType === 'maintain') {
+      // 减重/增重/保持健康：targetWeight, targetBmi, dailyCalories
+      data.targetWeight = goalForm.targetWeight ? parseFloat(goalForm.targetWeight) : null;
+      data.targetBmi = goalForm.targetBMI ? parseFloat(goalForm.targetBMI) : null;
+      data.dailyCalories = goalForm.dailyCalories ? parseInt(goalForm.dailyCalories) : null;
+      // 其他字段设置为null
+      data.targetMuscle = null;
+      data.targetBloodSugar = null;
+      data.targetBloodPressure = null;
+      data.dailyProtein = null;
+      data.dailyCarbs = null;
+      data.dailySodium = null;
+    } else if (goalType === 'gain_muscle') {
+      // 增肌：targetWeight, targetMuscle, dailyProtein, dailyCalories
+      data.targetWeight = goalForm.targetWeight ? parseFloat(goalForm.targetWeight) : null;
+      data.targetMuscle = goalForm.targetMuscle ? parseFloat(goalForm.targetMuscle) : null;
+      data.dailyProtein = goalForm.dailyProtein ? parseFloat(goalForm.dailyProtein) : null;
+      data.dailyCalories = goalForm.dailyCalories ? parseInt(goalForm.dailyCalories) : null;
+      // 其他字段设置为null
+      data.targetBmi = null;
+      data.targetBloodSugar = null;
+      data.targetBloodPressure = null;
+      data.dailyCarbs = null;
+      data.dailySodium = null;
+    } else if (goalType === 'control_sugar') {
+      // 控糖：targetBloodSugar, dailyCarbs, dailyCalories
+      data.targetBloodSugar = goalForm.targetBloodSugar ? parseFloat(goalForm.targetBloodSugar) : null;
+      data.dailyCarbs = goalForm.dailyCarbs ? parseFloat(goalForm.dailyCarbs) : null;
+      data.dailyCalories = goalForm.dailyCalories ? parseInt(goalForm.dailyCalories) : null;
+      // 其他字段设置为null
+      data.targetWeight = null;
+      data.targetBmi = null;
+      data.targetMuscle = null;
+      data.targetBloodPressure = null;
+      data.dailyProtein = null;
+      data.dailySodium = null;
+    } else if (goalType === 'lower_pressure') {
+      // 降压：targetBloodPressure, dailySodium, dailyCalories
+      data.targetBloodPressure = goalForm.targetBloodPressure || null;
+      data.dailySodium = goalForm.dailySodium ? parseFloat(goalForm.dailySodium) : null;
+      data.dailyCalories = goalForm.dailyCalories ? parseInt(goalForm.dailyCalories) : null;
+      // 其他字段设置为null
+      data.targetWeight = null;
+      data.targetBmi = null;
+      data.targetMuscle = null;
+      data.targetBloodSugar = null;
+      data.dailyProtein = null;
+      data.dailyCarbs = null;
+    }
+
+    try {
+      wx.showLoading({ title: '保存中...' });
+
+      if (isEditingGoal && currentGoal) {
+        // 更新目标
+        await updateHealthGoal(currentGoal.id, data);
+      } else {
+        // 添加目标
+        await addHealthGoal(data);
+      }
+
+      wx.hideLoading();
+      wx.showToast({
+        title: '保存成功',
+        icon: 'success'
+      });
+
+      this.setData({
+        showGoalModal: false
+      });
+
+      // 重新加载数据
+      this.loadProfileData();
+    } catch (error) {
+      console.error('保存目标失败:', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: error.message || '保存失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 完成目标结果输入
@@ -303,8 +425,8 @@ Page({
   },
 
   // 保存完成目标
-  saveCompleteGoal() {
-    const { currentGoal, completeForm, goalHistory } = this.data;
+  async saveCompleteGoal() {
+    const { currentGoal, completeForm } = this.data;
 
     if (!completeForm.result || !completeForm.result.trim()) {
       wx.showToast({
@@ -314,24 +436,33 @@ Page({
       return;
     }
 
-    const completedGoal = {
-      ...currentGoal,
-      status: 'completed',
-      result: completeForm.result
-    };
+    try {
+      wx.showLoading({ title: '处理中...' });
 
-    goalHistory.unshift(completedGoal);
+      await completeHealthGoal(currentGoal.id, {
+        result: completeForm.result
+      });
 
-    this.setData({
-      currentGoal: null,
-      goalHistory: goalHistory,
-      showCompleteModal: false
-    });
+      wx.hideLoading();
+      wx.showToast({
+        title: '目标已完成',
+        icon: 'success'
+      });
 
-    wx.showToast({
-      title: '目标已完成',
-      icon: 'success'
-    });
+      this.setData({
+        showCompleteModal: false
+      });
+
+      // 重新加载数据
+      this.loadProfileData();
+    } catch (error) {
+      console.error('完成目标失败:', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: '操作失败',
+        icon: 'none'
+      });
+    }
   },
 
   // ========== 健康状况相关 ==========
@@ -591,16 +722,28 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确定要删除这条历史记录吗？',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          const goalHistory = this.data.goalHistory.filter(item => item.id !== id);
-          this.setData({
-            goalHistory: goalHistory
-          });
-          wx.showToast({
-            title: '删除成功',
-            icon: 'success'
-          });
+          try {
+            wx.showLoading({ title: '删除中...' });
+            await deleteHistoryGoal(id);
+            wx.hideLoading();
+
+            wx.showToast({
+              title: '删除成功',
+              icon: 'success'
+            });
+
+            // 重新加载数据
+            this.loadProfileData();
+          } catch (error) {
+            console.error('删除历史目标失败:', error);
+            wx.hideLoading();
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            });
+          }
         }
       }
     });

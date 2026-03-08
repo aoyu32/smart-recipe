@@ -79,3 +79,64 @@ export const updateHealthProfile = (data) => {
         data
     })
 }
+
+// ========== 健康目标相关API ==========
+
+// 添加健康目标
+export const addHealthGoal = (data) => {
+    return request({
+        url: '/api/health-goal',
+        method: 'POST',
+        data
+    })
+}
+
+// 查询当前健康目标
+export const getCurrentHealthGoal = () => {
+    return request({
+        url: '/api/health-goal/current',
+        method: 'GET'
+    })
+}
+
+// 更新健康目标
+export const updateHealthGoal = (goalId, data) => {
+    return request({
+        url: `/api/health-goal/${goalId}`,
+        method: 'PUT',
+        data
+    })
+}
+
+// 取消健康目标
+export const cancelHealthGoal = (goalId) => {
+    return request({
+        url: `/api/health-goal/${goalId}/cancel`,
+        method: 'PUT'
+    })
+}
+
+// 完成健康目标
+export const completeHealthGoal = (goalId, data) => {
+    return request({
+        url: `/api/health-goal/${goalId}/complete`,
+        method: 'PUT',
+        data
+    })
+}
+
+// 查询历史目标列表
+export const getHistoryHealthGoals = () => {
+    return request({
+        url: '/api/health-goal/history',
+        method: 'GET'
+    })
+}
+
+// 删除历史目标
+export const deleteHistoryGoal = (goalId) => {
+    return request({
+        url: `/api/health-goal/${goalId}`,
+        method: 'DELETE'
+    })
+}
