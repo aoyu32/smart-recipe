@@ -1,5 +1,5 @@
 // pages/edit-recipe/edit-recipe.js
-import { getAllCategories, uploadRecipeImage, createMyRecipe, updateMyRecipe, getRecipeDetailById } from '../../api/recipe';
+import { getAllCategories, uploadRecipeImage, createMyRecipe, updateMyRecipe, getMyRecipeById } from '../../api/recipe';
 
 Page({
   data: {
@@ -72,10 +72,15 @@ Page({
   async loadRecipe(id) {
     try {
       wx.showLoading({ title: '加载中...' });
-      const recipe = await getRecipeDetailById(id);
+      const recipe = await getMyRecipeById(id);
+
+      console.log('加载的食谱数据:', recipe);
 
       // 找到分类索引
-      const categoryIndex = this.data.categories.findIndex(cat => cat.id === recipe.categoryId);
+      let categoryIndex = -1;
+      if (recipe.categoryId) {
+        categoryIndex = this.data.categories.findIndex(cat => cat.id === recipe.categoryId);
+      }
 
       // 处理健康目标标签
       const goalTags = this.data.goalTags.map(tag => ({
@@ -85,18 +90,18 @@ Page({
 
       this.setData({
         recipeData: {
-          name: recipe.name,
-          categoryId: recipe.categoryId,
-          image: recipe.image,
-          calories: recipe.calories.toString(),
-          protein: recipe.protein.toString(),
-          carbs: recipe.carbs.toString(),
-          fat: recipe.fat.toString(),
+          name: recipe.name || '',
+          categoryId: recipe.categoryId || null,
+          image: recipe.image || '',
+          calories: recipe.calories ? recipe.calories.toString() : '',
+          protein: recipe.protein ? recipe.protein.toString() : '',
+          carbs: recipe.carbs ? recipe.carbs.toString() : '',
+          fat: recipe.fat ? recipe.fat.toString() : '',
           description: recipe.description || '',
           ingredients: recipe.ingredients || [],
           goalTags: recipe.goalTags || []
         },
-        categoryIndex: categoryIndex >= 0 ? categoryIndex : 0,
+        categoryIndex: categoryIndex >= 0 ? categoryIndex : -1,
         goalTags
       });
 

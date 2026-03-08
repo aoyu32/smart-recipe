@@ -158,6 +158,14 @@ export const getMyRecipes = () => {
     })
 }
 
+// 获取我的食谱详情（用于编辑）
+export const getMyRecipeById = (recipeId) => {
+    return request({
+        url: `/api/my-recipe/${recipeId}`,
+        method: 'GET'
+    })
+}
+
 // 更新我的食谱
 export const updateMyRecipe = (recipeId, data) => {
     return request({

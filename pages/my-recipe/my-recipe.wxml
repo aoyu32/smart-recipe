@@ -23,7 +23,7 @@
             </view>
             <view class="card-actions">
               <view class="card-action-btn" catchtap="editRecipe" data-id="{{item.id}}">
-                <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
+                <image class="action-icon" src="/assets/my-recipe/icon-edit.png" mode="aspectFit"></image>
               </view>
               <view class="card-action-btn" catchtap="deleteRecipe" data-id="{{item.id}}">
                 <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
@@ -47,6 +47,6 @@
 
   <!-- 添加按钮 -->
   <view class="add-btn" bindtap="addRecipe">
-    <image class="add-icon" src="/assets/health-profile/icon-add.png" mode="aspectFit"></image>
+    <image class="add-icon" src="/assets/my-recipe/icon-add.png" mode="aspectFit"></image>
   </view>
 </view>
