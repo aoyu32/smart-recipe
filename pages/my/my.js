@@ -1,6 +1,6 @@
 // pages/my/my.js
 import api from '../../api/index'
-import { getCurrentHealthGoal } from '../../api/user'
+import { getCurrentHealthGoal, getMyContentStats } from '../../api/user'
 
 Page({
   data: {
@@ -114,10 +114,19 @@ Page({
       }
     }
 
-    // 加载其他数据（从本地存储）
-    const myContent = wx.getStorageSync('myContent');
-    if (myContent) {
+    // 加载我的内容统计
+    try {
+      const myContent = await getMyContentStats();
       this.setData({ myContent });
+      wx.setStorageSync('myContent', myContent);
+    } catch (error) {
+      console.error('获取内容统计失败：', error);
+
+      // 如果获取失败，尝试从本地存储读取
+      const cachedContent = wx.getStorageSync('myContent');
+      if (cachedContent) {
+        this.setData({ myContent: cachedContent });
+      }
     }
   },
 

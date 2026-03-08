@@ -1,4 +1,6 @@
 // pages/my-recipe/my-recipe.js
+import { getMyRecipes, deleteMyRecipe } from '../../api/recipe';
+
 Page({
     data: {
         statusBarHeight: 0,
@@ -26,13 +28,28 @@ Page({
     },
 
     // 加载我的食谱
-    loadMyRecipes() {
-        const myRecipes = wx.getStorageSync('myRecipes') || [];
+    async loadMyRecipes() {
+        try {
+            wx.showLoading({ title: '加载中...' });
 
-        this.setData({
-            myRecipes: myRecipes,
-            isEmpty: myRecipes.length === 0
-        });
+            const recipes = await getMyRecipes();
+
+            console.log('后端返回的我的食谱:', recipes);
+
+            this.setData({
+                myRecipes: recipes || [],
+                isEmpty: !recipes || recipes.length === 0
+            });
+
+            wx.hideLoading();
+        } catch (error) {
+            console.error('加载我的食谱失败:', error);
+            wx.hideLoading();
+            wx.showToast({
+                title: '加载失败',
+                icon: 'none'
+            });
+        }
     },
 
     // 返回上一页
@@ -46,7 +63,7 @@ Page({
     viewRecipe(e) {
         const id = e.currentTarget.dataset.id;
         wx.navigateTo({
-            url: `/pages/recipe-detail/recipe-detail?id=${id}&custom=true`
+            url: `/pages/recipe-detail/recipe-detail?id=${id}`
         });
     },
 
@@ -72,24 +89,30 @@ Page({
         wx.showModal({
             title: '提示',
             content: '确定要删除这个食谱吗？',
-            success: (res) => {
+            success: async (res) => {
                 if (res.confirm) {
-                    let myRecipes = wx.getStorageSync('myRecipes') || [];
-                    myRecipes = myRecipes.filter(item => item.id !== id);
-                    wx.setStorageSync('myRecipes', myRecipes);
+                    try {
+                        wx.showLoading({ title: '删除中...' });
 
-                    // 更新我的内容统计
-                    const myContent = wx.getStorageSync('myContent') || { collections: 0, recipes: 0 };
-                    myContent.recipes = myRecipes.length;
-                    wx.setStorageSync('myContent', myContent);
+                        await deleteMyRecipe(id);
 
-                    wx.showToast({
-                        title: '删除成功',
-                        icon: 'success',
-                        duration: 1500
-                    });
+                        wx.hideLoading();
+                        wx.showToast({
+                            title: '删除成功',
+                            icon: 'success',
+                            duration: 1500
+                        });
 
-                    this.loadMyRecipes();
+                        // 重新加载列表
+                        this.loadMyRecipes();
+                    } catch (error) {
+                        console.error('删除食谱失败:', error);
+                        wx.hideLoading();
+                        wx.showToast({
+                            title: error.message || '删除失败',
+                            icon: 'none'
+                        });
+                    }
                 }
             }
         });

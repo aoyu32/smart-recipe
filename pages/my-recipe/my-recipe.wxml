@@ -14,13 +14,12 @@
   <scroll-view class="recipe-content" scroll-y wx:if="{{!isEmpty}}">
     <view class="recipe-grid">
       <view class="recipe-card" wx:for="{{myRecipes}}" wx:key="id" bindtap="viewRecipe" data-id="{{item.id}}">
-        <image class="card-img" src="{{item.image}}" mode="aspectFill"></image>
+        <image class="card-img" src="{{item.cover}}" mode="aspectFill"></image>
         <view class="card-body">
           <view class="card-name">{{item.name}}</view>
           <view class="card-row">
             <view class="card-left">
-              <view class="card-category">{{item.category}}</view>
-              <view class="card-cal">{{item.nutrition.calories}} 千卡</view>
+              <view class="card-cal">{{item.kcal}} 千卡</view>
             </view>
             <view class="card-actions">
               <view class="card-action-btn" catchtap="editRecipe" data-id="{{item.id}}">
