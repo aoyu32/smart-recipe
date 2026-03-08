@@ -15,7 +15,7 @@
     <view class="preference-section">
       <view class="section-header">
         <view class="section-title-row">
-          <image class="section-icon like-icon" src="/assets/recipe-detail/icon-like-active.png" mode="aspectFit"></image>
+          <image class="section-icon like-icon" src="/assets/diet-preference/icon-like-food.png" mode="aspectFit"></image>
           <text class="section-title">喜欢的食物</text>
         </view>
         <view class="add-btn-small" bindtap="showAddModal" data-type="like">
@@ -47,7 +47,7 @@
     <view class="preference-section">
       <view class="section-header">
         <view class="section-title-row">
-          <image class="section-icon dislike-icon" src="/assets/recipe-detail/icon-close.png" mode="aspectFit"></image>
+          <image class="section-icon dislike-icon" src="/assets/diet-preference/icon-dislike-food.png" mode="aspectFit"></image>
           <text class="section-title">不喜欢的食物</text>
         </view>
         <view class="add-btn-small" bindtap="showAddModal" data-type="dislike">
