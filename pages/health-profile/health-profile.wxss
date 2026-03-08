@@ -352,15 +352,48 @@ page {
   gap: 6rpx;
 }
 
+.restriction-header {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
 .restriction-name {
   font-size: 28rpx;
   font-weight: 500;
   color: #333;
 }
 
+.severity-badge {
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+}
+
+.severity-badge.low {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: #4CAF50;
+}
+
+.severity-badge.medium {
+  background-color: rgba(255, 152, 0, 0.15);
+  color: #FF9800;
+}
+
+.severity-badge.high {
+  background-color: rgba(244, 67, 54, 0.15);
+  color: #F44336;
+}
+
+.severity-text {
+  font-size: 20rpx;
+  font-weight: 500;
+}
+
 .restriction-desc {
   font-size: 24rpx;
   color: #999;
+  margin-top: 4rpx;
 }
 
 .restriction-actions {

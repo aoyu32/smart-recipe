@@ -182,11 +182,16 @@
         <view class="restriction-item {{item.type}}" wx:for="{{restrictions}}" wx:key="id">
           <view class="restriction-left">
             <view class="restriction-type {{item.type}}">
-              <text class="type-text">{{item.type === 'allergy' ? '过敏' : '疾病'}}</text>
+              <text class="type-text">{{item.typeName}}</text>
             </view>
             <view class="restriction-info">
-              <text class="restriction-name">{{item.name}}</text>
-              <text class="restriction-desc">{{item.description}}</text>
+              <view class="restriction-header">
+                <text class="restriction-name">{{item.name}}</text>
+                <view class="severity-badge {{item.severity}}">
+                  <text class="severity-text">{{item.severityName}}</text>
+                </view>
+              </view>
+              <text class="restriction-desc" wx:if="{{item.description}}">{{item.description}}</text>
             </view>
           </view>
           <view class="restriction-actions">

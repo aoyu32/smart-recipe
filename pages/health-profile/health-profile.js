@@ -1,5 +1,5 @@
 // pages/health-profile/health-profile.js
-import { getHealthProfile, updateHealthProfile, getCurrentHealthGoal, addHealthGoal, updateHealthGoal, cancelHealthGoal, completeHealthGoal, getHistoryHealthGoals, deleteHistoryGoal } from '../../api/user';
+import { getHealthProfile, updateHealthProfile, getCurrentHealthGoal, addHealthGoal, updateHealthGoal, cancelHealthGoal, completeHealthGoal, getHistoryHealthGoals, deleteHistoryGoal, getRestrictionList, addRestriction, deleteRestriction } from '../../api/user';
 
 Page({
   data: {
@@ -56,16 +56,18 @@ Page({
     try {
       wx.showLoading({ title: '加载中...' });
 
-      // 并行加载健康档案、当前目标和历史目标
-      const [profile, currentGoal, historyGoals] = await Promise.all([
+      // 并行加载健康档案、当前目标、历史目标和特殊禁忌
+      const [profile, currentGoal, historyGoals, restrictions] = await Promise.all([
         getHealthProfile(),
         getCurrentHealthGoal(),
-        getHistoryHealthGoals()
+        getHistoryHealthGoals(),
+        getRestrictionList()
       ]);
 
       console.log('后端返回的健康档案数据:', profile);
       console.log('后端返回的当前目标:', currentGoal);
       console.log('后端返回的历史目标:', historyGoals);
+      console.log('后端返回的特殊禁忌:', restrictions);
 
       // 性别映射
       const genderMap = { 0: '未知', 1: '男', 2: '女' };
@@ -94,6 +96,7 @@ Page({
         healthInfo: healthInfo,
         currentGoal: currentGoal,
         goalHistory: historyGoals || [],
+        restrictions: restrictions || [],
         isHistoryEditing: false
       });
 
@@ -645,8 +648,8 @@ Page({
   },
 
   // 保存禁忌
-  saveRestriction() {
-    const { restrictionForm, restrictionTypes, severityLevels, restrictions } = this.data;
+  async saveRestriction() {
+    const { restrictionForm, restrictionTypes, severityLevels } = this.data;
 
     if (!restrictionForm.name || !restrictionForm.name.trim()) {
       wx.showToast({
@@ -656,32 +659,41 @@ Page({
       return;
     }
 
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
     const typeMap = { 0: 'allergy', 1: 'disease' };
     const severityMap = { 0: 'low', 1: 'medium', 2: 'high' };
 
-    const newRestriction = {
-      id: Date.now(),
+    const data = {
       type: typeMap[restrictionForm.typeIndex],
       name: restrictionForm.name,
-      description: restrictionForm.description,
-      severity: severityMap[restrictionForm.severityIndex],
-      addedDate: dateStr
+      description: restrictionForm.description || '',
+      severity: severityMap[restrictionForm.severityIndex]
     };
 
-    restrictions.push(newRestriction);
+    try {
+      wx.showLoading({ title: '保存中...' });
 
-    this.setData({
-      restrictions: restrictions,
-      showRestrictionModal: false
-    });
+      await addRestriction(data);
 
-    wx.showToast({
-      title: '添加成功',
-      icon: 'success'
-    });
+      wx.hideLoading();
+      wx.showToast({
+        title: '添加成功',
+        icon: 'success'
+      });
+
+      this.setData({
+        showRestrictionModal: false
+      });
+
+      // 重新加载数据
+      this.loadProfileData();
+    } catch (error) {
+      console.error('添加禁忌失败:', error);
+      wx.hideLoading();
+      wx.showToast({
+        title: '添加失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 删除禁忌
@@ -691,16 +703,29 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确定要删除这条禁忌吗？',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          const restrictions = this.data.restrictions.filter(item => item.id !== id);
-          this.setData({
-            restrictions: restrictions
-          });
-          wx.showToast({
-            title: '删除成功',
-            icon: 'success'
-          });
+          try {
+            wx.showLoading({ title: '删除中...' });
+
+            await deleteRestriction(id);
+
+            wx.hideLoading();
+            wx.showToast({
+              title: '删除成功',
+              icon: 'success'
+            });
+
+            // 重新加载数据
+            this.loadProfileData();
+          } catch (error) {
+            console.error('删除禁忌失败:', error);
+            wx.hideLoading();
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none'
+            });
+          }
         }
       }
     });

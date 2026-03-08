@@ -140,3 +140,30 @@ export const deleteHistoryGoal = (goalId) => {
         method: 'DELETE'
     })
 }
+
+// ========== 特殊禁忌相关API ==========
+
+// 添加特殊禁忌
+export const addRestriction = (data) => {
+    return request({
+        url: '/api/restriction/add',
+        method: 'POST',
+        data
+    })
+}
+
+// 获取特殊禁忌列表
+export const getRestrictionList = () => {
+    return request({
+        url: '/api/restriction/list',
+        method: 'GET'
+    })
+}
+
+// 删除特殊禁忌
+export const deleteRestriction = (restrictionId) => {
+    return request({
+        url: `/api/restriction/delete/${restrictionId}`,
+        method: 'DELETE'
+    })
+}
