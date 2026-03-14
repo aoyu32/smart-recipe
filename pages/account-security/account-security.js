@@ -1,4 +1,6 @@
 // pages/account-security/account-security.js
+import { getUserProfile, updateNickname, sendUpdateEmailCode, updateEmail, updatePassword } from '../../api/user'
+
 Page({
   data: {
     nickname: '美食爱好者',
@@ -20,15 +22,25 @@ Page({
     codeButtonText: '获取验证码'
   },
 
-  onLoad(options) {
-    // 从本地存储获取用户信息
-    const userEmail = wx.getStorageSync('userEmail') || 'user@qq.com';
-    const userNickname = wx.getStorageSync('userNickname') || '美食爱好者';
-    
-    this.setData({
-      email: userEmail,
-      nickname: userNickname
-    });
+  async onLoad(options) {
+    await this.loadUserProfile()
+  },
+
+  async onShow() {
+    await this.loadUserProfile()
+  },
+
+  // 加载用户信息
+  async loadUserProfile() {
+    try {
+      const profile = await getUserProfile()
+      this.setData({
+        nickname: profile.nickname || '美食爱好者',
+        email: profile.email || 'user@qq.com'
+      })
+    } catch (error) {
+      console.error('加载用户信息失败：', error)
+    }
   },
 
   // 修改昵称
@@ -52,7 +64,7 @@ Page({
     });
   },
 
-  confirmNickname() {
+  async confirmNickname() {
     const { newNickname } = this.data;
 
     if (!newNickname || !newNickname.trim()) {
@@ -63,18 +75,28 @@ Page({
       return;
     }
 
-    // 保存昵称
-    wx.setStorageSync('userNickname', newNickname);
-    
-    this.setData({
-      nickname: newNickname,
-      showNicknameModal: false
-    });
+    try {
+      wx.showLoading({ title: '修改中...' })
+      await updateNickname(newNickname.trim())
 
-    wx.showToast({
-      title: '修改成功',
-      icon: 'success'
-    });
+      this.setData({
+        nickname: newNickname.trim(),
+        showNicknameModal: false
+      });
+
+      wx.showToast({
+        title: '修改成功',
+        icon: 'success'
+      });
+    } catch (error) {
+      console.error('修改昵称失败：', error)
+      wx.showToast({
+        title: error.message || '修改失败',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   // 换绑邮箱
@@ -108,7 +130,7 @@ Page({
     });
   },
 
-  sendCode() {
+  async sendCode() {
     if (this.data.codeSending || this.data.countdown > 0) {
       return;
     }
@@ -136,12 +158,10 @@ Page({
       codeSending: true
     });
 
-    wx.showLoading({
-      title: '发送中...'
-    });
+    try {
+      wx.showLoading({ title: '发送中...' })
+      await sendUpdateEmailCode(newEmail)
 
-    setTimeout(() => {
-      wx.hideLoading();
       wx.showToast({
         title: '验证码已发送',
         icon: 'success'
@@ -153,13 +173,24 @@ Page({
       });
 
       this.startCountdown();
-    }, 1000);
+    } catch (error) {
+      console.error('发送验证码失败：', error)
+      wx.showToast({
+        title: error.message || '发送失败',
+        icon: 'none'
+      });
+      this.setData({
+        codeSending: false
+      });
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   startCountdown() {
     const timer = setInterval(() => {
       const countdown = this.data.countdown - 1;
-      
+
       if (countdown <= 0) {
         clearInterval(timer);
         this.setData({
@@ -175,7 +206,7 @@ Page({
     }, 1000);
   },
 
-  confirmEmail() {
+  async confirmEmail() {
     const { newEmail, code } = this.data;
 
     if (!newEmail) {
@@ -203,17 +234,13 @@ Page({
       return;
     }
 
-    // Mock换绑
-    wx.showLoading({
-      title: '换绑中...'
-    });
+    try {
+      wx.showLoading({ title: '换绑中...' })
+      await updateEmail({
+        newEmail: newEmail,
+        verificationCode: code
+      })
 
-    setTimeout(() => {
-      wx.hideLoading();
-      
-      // 保存新邮箱
-      wx.setStorageSync('userEmail', newEmail);
-      
       this.setData({
         email: newEmail,
         showEmailModal: false
@@ -223,7 +250,15 @@ Page({
         title: '换绑成功',
         icon: 'success'
       });
-    }, 1000);
+    } catch (error) {
+      console.error('换绑邮箱失败：', error)
+      wx.showToast({
+        title: error.message || '换绑失败',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   // 修改密码
@@ -284,21 +319,12 @@ Page({
     });
   },
 
-  confirmPassword() {
+  async confirmPassword() {
     const { oldPassword, newPassword, confirmPassword } = this.data;
 
     if (!oldPassword) {
       wx.showToast({
         title: '请输入原密码',
-        icon: 'none'
-      });
-      return;
-    }
-
-    // Mock验证原密码（实际应该调用后端验证）
-    if (oldPassword !== '123456') {
-      wx.showToast({
-        title: '原密码错误',
         icon: 'none'
       });
       return;
@@ -344,14 +370,13 @@ Page({
       return;
     }
 
-    // Mock修改密码
-    wx.showLoading({
-      title: '修改中...'
-    });
+    try {
+      wx.showLoading({ title: '修改中...' })
+      await updatePassword({
+        oldPassword: oldPassword,
+        newPassword: newPassword
+      })
 
-    setTimeout(() => {
-      wx.hideLoading();
-      
       this.setData({
         showPasswordModal: false
       });
@@ -360,7 +385,15 @@ Page({
         title: '密码修改成功',
         icon: 'success'
       });
-    }, 1000);
+    } catch (error) {
+      console.error('修改密码失败：', error)
+      wx.showToast({
+        title: error.message || '修改失败',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   // 退出登录
@@ -372,9 +405,9 @@ Page({
       success: (res) => {
         if (res.confirm) {
           // 清除登录状态
+          wx.removeStorageSync('token');
           wx.removeStorageSync('isLoggedIn');
-          wx.removeStorageSync('userEmail');
-          
+
           wx.showToast({
             title: '已退出登录',
             icon: 'success'

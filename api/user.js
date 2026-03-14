@@ -213,3 +213,41 @@ export const getMyContentStats = () => {
         method: 'GET'
     })
 }
+
+// ========== 账号与安全相关API ==========
+
+// 修改昵称
+export const updateNickname = (nickname) => {
+    return request({
+        url: '/api/user/profile/nickname',
+        method: 'PUT',
+        data: { nickname }
+    })
+}
+
+// 发送修改邮箱验证码
+export const sendUpdateEmailCode = (newEmail) => {
+    return request({
+        url: '/api/user/profile/email/send-code',
+        method: 'POST',
+        params: { newEmail }
+    })
+}
+
+// 修改邮箱
+export const updateEmail = (data) => {
+    return request({
+        url: '/api/user/profile/email',
+        method: 'PUT',
+        data
+    })
+}
+
+// 修改密码
+export const updatePassword = (data) => {
+    return request({
+        url: '/api/user/profile/password',
+        method: 'PUT',
+        data
+    })
+}
