@@ -120,6 +120,32 @@ export function getRecipeRankings() {
     });
 }
 
+/**
+ * AI生成每日食谱推荐
+ * @param {string} input - 用户输入的生成提示（可选）
+ */
+export function generateDailyRecipe(input) {
+    return request({
+        url: '/api/ai/daily-recipe',
+        method: 'POST',
+        params: {
+            input: input || '给我推荐今日食谱'
+        },
+        timeout: 120000  // AI生成需要更长时间，设置为120秒
+    });
+}
+
+/**
+ * 获取今日食谱推荐（优先从数据库查询）
+ */
+export function getTodayRecipe() {
+    return request({
+        url: '/api/ai/daily-recipe/today',
+        method: 'POST',
+        timeout: 120000
+    });
+}
+
 
 // ========== 我的收藏相关API ==========
 

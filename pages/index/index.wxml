@@ -46,8 +46,25 @@
           <image src="/assets/index/{{recipeCardExpanded ? 'icon-down' : 'icon-right'}}.png" mode="aspectFit"></image>
         </view>
       </view>
+      
+      <!-- 加载状态 - 使用动态按钮 -->
+      <view class="recipe-loading-container {{recipeCardExpanded ? 'expanded' : 'collapsed'}}" wx:if="{{isLoadingRecipe || isGenerating}}">
+        <view class="ai-generate-icon generating">
+          <view class="generate-bg"></view>
+          <view class="generate-glow"></view>
+          <image class="generate-icon" src="/assets/index/icon-generate.png" mode="aspectFit"></image>
+          <view class="generate-particles">
+            <view class="particle particle-1"></view>
+            <view class="particle particle-2"></view>
+            <view class="particle particle-3"></view>
+            <view class="particle particle-4"></view>
+          </view>
+        </view>
+        <text class="loading-text">小智正在给你规划今日食谱中...</text>
+      </view>
+      
       <!-- 今日食谱卡片 -->
-      <view class="today-recipe-card {{recipeCardExpanded ? 'expanded' : 'collapsed'}}">
+      <view class="today-recipe-card {{recipeCardExpanded ? 'expanded' : 'collapsed'}}" wx:if="{{!isLoadingRecipe && !isGenerating && todayRecipe}}">
         <!-- 卡片头部 -->
         <view class="recipe-card-header">
           <view class="recipe-title-row">
@@ -358,3 +375,35 @@
     <view class="bottom-space"></view>
   </view>
 </scroll-view>
+
+<!-- 生成食谱弹窗 -->
+<view class="generate-modal-mask" wx:if="{{showGenerateModal}}" bindtap="closeGenerateModal">
+  <view class="generate-modal" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">生成今日食谱</text>
+      <view class="modal-close" catchtap="closeGenerateModal">
+        <image class="close-icon" src="/assets/auth/icon-close.png" mode="aspectFit"></image>
+      </view>
+    </view>
+    <view class="modal-body">
+      <view class="modal-label">今日想法（选填）</view>
+      <textarea 
+        class="modal-textarea" 
+        placeholder="例如：今天想吃清淡点的，多来点蔬菜..." 
+        placeholder-style="color: #999;"
+        maxlength="200"
+        value="{{generateInput}}"
+        bindinput="onGenerateInputChange"
+      ></textarea>
+      <view class="modal-hint">不填写将使用默认推荐方案</view>
+    </view>
+    <view class="modal-footer">
+      <view class="modal-btn normal-btn" catchtap="onNormalGenerate">
+        <text>正常生成</text>
+      </view>
+      <view class="modal-btn custom-btn" catchtap="onCustomGenerate">
+        <text>今日想法</text>
+      </view>
+    </view>
+  </view>
+</view>

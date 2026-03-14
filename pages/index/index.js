@@ -1,5 +1,5 @@
 // index.js
-import { getRecipeRankings } from '../../api/recipe';
+import { getRecipeRankings, generateDailyRecipe, getTodayRecipe, getRecipeDetailById } from '../../api/recipe';
 const { banners, todayRecipe } = require('../../mock/index.js');
 
 Page({
@@ -14,6 +14,13 @@ Page({
 
     // AI生成状态
     isGenerating: false,
+
+    // 食谱加载状态
+    isLoadingRecipe: false,
+
+    // 生成弹窗状态
+    showGenerateModal: false,
+    generateInput: '', // 用户输入的生成想法
 
     // 长按编辑状态
     editingMealType: '', // 当前正在编辑的餐次类型
@@ -56,26 +63,52 @@ Page({
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
     const headerPaddingTop = menuButtonInfo.top;
 
-    // 获取当前日期和星期几
-    const { date, weekday } = this.getCurrentDate();
-
-    // 更新今日食谱数据中的日期和星期几
-    const updatedTodayRecipe = {
-      ...todayRecipe,
-      date: date,
-      weekday: weekday
-    };
-
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight,
       menuButtonInfo: menuButtonInfo,
       headerPaddingTop: headerPaddingTop,
-      banners: banners,
-      todayRecipe: updatedTodayRecipe
+      banners: banners
     });
 
     // 加载排行榜数据
     this.loadRankings();
+
+    // 不再自动加载今日食谱，等待用户点击展开按钮
+  },
+
+  // 加载今日食谱
+  async loadTodayRecipe() {
+    this.setData({ isLoadingRecipe: true });
+
+    try {
+      const result = await getTodayRecipe();
+
+      // 检查返回数据是否有效
+      if (!result || !result.meals) {
+        throw new Error('返回数据格式不正确');
+      }
+
+      const transformedRecipe = this.transformRecipeData(result);
+      const { date, weekday } = this.getCurrentDate();
+
+      this.setData({
+        todayRecipe: {
+          ...transformedRecipe,
+          date,
+          weekday,
+          title: '今日食谱推荐'
+        }
+      });
+    } catch (error) {
+      console.error('加载今日食谱失败:', error);
+      wx.showToast({
+        title: error.message || '加载食谱失败，请重试',
+        icon: 'none',
+        duration: 2000
+      });
+    } finally {
+      this.setData({ isLoadingRecipe: false });
+    }
   },
 
   // 加载排行榜数据
@@ -187,16 +220,65 @@ Page({
     }
   },
 
-  // AI智能生成
+  // 点击生成按钮，打开输入弹窗
   onAIGenerate(e) {
     // 阻止事件冒泡，避免触发展开/收起
-    if (e) {
+    if (e && e.stopPropagation) {
       e.stopPropagation();
     }
 
     // 先取消编辑状态
     this.cancelEdit();
 
+    // 打开生成弹窗
+    this.setData({
+      showGenerateModal: true,
+      generateInput: ''
+    });
+  },
+
+  // 关闭生成弹窗
+  closeGenerateModal() {
+    this.setData({
+      showGenerateModal: false,
+      generateInput: ''
+    });
+  },
+
+  // 阻止事件冒泡（空方法）
+  stopPropagation() {
+    // 什么都不做，只是阻止事件冒泡
+  },
+
+  // 输入框内容变化
+  onGenerateInputChange(e) {
+    this.setData({
+      generateInput: e.detail.value
+    });
+  },
+
+  // 正常生成（使用默认提示）
+  async onNormalGenerate() {
+    this.closeGenerateModal();
+    await this.performGenerate('给我推荐今日食谱');
+  },
+
+  // 今日想法生成（使用用户输入）
+  async onCustomGenerate() {
+    const input = this.data.generateInput.trim();
+    if (!input) {
+      wx.showToast({
+        title: '请输入您的想法',
+        icon: 'none'
+      });
+      return;
+    }
+    this.closeGenerateModal();
+    await this.performGenerate(input);
+  },
+
+  // 执行生成
+  async performGenerate(input) {
     // 如果正在生成，不重复触发
     if (this.data.isGenerating) {
       return;
@@ -206,29 +288,130 @@ Page({
       isGenerating: true
     });
 
-    wx.showLoading({ title: '智能生成中...' });
+    try {
+      // 调用后端AI接口生成食谱
+      const result = await generateDailyRecipe(input);
 
-    setTimeout(() => {
-      wx.hideLoading();
+      // 检查返回数据是否有效
+      if (!result || !result.meals) {
+        throw new Error('AI生成失败，请稍后重试');
+      }
+
+      // 转换后端数据格式为前端格式
+      const transformedRecipe = this.transformRecipeData(result);
+
+      // 获取当前日期和星期几
+      const { date, weekday } = this.getCurrentDate();
+
+      // 更新今日食谱数据
       this.setData({
+        todayRecipe: {
+          ...transformedRecipe,
+          date: date,
+          weekday: weekday,
+          title: '今日食谱推荐'
+        },
         isGenerating: false
       });
+
       wx.showToast({
         title: '生成成功！',
         icon: 'success'
       });
-      // 这里可以重新加载食谱数据
-    }, 2000);
+    } catch (error) {
+      console.error('生成失败：', error);
+      this.setData({
+        isGenerating: false
+      });
+      wx.showToast({
+        title: error.message || '生成失败，请重试',
+        icon: 'none',
+        duration: 2000
+      });
+    }
+  },
+
+  // 转换后端数据格式为前端格式
+  transformRecipeData(backendData) {
+    // 使用 snake_case 字段名（与后端返回的一致）
+    const {
+      description,
+      total_calories,
+      total_protein,
+      total_carbs,
+      total_fat,
+      meals
+    } = backendData;
+
+    // 转换三餐数据（后端已经包含所有详情，无需再次查询）
+    const transformMeal = (mealData, mealType) => {
+      const foods = [];
+
+      // 检查是否有recipes数组
+      if (mealData.recipes && Array.isArray(mealData.recipes)) {
+        // 遍历每个食谱项（后端已经包含完整信息）
+        for (const recipeItem of mealData.recipes) {
+          const foodItem = {
+            id: recipeItem.recipe_id,
+            name: recipeItem.recipe_name,
+            image: recipeItem.image,
+            amount: recipeItem.amount,
+            calories: recipeItem.calories,
+            protein: recipeItem.protein,
+            carbs: recipeItem.carbs,
+            fat: recipeItem.fat,
+            category: recipeItem.category
+          };
+
+          foods.push(foodItem);
+        }
+      }
+
+      return {
+        time: mealType === 'breakfast' ? '早餐' : mealType === 'lunch' ? '午餐' : '晚餐',
+        timeRange: mealData.time_range || '',
+        calories: mealData.meal_calories || 0,
+        protein: mealData.meal_protein || 0,
+        carbs: mealData.meal_carbs || 0,
+        fat: mealData.meal_fat || 0,
+        foods: foods
+      };
+    };
+
+    // 转换三餐数据
+    const breakfast = transformMeal(meals.breakfast, 'breakfast');
+    const lunch = transformMeal(meals.lunch, 'lunch');
+    const dinner = transformMeal(meals.dinner, 'dinner');
+
+    return {
+      description: description,
+      totalCalories: total_calories,
+      totalProtein: total_protein,
+      totalCarbs: total_carbs,
+      totalFat: total_fat,
+      meals: {
+        breakfast,
+        lunch,
+        dinner
+      }
+    };
   },
 
   // 切换食谱卡片展开/收起
-  toggleRecipeCard() {
+  async toggleRecipeCard() {
     // 先取消编辑状态
     this.cancelEdit();
 
+    const willExpand = !this.data.recipeCardExpanded;
+
     this.setData({
-      recipeCardExpanded: !this.data.recipeCardExpanded
+      recipeCardExpanded: willExpand
     });
+
+    // 如果是展开操作且还没有加载过食谱数据，则加载
+    if (willExpand && !this.data.todayRecipe) {
+      await this.loadTodayRecipe();
+    }
   },
 
   // 查看更多食谱

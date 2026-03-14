@@ -18,11 +18,13 @@ request.interceptors.request.use(
             config.headers['Authorization'] = `Bearer ${token}`
         }
 
-        // 显示加载提示
-        wx.showLoading({
-            title: '加载中...',
-            mask: true
-        })
+        // 只在配置中明确要求时才显示加载提示
+        if (config.showLoading) {
+            wx.showLoading({
+                title: config.loadingTitle || '加载中...',
+                mask: true
+            })
+        }
 
         return config
     },
@@ -36,7 +38,10 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
     response => {
-        wx.hideLoading()
+        // 只在请求时显示了loading才隐藏
+        if (response.config.showLoading) {
+            wx.hideLoading()
+        }
 
         const res = response.data
 
@@ -76,7 +81,10 @@ request.interceptors.response.use(
         }
     },
     error => {
-        wx.hideLoading()
+        // 只在请求时显示了loading才隐藏
+        if (error.config && error.config.showLoading) {
+            wx.hideLoading()
+        }
 
         console.error('响应错误：', error)
 

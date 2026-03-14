@@ -265,12 +265,12 @@ page {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: linear-gradient(45deg, 
-    #7FB069 0%, 
-    #9BC184 25%, 
-    #B6CF99 50%, 
-    #A8D5BA 75%, 
-    #7FB069 100%);
+  background: linear-gradient(45deg,
+      #7FB069 0%,
+      #9BC184 25%,
+      #B6CF99 50%,
+      #A8D5BA 75%,
+      #7FB069 100%);
   background-size: 400% 400%;
   border-radius: 50%;
   transition: all 0.3s;
@@ -363,8 +363,8 @@ page {
 /* 生成中状态 */
 .ai-generate-icon.generating .generate-bg {
   animation: gradient-shift 1.5s ease infinite, rotate-bg 2s linear infinite;
-  box-shadow: 0 4rpx 30rpx rgba(182, 207, 153, 0.8), 
-              0 0 40rpx rgba(155, 193, 132, 0.6);
+  box-shadow: 0 4rpx 30rpx rgba(182, 207, 153, 0.8),
+    0 0 40rpx rgba(155, 193, 132, 0.6);
 }
 
 .ai-generate-icon.generating .generate-glow {
@@ -388,9 +388,11 @@ page {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -401,6 +403,7 @@ page {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -408,10 +411,13 @@ page {
 
 /* 光晕脉动 */
 @keyframes glow-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.3;
   }
+
   50% {
     transform: scale(1.2);
     opacity: 0.6;
@@ -419,10 +425,13 @@ page {
 }
 
 @keyframes glow-pulse-fast {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.5;
   }
+
   50% {
     transform: scale(1.3);
     opacity: 1;
@@ -431,12 +440,16 @@ page {
 
 /* 图标漂浮 */
 @keyframes icon-float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0) scale(1);
   }
+
   25% {
     transform: translateY(-4rpx) scale(1.05);
   }
+
   75% {
     transform: translateY(4rpx) scale(0.95);
   }
@@ -444,9 +457,12 @@ page {
 
 /* 图标呼吸效果 */
 @keyframes icon-breathe {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.15);
   }
@@ -454,18 +470,23 @@ page {
 
 /* 粒子轨道运动 */
 @keyframes particle-orbit-1 {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0) scale(0);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
     transform: translate(0, 0) scale(1);
   }
+
   50% {
     transform: translate(0, -60rpx) scale(1.5);
     opacity: 1;
   }
+
   90% {
     opacity: 0;
     transform: translate(0, -80rpx) scale(0);
@@ -473,18 +494,23 @@ page {
 }
 
 @keyframes particle-orbit-2 {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0) scale(0);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
     transform: translate(0, 0) scale(1);
   }
+
   50% {
     transform: translate(60rpx, 0) scale(1.5);
     opacity: 1;
   }
+
   90% {
     opacity: 0;
     transform: translate(80rpx, 0) scale(0);
@@ -492,18 +518,23 @@ page {
 }
 
 @keyframes particle-orbit-3 {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0) scale(0);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
     transform: translate(0, 0) scale(1);
   }
+
   50% {
     transform: translate(0, 60rpx) scale(1.5);
     opacity: 1;
   }
+
   90% {
     opacity: 0;
     transform: translate(0, 80rpx) scale(0);
@@ -511,18 +542,23 @@ page {
 }
 
 @keyframes particle-orbit-4 {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0) scale(0);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
     transform: translate(0, 0) scale(1);
   }
+
   50% {
     transform: translate(-60rpx, 0) scale(1.5);
     opacity: 1;
   }
+
   90% {
     opacity: 0;
     transform: translate(-80rpx, 0) scale(0);
@@ -1086,4 +1122,142 @@ page {
 /* 底部间距 */
 .bottom-space {
   height: 40rpx;
+}
+
+
+/* 食谱加载状态容器 */
+.recipe-loading-container {
+  padding: 80rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 24rpx;
+  margin: 20rpx 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.recipe-loading-container.expanded {
+  max-height: 500rpx;
+  opacity: 1;
+}
+
+.recipe-loading-container .ai-generate-icon {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 40rpx;
+}
+
+.recipe-loading-container .loading-text {
+  font-size: 28rpx;
+  color: #666;
+  text-align: center;
+  line-height: 1.6;
+}
+
+
+/* 生成食谱弹窗 */
+.generate-modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.generate-modal {
+  width: 600rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-close {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-icon {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.modal-body {
+  padding: 32rpx;
+}
+
+.modal-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.modal-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: 20rpx;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.modal-hint {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 16rpx;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 16rpx;
+  padding: 0 32rpx 32rpx;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.normal-btn {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.custom-btn {
+  background: linear-gradient(135deg, #B6CF99 0%, #9DBF7E 100%);
+  color: #fff;
 }
