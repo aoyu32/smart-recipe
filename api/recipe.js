@@ -262,6 +262,124 @@ export function deleteRecipeItem(itemId) {
     });
 }
 
+/**
+ * 分析食谱（流式返回）
+ * @param {string} imageUrl - 图片URL
+ * @param {string} input - 用户输入
+ * @param {function} onMessage - 接收消息的回调函数
+ * @param {function} onError - 错误回调函数
+ * @param {function} onComplete - 完成回调函数
+ */
+export function analyzeRecipeStream(imageUrl, input, onMessage, onError, onComplete) {
+    const token = wx.getStorageSync('token');
+    const baseURL = 'http://192.168.0.108:8000';
+
+    const requestTask = wx.request({
+        url: `${baseURL}/api/ai/recipe-analysis/stream`,
+        method: 'POST',
+        data: {
+            imageUrl: imageUrl,
+            input: input || '分析食谱'
+        },
+        header: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : '',
+            'Accept': 'text/event-stream'
+        },
+        enableChunked: true,
+        success: (res) => {
+            console.log('请求完成，状态码：', res.statusCode);
+            if (res.statusCode !== 200) {
+                onError && onError(new Error('请求失败'));
+            }
+        },
+        fail: (error) => {
+            console.error('流式请求失败：', error);
+            onError && onError(error);
+        }
+    });
+
+    // 监听数据块接收
+    requestTask.onChunkReceived((res) => {
+        try {
+            const arrayBuffer = res.data;
+            // 使用TextDecoder正确解码UTF-8
+            const decoder = new TextDecoder('utf-8');
+            const text = decoder.decode(new Uint8Array(arrayBuffer));
+
+            console.log('接收到数据块：', text);
+
+            // 解析SSE格式 - 每行都有data:前缀
+            const lines = text.split('\n');
+            let currentEvent = '';
+            let currentData = '';
+
+            for (const line of lines) {
+                let trimmed = line.trim();
+
+                // 跳过空行
+                if (!trimmed || trimmed === 'data:') {
+                    continue;
+                }
+
+                // 移除开头的"data:"前缀
+                if (trimmed.startsWith('data:')) {
+                    trimmed = trimmed.substring(5);
+                }
+
+                // 解析event和data字段
+                if (trimmed.startsWith('event:')) {
+                    currentEvent = trimmed.substring(6).trim();
+                    console.log('解析到事件：', currentEvent);
+                } else if (trimmed.startsWith('data:')) {
+                    currentData = trimmed.substring(5).trim();
+                    console.log('解析到数据，长度：', currentData.length);
+
+                    // 当我们有event和data时，处理这条消息
+                    if (currentEvent && currentData) {
+                        processSSEMessage(currentEvent, currentData, onMessage, onError, onComplete);
+                        currentEvent = '';
+                        currentData = '';
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('解析SSE数据失败：', e);
+        }
+    });
+
+    return requestTask;
+}
+
+// 处理单个SSE消息
+function processSSEMessage(event, data, onMessage, onError, onComplete) {
+    console.log('处理SSE消息 - 事件：', event, '数据：', data);
+
+    if (event === 'Message') {
+        // 解析Coze返回的JSON
+        try {
+            const jsonData = JSON.parse(data);
+            if (jsonData.content) {
+                onMessage && onMessage(jsonData.content);
+            }
+        } catch (e) {
+            console.error('解析JSON失败：', e, '原始数据：', data);
+        }
+    } else if (event === 'Done') {
+        onComplete && onComplete();
+    } else if (event === 'Error') {
+        try {
+            const jsonData = JSON.parse(data);
+            const errorMsg = jsonData.error_message || '分析失败';
+            onError && onError(new Error(errorMsg));
+        } catch (e) {
+            onError && onError(new Error('分析失败'));
+        }
+    }
+}
+
+
+
 
 // ========== 我的收藏相关API ==========
 

@@ -136,10 +136,30 @@
       <!-- AI回复内容 -->
       <view class="ai-response-area" wx:if="{{contentType === 'ai'}}">
         <view class="ai-response-content">
+          <!-- 渲染解析后的markdown内容 -->
           <view class="ai-response-item" wx:for="{{aiResponseList}}" wx:key="index">
-            <text class="ai-text">{{item}}</text>
+            <!-- 标题 -->
+            <view class="ai-heading" wx:if="{{item.type === 'heading'}}">
+              <text class="heading-icon">{{item.icon}}</text>
+              <text class="heading-text">{{item.content}}</text>
+            </view>
+            
+            <!-- 列表项 -->
+            <view class="ai-list-item" wx:if="{{item.type === 'list'}}">
+              <text class="list-bullet">•</text>
+              <view class="list-content">
+                <text wx:for="{{item.parts}}" wx:for-item="part" wx:key="index" class="{{part.type === 'bold' ? 'text-bold' : 'text-normal'}}">{{part.text}}</text>
+              </view>
+            </view>
+            
+            <!-- 普通文本 -->
+            <view class="ai-text-item" wx:if="{{item.type === 'text'}}">
+              <text class="text-normal">{{item.content}}</text>
+            </view>
           </view>
+          
           <view class="ai-loading" wx:if="{{aiLoading}}">
+            <view class="loading-spinner"></view>
             <text class="loading-text">小智正在思考...</text>
           </view>
         </view>

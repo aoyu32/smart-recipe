@@ -1,5 +1,5 @@
 // pages/take-picture/take-picture.js
-import { analyzeFoodCheckin, uploadRecipeImage, saveFoodCheckin, deleteFoodCheckin, getTodayCheckin } from '../../api/recipe';
+import { analyzeFoodCheckin, uploadRecipeImage, saveFoodCheckin, deleteFoodCheckin, getTodayCheckin, analyzeRecipeStream } from '../../api/recipe';
 
 let cameraContext = null;
 
@@ -718,8 +718,17 @@ Page({
   },
 
   // 询问小智
-  askXiaozhi() {
-    // 显示AI回复区域并开始模拟回复
+  async askXiaozhi() {
+    // 检查是否有图片
+    if (!this.data.capturedImagePath && !this.data.capturedImageUrl) {
+      wx.showToast({
+        title: '请先选择或拍摄图片',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 显示AI回复区域
     this.setData({
       showContent: true,
       contentType: 'ai',
@@ -727,34 +736,167 @@ Page({
       aiLoading: true
     });
 
-    // 开始模拟AI流式回复
-    this.simulateAIResponse();
+    try {
+      // 如果还没有上传图片到OSS，先上传
+      let imageUrl = this.data.capturedImageUrl;
+
+      if (!imageUrl && this.data.capturedImagePath) {
+        wx.showLoading({
+          title: '上传图片中...',
+          mask: true
+        });
+
+        imageUrl = await uploadRecipeImage(this.data.capturedImagePath);
+        this.setData({
+          capturedImageUrl: imageUrl
+        });
+
+        wx.hideLoading();
+        console.log('图片上传成功，URL：', imageUrl);
+      }
+
+      // 用于累积接收的内容
+      let fullContent = '';
+
+      // 调用流式API
+      analyzeRecipeStream(
+        imageUrl,
+        '分析食谱',
+        // onMessage: 接收到消息片段
+        (content) => {
+          fullContent += content;
+          console.log('接收到内容片段：', content);
+
+          // 实时解析并显示
+          const parsedContent = this.parseMarkdown(fullContent);
+          this.setData({
+            aiResponseList: parsedContent
+          });
+        },
+        // onError: 错误处理
+        (error) => {
+          console.error('AI分析失败：', error);
+          this.setData({
+            aiLoading: false,
+            aiResponseList: [{ type: 'text', content: '分析失败，请重试' }]
+          });
+          wx.showToast({
+            title: '分析失败',
+            icon: 'none'
+          });
+        },
+        // onComplete: 完成
+        () => {
+          console.log('AI分析完成');
+          this.setData({
+            aiLoading: false
+          });
+        }
+      );
+
+    } catch (error) {
+      console.error('上传图片失败：', error);
+      wx.hideLoading();
+      this.setData({
+        aiLoading: false,
+        showContent: false
+      });
+      wx.showToast({
+        title: '上传图片失败',
+        icon: 'none'
+      });
+    }
   },
 
-  // 模拟AI流式回复
-  simulateAIResponse() {
-    const fullResponse = '这是一份营养均衡的餐食，包含优质蛋白质和丰富的蔬菜。\n\n主要营养成分：\n• 蛋白质：约25g\n• 碳水化合物：约30g\n• 脂肪：约15g\n• 总热量：约450千卡\n\n建议：\n1. 可以搭配一些主食，如米饭或全麦面包\n2. 建议增加一些水果作为餐后甜点\n3. 整体营养搭配合理，适合作为正餐';
+  // 解析markdown为结构化数据
+  parseMarkdown(markdown) {
+    const lines = markdown.split('\n');
+    const result = [];
 
-    const sentences = fullResponse.split('\n');
-    let currentIndex = 0;
+    for (let line of lines) {
+      line = line.trim();
 
-    const addNextSentence = () => {
-      if (currentIndex < sentences.length) {
-        const newList = [...this.data.aiResponseList, sentences[currentIndex]];
-        this.setData({
-          aiResponseList: newList,
-          aiLoading: currentIndex < sentences.length - 1
-        });
-        currentIndex++;
-
-        // 模拟流式输出，每200ms添加一句
-        setTimeout(addNextSentence, 200);
-      } else {
-        this.setData({ aiLoading: false });
+      if (!line) {
+        continue; // 跳过空行
       }
-    };
 
-    addNextSentence();
+      // 解析标题（### 开头）
+      if (line.startsWith('###')) {
+        const match = line.match(/^###\s*([^\s]+)\s*(.+)$/);
+        if (match) {
+          result.push({
+            type: 'heading',
+            icon: match[1], // emoji图标
+            content: match[2].trim()
+          });
+        } else {
+          result.push({
+            type: 'heading',
+            icon: '',
+            content: line.replace(/^###\s*/, '').trim()
+          });
+        }
+      }
+      // 解析列表项（- 开头）
+      else if (line.startsWith('-')) {
+        const content = line.substring(1).trim();
+
+        // 检查是否包含加粗文本（**text**）
+        const boldMatch = content.match(/\*\*(.+?)\*\*/g);
+        if (boldMatch) {
+          // 解析加粗文本
+          let parsedContent = content;
+          const parts = [];
+          let lastIndex = 0;
+
+          const regex = /\*\*(.+?)\*\*/g;
+          let match;
+
+          while ((match = regex.exec(content)) !== null) {
+            // 添加普通文本
+            if (match.index > lastIndex) {
+              parts.push({
+                type: 'normal',
+                text: content.substring(lastIndex, match.index)
+              });
+            }
+            // 添加加粗文本
+            parts.push({
+              type: 'bold',
+              text: match[1]
+            });
+            lastIndex = match.index + match[0].length;
+          }
+
+          // 添加剩余的普通文本
+          if (lastIndex < content.length) {
+            parts.push({
+              type: 'normal',
+              text: content.substring(lastIndex)
+            });
+          }
+
+          result.push({
+            type: 'list',
+            parts: parts
+          });
+        } else {
+          result.push({
+            type: 'list',
+            parts: [{ type: 'normal', text: content }]
+          });
+        }
+      }
+      // 普通文本
+      else {
+        result.push({
+          type: 'text',
+          content: line
+        });
+      }
+    }
+
+    return result;
   },
 
   // 阻止事件冒泡
