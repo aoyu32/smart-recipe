@@ -43,26 +43,32 @@
     </view>
     
     <view class="action-preview">
-      <image class="preview-image" src="{{capturedImagePath}}" mode="aspectFit"></image>
+      <image wx:if="{{capturedImagePath}}" class="preview-image" src="{{capturedImagePath}}" mode="aspectFit"></image>
+      <view wx:else class="preview-empty">
+        <image class="empty-icon" src="/assets/take-picture/icon-camera.png" mode="aspectFit"></image>
+        <text class="empty-text">点击下方拍照或选择图片</text>
+      </view>
+      <!-- 重新拍摄按钮（仅在有图片时显示） -->
+      <view wx:if="{{capturedImagePath}}" class="retake-btn" bindtap="retake">
+        <image class="retake-icon" src="/assets/take-picture/icon-camera.png" mode="aspectFit"></image>
+      </view>
     </view>
     
     <view class="action-buttons">
-      <view class="action-card meal-card" bindtap="onMealCheckin">
+      <view class="action-card meal-card" bindtap="{{capturedImagePath ? 'onMealCheckin' : 'retake'}}">
         <image class="card-icon" src="/assets/take-picture/icon-singin.png" mode="aspectFit"></image>
-        <view class="card-title">饮食打卡</view>
-        <view class="card-desc">记录今日饮食</view>
+        <view class="card-content">
+          <view class="card-title">饮食打卡</view>
+          <view class="card-desc">{{capturedImagePath ? '记录今日饮食' : '点击拍照打卡'}}</view>
+        </view>
       </view>
       
-      <view class="action-card ai-card" bindtap="askXiaozhi">
+      <view class="action-card ai-card" bindtap="{{capturedImagePath ? 'askXiaozhi' : 'chooseFromAlbum'}}">
         <image class="card-icon" src="/assets/logo/logo.png" mode="aspectFit"></image>
-        <view class="card-title">询问小智</view>
-        <view class="card-desc">AI智能分析</view>
-      </view>
-    </view>
-    
-    <view class="action-footer">
-      <view class="footer-btn" bindtap="retake">
-        <text>重新拍摄</text>
+        <view class="card-content">
+          <view class="card-title">{{capturedImagePath ? '询问小智' : '从相册选择'}}</view>
+          <view class="card-desc">{{capturedImagePath ? 'AI智能分析' : '选择已有照片'}}</view>
+        </view>
       </view>
     </view>
 
@@ -91,13 +97,32 @@
           
           <!-- 食物列表 -->
           <view class="food-list">
+            <!-- 识别中状态 -->
+            <view class="recognizing-status" wx:if="{{item.recognizing}}">
+              <view class="recognizing-icon">
+                <view class="loading-spinner"></view>
+              </view>
+              <text class="recognizing-text">正在识别中...</text>
+            </view>
+            
+            <!-- 食物项列表 -->
             <view class="food-item {{food.placeholder ? 'placeholder' : ''}}" wx:for="{{item.foods}}" wx:for-item="food" wx:key="id">
-              <view class="food-item-content" bindtap="{{food.placeholder ? 'onFillPlaceholder' : ''}}" data-type="{{item.type}}" data-id="{{food.id}}">
+              <view class="food-item-content" bindtap="{{food.placeholder && !item.recognizing ? 'onFillPlaceholder' : ''}}" data-type="{{item.type}}" data-id="{{food.id}}">
                 <image class="food-image" src="{{food.image || '/assets/index/icon-wuchan.png'}}" mode="aspectFill"></image>
                 <view class="food-info">
                   <text class="food-name" wx:if="{{!food.placeholder}}">{{food.name}}</text>
                   <text class="food-name placeholder-text" wx:else>点击添加食物</text>
-                  <text class="food-calories" wx:if="{{!food.placeholder}}">{{food.calories}} 千卡</text>
+                  
+                  <!-- 营养数据 -->
+                  <view class="food-nutrition" wx:if="{{!food.placeholder}}">
+                    <text class="nutrition-item">{{food.calories}}千卡</text>
+                    <text class="nutrition-divider">|</text>
+                    <text class="nutrition-item">蛋白{{food.protein}}g</text>
+                    <text class="nutrition-divider">|</text>
+                    <text class="nutrition-item">碳水{{food.carbs}}g</text>
+                    <text class="nutrition-divider">|</text>
+                    <text class="nutrition-item">脂肪{{food.fat}}g</text>
+                  </view>
                 </view>
               </view>
               <view class="food-delete" wx:if="{{!food.placeholder}}" catchtap="onDeleteFood" data-type="{{item.type}}" data-id="{{food.id}}">

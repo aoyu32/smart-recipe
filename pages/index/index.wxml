@@ -329,13 +329,40 @@
         <text class="section-subtitle">记录你的实际饮食</text>
       </view>
       <view class="checkin-list">
-        <view class="checkin-item {{item.checked ? 'checked' : ''}}" wx:for="{{checkinMeals}}" wx:key="type" bindtap="onCheckin" data-type="{{item.type}}">
-          <view class="checkin-icon-wrapper">
-            <image class="checkin-icon" src="{{item.type === 'breakfast' ? '/assets/index/icon-zaocan.png' : item.type === 'lunch' ? '/assets/index/icon-wucan.png' : '/assets/index/icon-wancan.png'}}" mode="aspectFit"></image>
+        <view class="checkin-item" wx:for="{{checkinMeals}}" wx:key="type">
+          <view class="checkin-header">
+            <view class="checkin-header-left">
+              <image class="checkin-icon" src="{{item.icon}}" mode="aspectFit"></image>
+              <text class="checkin-label">{{item.label}}</text>
+              <text class="checkin-calories" wx:if="{{item.checked}}">{{item.calories}}千卡</text>
+            </view>
+            <view class="checkin-btn" bindtap="onCheckin" data-type="{{item.type}}">
+              <text class="checkin-btn-text">{{item.checked ? '继续打卡' : '去打卡'}}</text>
+            </view>
           </view>
-          <text class="checkin-label">{{item.label}}</text>
-          <view class="checkin-status">
-            <text class="checkin-status-text">{{item.checked ? '✓ 已打卡' : '未打卡'}}</text>
+          
+          <!-- 食物列表 -->
+          <view class="checkin-foods" wx:if="{{item.checked && item.foods.length > 0}}">
+            <view class="food-item" wx:for="{{item.foods}}" wx:key="id" wx:for-item="food">
+              <image class="food-image" src="{{food.image}}" mode="aspectFill"></image>
+              <view class="food-info">
+                <text class="food-name">{{food.name}}</text>
+                <view class="food-nutrition">
+                  <text class="nutrition-item">{{food.calories}}千卡</text>
+                  <text class="nutrition-divider">|</text>
+                  <text class="nutrition-item">蛋白{{food.protein}}g</text>
+                  <text class="nutrition-divider">|</text>
+                  <text class="nutrition-item">碳水{{food.carbs}}g</text>
+                  <text class="nutrition-divider">|</text>
+                  <text class="nutrition-item">脂肪{{food.fat}}g</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          
+          <!-- 未打卡提示 -->
+          <view class="checkin-empty" wx:if="{{!item.checked}}">
+            <text class="empty-text">还没有打卡记录</text>
           </view>
         </view>
       </view>

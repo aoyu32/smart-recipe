@@ -1,10 +1,13 @@
 // pages/take-picture/take-picture.js
+import { analyzeFoodCheckin, uploadRecipeImage, saveFoodCheckin, deleteFoodCheckin, getTodayCheckin } from '../../api/recipe';
+
 let cameraContext = null;
 
 Page({
   data: {
-    currentStep: 'capture', // capture: 拍摄, action: 选择操作
+    currentStep: 'capture', // capture: 拍摄, action: 选择操作, hidden: 隐藏状态
     capturedImagePath: '',
+    capturedImageUrl: '', // 上传到OSS后的URL
     statusBarHeight: 0,
     menuButtonInfo: {},
     frameSize: 0,
@@ -21,6 +24,7 @@ Page({
         icon: '/assets/index/icon-zaocan.png',
         calories: 0,
         checked: false,
+        recognizing: false, // 是否正在识别中
         foods: [{ id: 'placeholder-breakfast', placeholder: true, image: '', name: '', calories: 0 }]
       },
       {
@@ -29,6 +33,7 @@ Page({
         icon: '/assets/index/icon-wucan.png',
         calories: 0,
         checked: false,
+        recognizing: false,
         foods: [{ id: 'placeholder-lunch', placeholder: true, image: '', name: '', calories: 0 }]
       },
       {
@@ -37,6 +42,7 @@ Page({
         icon: '/assets/index/icon-wancan.png',
         calories: 0,
         checked: false,
+        recognizing: false,
         foods: [{ id: 'placeholder-dinner', placeholder: true, image: '', name: '', calories: 0 }]
       }
     ],
@@ -46,7 +52,10 @@ Page({
 
     // AI回复
     aiResponseList: [],
-    aiLoading: false
+    aiLoading: false,
+
+    // 页面是否已初始化
+    pageInitialized: false
   },
 
   onLoad() {
@@ -59,8 +68,12 @@ Page({
     this.setData({
       statusBarHeight: systemInfo.statusBarHeight,
       menuButtonInfo: menuButtonInfo,
-      frameSize: frameSize
+      frameSize: frameSize,
+      pageInitialized: true
     });
+
+    // 加载今日打卡记录
+    this.loadTodayCheckin();
   },
 
   // 相机准备就绪
@@ -69,18 +82,87 @@ Page({
     cameraContext = wx.createCameraContext();
   },
 
+  // 加载今日打卡记录
+  async loadTodayCheckin() {
+    try {
+      const result = await getTodayCheckin();
+
+      console.log('今日打卡记录：', result);
+
+      // 检查是否有任何餐次已打卡
+      const hasCheckedMeal = result.meals.some(meal => meal.checked);
+
+      if (hasCheckedMeal) {
+        // 如果有打卡记录，直接进入饮食打卡页面
+        // 转换数据格式
+        const mealCheckinList = result.meals.map(meal => {
+          const foods = meal.foods.map(food => ({
+            id: food.id,
+            image: food.food_image,
+            name: food.food_name,
+            calories: food.calories,
+            protein: food.protein,
+            carbs: food.carbs,
+            fat: food.fat,
+            amount: food.amount,
+            confidence: food.confidence,
+            placeholder: false
+          }));
+
+          // 如果没有食物，添加一个预填充项
+          if (foods.length === 0) {
+            foods.push({
+              id: `placeholder-${meal.meal_type}`,
+              placeholder: true,
+              image: '',
+              name: '',
+              calories: 0
+            });
+          }
+
+          return {
+            type: meal.meal_type,
+            label: meal.label,
+            icon: this.getMealIcon(meal.meal_type),
+            calories: meal.calories,
+            checked: meal.checked,
+            recognizing: false,
+            foods: foods
+          };
+        });
+
+        this.setData({
+          mealCheckinList: mealCheckinList,
+          currentStep: 'action',
+          showContent: true,
+          contentType: 'meal',
+          capturedImagePath: ''  // 图片为空
+        });
+      }
+    } catch (error) {
+      console.error('加载今日打卡记录失败：', error);
+      // 加载失败不影响正常使用，继续显示拍摄界面
+    }
+  },
+
+  // 获取餐次图标
+  getMealIcon(mealType) {
+    const iconMap = {
+      'breakfast': '/assets/index/icon-zaocan.png',
+      'lunch': '/assets/index/icon-wucan.png',
+      'dinner': '/assets/index/icon-wancan.png'
+    };
+    return iconMap[mealType] || '';
+  },
+
   onShow() {
-    // 页面显示时，重置为拍摄状态
-    // 确保每次进入页面都显示拍摄界面
-    this.setData({
-      currentStep: 'capture',
-      capturedImagePath: '',
-      showContent: false,
-      contentType: '',
-      aiResponseList: [],
-      aiLoading: false,
-      currentMealType: ''
-    });
+    // 页面显示时，只在首次进入时初始化为拍摄状态
+    // 如果是从hidden状态返回，恢复到capture状态
+    if (this.data.currentStep === 'hidden') {
+      this.setData({
+        currentStep: 'capture'
+      });
+    }
   },
 
   onHide() {
@@ -88,7 +170,7 @@ Page({
     // 将currentStep改为非'capture'状态，这样camera组件会被销毁
     if (this.data.currentStep === 'capture') {
       this.setData({
-        currentStep: 'action'
+        currentStep: 'hidden'  // 使用特殊状态标记
       });
     }
     // 重置相机上下文
@@ -100,7 +182,7 @@ Page({
     // 将currentStep改为非'capture'状态，这样camera组件会被销毁
     if (this.data.currentStep === 'capture') {
       this.setData({
-        currentStep: 'action'
+        currentStep: 'hidden'
       });
     }
     // 重置相机上下文
@@ -221,23 +303,16 @@ Page({
               // 为所有餐次添加预填充项（如果还没有的话）
               this.addPlaceholderIfNeeded();
 
-              // 如果是从添加食物进入的，直接显示打卡列表
-              if (currentMealType) {
-                this.setData({
-                  capturedImagePath: res.tempFilePath,
-                  currentStep: 'action',
-                  showContent: true,
-                  contentType: 'meal'
-                });
-              } else {
-                // 拍摄后不自动显示内容，等待用户点击按钮
-                this.setData({
-                  capturedImagePath: res.tempFilePath,
-                  currentStep: 'action',
-                  showContent: false,
-                  contentType: ''
-                });
-              }
+              // 重置相机上下文，确保摄像头关闭
+              cameraContext = null;
+
+              // 拍摄完成后，默认激活饮食打卡界面
+              this.setData({
+                capturedImagePath: res.tempFilePath,
+                currentStep: 'action',
+                showContent: true,
+                contentType: 'meal'
+              });
             },
             fail: (err) => {
               wx.hideLoading();
@@ -245,23 +320,16 @@ Page({
               // 为所有餐次添加预填充项（如果还没有的话）
               this.addPlaceholderIfNeeded();
 
-              // 如果裁剪失败，直接使用原图
-              if (currentMealType) {
-                this.setData({
-                  capturedImagePath: imagePath,
-                  currentStep: 'action',
-                  showContent: true,
-                  contentType: 'meal'
-                });
-              } else {
-                // 拍摄后不自动显示内容，等待用户点击按钮
-                this.setData({
-                  capturedImagePath: imagePath,
-                  currentStep: 'action',
-                  showContent: false,
-                  contentType: ''
-                });
-              }
+              // 重置相机上下文，确保摄像头关闭
+              cameraContext = null;
+
+              // 如果裁剪失败，直接使用原图，默认激活饮食打卡界面
+              this.setData({
+                capturedImagePath: imagePath,
+                currentStep: 'action',
+                showContent: true,
+                contentType: 'meal'
+              });
             }
           }, this);
         });
@@ -272,23 +340,16 @@ Page({
         // 为所有餐次添加预填充项（如果还没有的话）
         this.addPlaceholderIfNeeded();
 
-        // 获取图片信息失败，直接使用原图
-        if (currentMealType) {
-          this.setData({
-            capturedImagePath: imagePath,
-            currentStep: 'action',
-            showContent: true,
-            contentType: 'meal'
-          });
-        } else {
-          // 拍摄后不自动显示内容，等待用户点击按钮
-          this.setData({
-            capturedImagePath: imagePath,
-            currentStep: 'action',
-            showContent: false,
-            contentType: ''
-          });
-        }
+        // 重置相机上下文，确保摄像头关闭
+        cameraContext = null;
+
+        // 获取图片信息失败，直接使用原图，默认激活饮食打卡界面
+        this.setData({
+          capturedImagePath: imagePath,
+          currentStep: 'action',
+          showContent: true,
+          contentType: 'meal'
+        });
       }
     });
   },
@@ -317,17 +378,48 @@ Page({
       aiResponseList: [],
       aiLoading: false,
       capturedImagePath: '',
+      capturedImageUrl: '',  // 清空OSS图片URL
       currentMealType: ''
     });
   },
 
   // 饮食打卡
   onMealCheckin() {
+    // 如果还没有上传图片到OSS，先上传
+    if (!this.data.capturedImageUrl && this.data.capturedImagePath) {
+      this.uploadImageToOSS();
+    }
+
     // 显示打卡列表
     this.setData({
       showContent: true,
       contentType: 'meal'
     });
+  },
+
+  // 上传图片到OSS
+  async uploadImageToOSS() {
+    if (!this.data.capturedImagePath) {
+      return;
+    }
+
+    wx.showLoading({ title: '上传图片中...' });
+
+    try {
+      const imageUrl = await uploadRecipeImage(this.data.capturedImagePath);
+      this.setData({
+        capturedImageUrl: imageUrl
+      });
+      wx.hideLoading();
+      console.log('图片上传成功，URL：', imageUrl);
+    } catch (error) {
+      wx.hideLoading();
+      console.error('图片上传失败：', error);
+      wx.showToast({
+        title: '图片上传失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 添加食物（点击添加食物按钮，生成新的预填充项，然后返回拍摄界面）
@@ -368,12 +460,14 @@ Page({
       currentMealType: mealType,
       currentStep: 'capture',
       showContent: false,
-      capturedImagePath: ''
+      capturedImagePath: '',
+      capturedImageUrl: ''  // 清空OSS图片URL，重新上传新图片
     });
   },
 
   // 点击预填充列表项，将当前拍摄的图片添加到该项
-  onFillPlaceholder(e) {
+  // 点击预填充列表项，将当前拍摄的图片添加到该项
+  async onFillPlaceholder(e) {
     const mealType = e.currentTarget.dataset.type;
     const placeholderId = e.currentTarget.dataset.id;
 
@@ -389,45 +483,154 @@ Page({
     const mealItem = this.data.mealCheckinList.find(item => item.type === mealType);
     if (!mealItem) return;
 
-    // 生成食物信息
-    const foodData = {
-      id: Date.now(),
-      image: this.data.capturedImagePath,
-      name: this.generateFoodName(), // 生成食物名称（实际应该调用AI识别）
-      calories: this.generateCalories(), // 生成热量（实际应该调用AI识别）
-      placeholder: false
-    };
+    // 检查是否有任何餐次正在识别中
+    const isAnyRecognizing = this.data.mealCheckinList.some(item => item.recognizing);
+    if (isAnyRecognizing) {
+      wx.showToast({
+        title: '请等待当前识别完成',
+        icon: 'none'
+      });
+      return;
+    }
 
-    // 更新打卡列表：将预填充项转换为实际食物
-    const mealCheckinList = this.data.mealCheckinList.map(item => {
-      if (item.type === mealType) {
-        // 将预填充项替换为实际食物
-        const foods = item.foods.map(food => {
-          if (food.id === placeholderId && food.placeholder) {
-            return foodData;
+    // 设置该餐次为识别中状态
+    this.setMealRecognizing(mealType, true);
+
+    try {
+      // 1. 如果还没有上传图片到OSS，先上传
+      let imageUrl = this.data.capturedImageUrl;
+      if (!imageUrl) {
+        imageUrl = await uploadRecipeImage(this.data.capturedImagePath);
+        this.setData({
+          capturedImageUrl: imageUrl
+        });
+        console.log('图片上传成功，URL：', imageUrl);
+      }
+
+      // 2. 调用AI识别接口（不显示loading，使用自定义识别中状态）
+      const result = await analyzeFoodCheckin(imageUrl, mealType);
+
+      console.log('AI识别结果：', result);
+
+      // 检查识别置信度，如果太低则提示用户
+      if (result.confidence < 0.3) {
+        wx.showModal({
+          title: '识别失败',
+          content: result.food_name || '无法识别食物，请重新拍摄清晰的照片',
+          showCancel: false,
+          success: () => {
+            // 取消识别中状态
+            this.setMealRecognizing(mealType, false);
           }
-          return food;
+        });
+        return;
+      }
+
+      // 3. 生成食物信息
+      const foodData = {
+        id: Date.now(),
+        image: this.data.capturedImagePath,
+        name: result.food_name,
+        calories: result.calories,
+        protein: result.protein,
+        carbs: result.carbs,
+        fat: result.fat,
+        amount: result.amount,
+        confidence: result.confidence,
+        placeholder: false
+      };
+
+      // 4. 保存到数据库
+      try {
+        const foodId = await saveFoodCheckin({
+          food_image: imageUrl,
+          meal_type: mealType,
+          food_name: result.food_name,
+          calories: result.calories,
+          protein: result.protein,
+          carbs: result.carbs,
+          fat: result.fat,
+          amount: result.amount,
+          confidence: result.confidence
         });
 
-        const totalCalories = foods.filter(f => !f.placeholder).reduce((sum, food) => sum + (food.calories || 0), 0);
+        // 保存成功后，将数据库ID赋值给foodData
+        foodData.id = foodId;
 
+        // 设置全局标志，通知首页刷新打卡数据
+        const app = getApp();
+        app.globalData.needRefreshCheckin = true;
+
+        console.log('食物打卡保存成功，ID：', foodId);
+      } catch (saveError) {
+        console.error('保存食物打卡失败：', saveError);
+        wx.showToast({
+          title: '保存失败，请重试',
+          icon: 'none'
+        });
+        // 取消识别中状态
+        this.setMealRecognizing(mealType, false);
+        return;
+      }
+
+      // 5. 更新打卡列表：将预填充项转换为实际食物
+      const mealCheckinList = this.data.mealCheckinList.map(item => {
+        if (item.type === mealType) {
+          // 将预填充项替换为实际食物
+          const foods = item.foods.map(food => {
+            if (food.id === placeholderId && food.placeholder) {
+              return foodData;
+            }
+            return food;
+          });
+
+          const totalCalories = foods.filter(f => !f.placeholder).reduce((sum, food) => sum + (food.calories || 0), 0);
+
+          return {
+            ...item,
+            foods: foods,
+            calories: totalCalories,
+            checked: foods.filter(f => !f.placeholder).length > 0,
+            recognizing: false
+          };
+        }
+        return item;
+      });
+
+      this.setData({ mealCheckinList });
+
+      wx.showToast({
+        title: `已添加到${mealItem.label}`,
+        icon: 'success',
+        duration: 1500
+      });
+
+    } catch (error) {
+      console.error('识别失败：', error);
+
+      // 取消识别中状态
+      this.setMealRecognizing(mealType, false);
+
+      wx.showToast({
+        title: error.message || '识别失败，请重试',
+        icon: 'none',
+        duration: 2000
+      });
+    }
+  },
+
+  // 设置餐次的识别状态
+  setMealRecognizing(mealType, recognizing) {
+    const mealCheckinList = this.data.mealCheckinList.map(item => {
+      if (item.type === mealType) {
         return {
           ...item,
-          foods: foods,
-          calories: totalCalories,
-          checked: foods.filter(f => !f.placeholder).length > 0
+          recognizing: recognizing
         };
       }
       return item;
     });
-
     this.setData({ mealCheckinList });
-
-    wx.showToast({
-      title: `已添加到${mealItem.label}`,
-      icon: 'success',
-      duration: 1500
-    });
   },
 
   // 删除食物（转换为预填充状态）
@@ -438,73 +641,80 @@ Page({
     wx.showModal({
       title: '确认删除',
       content: '确定要删除这个食物吗？',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          const mealCheckinList = this.data.mealCheckinList.map(item => {
-            if (item.type === mealType) {
-              // 将食物转换为预填充项，而不是删除
-              let foods = (item.foods || []).map(food => {
-                if (food.id === foodId && !food.placeholder) {
-                  return {
-                    id: foodId,
-                    placeholder: true,
-                    image: '',
-                    name: '',
-                    calories: 0
-                  };
-                }
-                return food;
-              });
+          try {
+            // 调用删除API
+            await deleteFoodCheckin(foodId);
 
-              // 检查预填充项数量，如果多于一个，删除多余的，只保留第一个
-              const placeholders = foods.filter(f => f.placeholder);
-              if (placeholders.length > 1) {
-                // 保留第一个预填充项，删除其他的
-                let foundFirst = false;
-                foods = foods.filter(food => {
-                  if (food.placeholder) {
-                    if (!foundFirst) {
-                      foundFirst = true;
-                      return true; // 保留第一个
-                    }
-                    return false; // 删除多余的
+            console.log('食物打卡删除成功，ID：', foodId);
+
+            // 设置全局标志，通知首页刷新打卡数据
+            const app = getApp();
+            app.globalData.needRefreshCheckin = true;
+
+            // 删除成功后，更新界面
+            const mealCheckinList = this.data.mealCheckinList.map(item => {
+              if (item.type === mealType) {
+                // 将食物转换为预填充项，而不是删除
+                let foods = (item.foods || []).map(food => {
+                  if (food.id === foodId && !food.placeholder) {
+                    return {
+                      id: `placeholder-${mealType}-${Date.now()}`,
+                      placeholder: true,
+                      image: '',
+                      name: '',
+                      calories: 0
+                    };
                   }
-                  return true; // 保留所有非预填充项
+                  return food;
                 });
+
+                // 检查预填充项数量，如果多于一个，删除多余的，只保留第一个
+                const placeholders = foods.filter(f => f.placeholder);
+                if (placeholders.length > 1) {
+                  // 保留第一个预填充项，删除其他的
+                  let foundFirst = false;
+                  foods = foods.filter(food => {
+                    if (food.placeholder) {
+                      if (!foundFirst) {
+                        foundFirst = true;
+                        return true; // 保留第一个
+                      }
+                      return false; // 删除多余的
+                    }
+                    return true; // 保留所有非预填充项
+                  });
+                }
+
+                const totalCalories = foods.filter(f => !f.placeholder).reduce((sum, food) => sum + (food.calories || 0), 0);
+
+                return {
+                  ...item,
+                  foods: foods,
+                  calories: totalCalories,
+                  checked: foods.filter(f => !f.placeholder).length > 0
+                };
               }
+              return item;
+            });
 
-              const totalCalories = foods.filter(f => !f.placeholder).reduce((sum, food) => sum + (food.calories || 0), 0);
+            this.setData({ mealCheckinList });
 
-              return {
-                ...item,
-                foods: foods,
-                calories: totalCalories,
-                checked: foods.filter(f => !f.placeholder).length > 0
-              };
-            }
-            return item;
-          });
-
-          this.setData({ mealCheckinList });
-
-          wx.showToast({
-            title: '已删除',
-            icon: 'success'
-          });
+            wx.showToast({
+              title: '已删除',
+              icon: 'success'
+            });
+          } catch (error) {
+            console.error('删除食物打卡失败：', error);
+            wx.showToast({
+              title: '删除失败，请重试',
+              icon: 'none'
+            });
+          }
         }
       }
     });
-  },
-
-  // 生成食物名称（模拟，实际应该调用AI识别）
-  generateFoodName() {
-    const names = ['番茄炒蛋', '宫保鸡丁', '麻婆豆腐', '红烧肉', '清炒时蔬', '水煮鱼', '糖醋排骨'];
-    return names[Math.floor(Math.random() * names.length)];
-  },
-
-  // 生成热量（模拟，实际应该调用AI识别）
-  generateCalories() {
-    return Math.floor(Math.random() * 300) + 200; // 200-500千卡
   },
 
   // 询问小智

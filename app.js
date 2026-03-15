@@ -27,5 +27,10 @@ App({
         recipes: 12
       });
     }
+  },
+
+  // 全局数据
+  globalData: {
+    needRefreshCheckin: false  // 标记是否需要刷新打卡数据
   }
 })

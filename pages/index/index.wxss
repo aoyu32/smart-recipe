@@ -979,26 +979,24 @@ page {
 }
 
 .checkin-item {
-  display: flex;
-  align-items: center;
-  padding: 25rpx;
   background: #F8F8F8;
   border-radius: 15rpx;
-  transition: all 0.3s;
+  padding: 25rpx;
+  overflow: hidden;
 }
 
-.checkin-item.checked {
-  background: linear-gradient(135deg, #E8F5E0 0%, #D4ECC8 100%);
-  border: 2rpx solid #B6CF99;
-}
-
-.checkin-icon-wrapper {
-  width: 60rpx;
-  height: 60rpx;
+.checkin-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-right: 20rpx;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.checkin-header-left {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  flex: 1;
 }
 
 .checkin-icon {
@@ -1007,20 +1005,96 @@ page {
 }
 
 .checkin-label {
-  flex: 1;
   font-size: 30rpx;
   color: #333;
   font-weight: 500;
 }
 
-.checkin-status-text {
-  font-size: 26rpx;
-  color: #999;
-}
-
-.checkin-item.checked .checkin-status-text {
+.checkin-calories {
+  font-size: 24rpx;
   color: #B6CF99;
   font-weight: 600;
+  padding: 4rpx 12rpx;
+  background: rgba(182, 207, 153, 0.15);
+  border-radius: 20rpx;
+}
+
+.checkin-btn {
+  padding: 0;
+}
+
+.checkin-btn-text {
+  font-size: 26rpx;
+  color: #B6CF99;
+  font-weight: 500;
+}
+
+/* 食物列表 */
+.checkin-foods {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.food-item {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  padding: 15rpx;
+  background: #FFFFFF;
+  border-radius: 12rpx;
+}
+
+.food-image {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 10rpx;
+  flex-shrink: 0;
+}
+
+.food-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  min-width: 0;
+}
+
+.food-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.food-nutrition {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-wrap: wrap;
+}
+
+.nutrition-item {
+  font-size: 22rpx;
+  color: #666;
+}
+
+.nutrition-divider {
+  font-size: 22rpx;
+  color: #DDD;
+}
+
+/* 未打卡提示 */
+.checkin-empty {
+  padding: 40rpx 0;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #999;
 }
 
 /* 食物排行榜 */

@@ -1,5 +1,5 @@
 // index.js
-import { getRecipeRankings, generateDailyRecipe, getTodayRecipe, getRecipeDetailById } from '../../api/recipe';
+import { getRecipeRankings, generateDailyRecipe, getTodayRecipe, getRecipeDetailById, getTodayCheckin } from '../../api/recipe';
 const { banners, todayRecipe } = require('../../mock/index.js');
 
 Page({
@@ -34,9 +34,30 @@ Page({
 
     // 打卡状态
     checkinMeals: [
-      { type: 'breakfast', label: '早餐', checked: false, icon: '/assets/icons/home/breakfast.png' },
-      { type: 'lunch', label: '午餐', checked: false, icon: '/assets/icons/home/lunch.png' },
-      { type: 'dinner', label: '晚餐', checked: false, icon: '/assets/icons/home/dinner.png' }
+      {
+        type: 'breakfast',
+        label: '早餐',
+        checked: false,
+        icon: '/assets/index/icon-zaocan.png',
+        foods: [],
+        calories: 0
+      },
+      {
+        type: 'lunch',
+        label: '午餐',
+        checked: false,
+        icon: '/assets/index/icon-wucan.png',
+        foods: [],
+        calories: 0
+      },
+      {
+        type: 'dinner',
+        label: '晚餐',
+        checked: false,
+        icon: '/assets/index/icon-wancan.png',
+        foods: [],
+        calories: 0
+      }
     ],
 
     // 排行榜数据
@@ -72,6 +93,9 @@ Page({
 
     // 加载排行榜数据
     this.loadRankings();
+
+    // 加载今日打卡记录
+    this.loadTodayCheckin();
 
     // 不再自动加载今日食谱，等待用户点击展开按钮
   },
@@ -123,7 +147,61 @@ Page({
     }
   },
 
+  // 加载今日打卡记录
+  async loadTodayCheckin() {
+    try {
+      const result = await getTodayCheckin();
+
+      console.log('今日打卡记录：', result);
+
+      // 转换数据格式
+      const checkinMeals = result.meals.map(meal => {
+        const foods = meal.foods.map(food => ({
+          id: food.id,
+          name: food.food_name,
+          image: food.food_image,
+          calories: food.calories,
+          protein: food.protein,
+          carbs: food.carbs,
+          fat: food.fat,
+          amount: food.amount
+        }));
+
+        return {
+          type: meal.meal_type,
+          label: meal.label,
+          checked: meal.checked,
+          icon: this.getMealIcon(meal.meal_type),
+          foods: foods,
+          calories: meal.calories
+        };
+      });
+
+      this.setData({ checkinMeals });
+    } catch (error) {
+      console.error('加载今日打卡记录失败:', error);
+      // 失败时保持默认数据
+    }
+  },
+
+  // 获取餐次图标
+  getMealIcon(mealType) {
+    const iconMap = {
+      'breakfast': '/assets/index/icon-zaocan.png',
+      'lunch': '/assets/index/icon-wucan.png',
+      'dinner': '/assets/index/icon-wancan.png'
+    };
+    return iconMap[mealType] || '';
+  },
+
   onShow() {
+    // 检查是否需要刷新打卡记录
+    const app = getApp();
+    if (app.globalData.needRefreshCheckin) {
+      this.loadTodayCheckin();
+      app.globalData.needRefreshCheckin = false;
+    }
+
     // 检查是否有替换食物的操作
     const replaceMeal = wx.getStorageSync('replaceMeal');
     if (replaceMeal && replaceMeal.mealType && replaceMeal.newFood) {
@@ -595,24 +673,16 @@ Page({
   },
 
   // 饮食打卡
+  // 饮食打卡 - 跳转到拍一拍页面
   onCheckin(e) {
     // 先取消编辑状态
     this.cancelEdit();
 
     const type = e.currentTarget.dataset.type;
-    const checkinMeals = this.data.checkinMeals.map(item => {
-      if (item.type === type) {
-        return { ...item, checked: !item.checked };
-      }
-      return item;
-    });
 
-    this.setData({ checkinMeals });
-
-    const meal = checkinMeals.find(item => item.type === type);
-    wx.showToast({
-      title: meal.checked ? '打卡成功！' : '取消打卡',
-      icon: meal.checked ? 'success' : 'none'
+    // 跳转到拍一拍页面
+    wx.switchTab({
+      url: '/pages/take-picture/take-picture'
     });
   },
 

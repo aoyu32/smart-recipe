@@ -146,6 +146,57 @@ export function getTodayRecipe() {
     });
 }
 
+/**
+ * 食物打卡分析（AI识别食物并返回营养数据）
+ * @param {string} imageUrl - 食物图片URL
+ * @param {string} mealType - 餐次类型：breakfast/lunch/dinner
+ */
+export function analyzeFoodCheckin(imageUrl, mealType) {
+    return request({
+        url: '/api/ai/food-checkin',
+        method: 'POST',
+        data: {
+            image_url: imageUrl,
+            meal_type: mealType,
+            input: '打卡'
+        },
+        timeout: 60000  // AI识别需要时间，设置为60秒
+    });
+}
+
+/**
+ * 保存食物打卡记录
+ * @param {object} data - 打卡数据
+ */
+export function saveFoodCheckin(data) {
+    return request({
+        url: '/api/ai/food-checkin/save',
+        method: 'POST',
+        data: data
+    });
+}
+
+/**
+ * 删除食物打卡记录
+ * @param {number} foodId - 食物记录ID
+ */
+export function deleteFoodCheckin(foodId) {
+    return request({
+        url: `/api/ai/food-checkin/${foodId}`,
+        method: 'DELETE'
+    });
+}
+
+/**
+ * 查询今日打卡记录
+ */
+export function getTodayCheckin() {
+    return request({
+        url: '/api/ai/food-checkin/today',
+        method: 'GET'
+    });
+}
+
 
 // ========== 我的收藏相关API ==========
 
