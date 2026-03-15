@@ -1,5 +1,5 @@
 // pages/recipe-detail/recipe-detail.js
-import { getRecipeDetailById, likeRecipe, unlikeRecipe, collectRecipe, uncollectRecipe } from '../../api/recipe';
+import { getRecipeDetailById, likeRecipe, unlikeRecipe, collectRecipe, uncollectRecipe, addRecipeToMeal } from '../../api/recipe';
 
 Page({
   data: {
@@ -234,7 +234,7 @@ Page({
   stopPropagation() { },
 
   // 加入餐食
-  addToMeal(e) {
+  async addToMeal(e) {
     const mealType = e.currentTarget.dataset.type;
     const mealNames = {
       breakfast: '早餐',
@@ -244,70 +244,115 @@ Page({
 
     this.hideMealOptions();
 
-    const editingMeal = wx.getStorageSync('editingMeal');
-    const addingMeal = wx.getStorageSync('addingMeal');
+    const { isCustom, recipeId } = this.data;
 
-    const foodData = {
-      id: this.data.recipeDetail.id,
-      name: this.data.recipeDetail.name,
-      image: this.data.recipeDetail.image,
-      amount: '1份',
-      calories: this.data.recipeDetail.nutrition.calories,
-      protein: this.data.recipeDetail.nutrition.protein,
-      carbs: this.data.recipeDetail.nutrition.carbs,
-      fat: this.data.recipeDetail.nutrition.fat,
-      category: this.data.recipeDetail.category
-    };
+    // 如果是自定义食谱，使用本地存储方式
+    if (isCustom) {
+      const editingMeal = wx.getStorageSync('editingMeal');
+      const addingMeal = wx.getStorageSync('addingMeal');
 
-    if (editingMeal && editingMeal.mealType) {
-      wx.setStorageSync('replaceMeal', {
-        mealType: editingMeal.mealType,
-        index: editingMeal.index,
-        newFood: foodData
-      });
+      const foodData = {
+        id: this.data.recipeDetail.id,
+        name: this.data.recipeDetail.name,
+        image: this.data.recipeDetail.image,
+        amount: '1份',
+        calories: this.data.recipeDetail.nutrition.calories,
+        protein: this.data.recipeDetail.nutrition.protein,
+        carbs: this.data.recipeDetail.nutrition.carbs,
+        fat: this.data.recipeDetail.nutrition.fat,
+        category: this.data.recipeDetail.category
+      };
 
-      wx.showToast({
-        title: '替换成功',
-        icon: 'success'
-      });
-
-      setTimeout(() => {
-        wx.switchTab({
-          url: '/pages/index/index'
+      if (editingMeal && editingMeal.mealType) {
+        wx.setStorageSync('replaceMeal', {
+          mealType: editingMeal.mealType,
+          index: editingMeal.index,
+          newFood: foodData
         });
-      }, 500);
-    } else if (addingMeal && addingMeal.mealType) {
-      wx.setStorageSync('addMeal', {
-        mealType: addingMeal.mealType,
-        newFood: foodData
-      });
 
-      wx.showToast({
-        title: `已加入${mealNames[addingMeal.mealType]}`,
-        icon: 'success'
-      });
-
-      setTimeout(() => {
-        wx.switchTab({
-          url: '/pages/index/index'
+        wx.showToast({
+          title: '替换成功',
+          icon: 'success'
         });
-      }, 500);
+
+        setTimeout(() => {
+          wx.switchTab({
+            url: '/pages/index/index'
+          });
+        }, 500);
+      } else if (addingMeal && addingMeal.mealType) {
+        wx.setStorageSync('addMeal', {
+          mealType: addingMeal.mealType,
+          newFood: foodData
+        });
+
+        wx.showToast({
+          title: `已加入${mealNames[addingMeal.mealType]}`,
+          icon: 'success'
+        });
+
+        setTimeout(() => {
+          wx.switchTab({
+            url: '/pages/index/index'
+          });
+        }, 500);
+      } else {
+        wx.setStorageSync('addMeal', {
+          mealType: mealType,
+          newFood: foodData
+        });
+
+        wx.showToast({
+          title: `已加入${mealNames[mealType]}`,
+          icon: 'success'
+        });
+
+        setTimeout(() => {
+          wx.switchTab({
+            url: '/pages/index/index'
+          });
+        }, 500);
+      }
     } else {
-      wx.setStorageSync('addMeal', {
-        mealType: mealType,
-        newFood: foodData
-      });
-
-      wx.showToast({
-        title: `已加入${mealNames[mealType]}`,
-        icon: 'success'
-      });
-
-      setTimeout(() => {
-        wx.switchTab({
-          url: '/pages/index/index'
+      // 系统食谱，调用后端API
+      try {
+        wx.showLoading({
+          title: '添加中...',
+          mask: true
         });
-      }, 500);
+
+        await addRecipeToMeal(recipeId, mealType);
+
+        wx.hideLoading();
+
+        wx.showToast({
+          title: `已加入${mealNames[mealType]}`,
+          icon: 'success',
+          duration: 1500
+        });
+
+        // 设置刷新标志（刷新今日食谱推荐）
+        const app = getApp();
+        app.globalData.needRefreshDailyRecipe = true;
+
+        // 延迟跳转到首页
+        setTimeout(() => {
+          wx.switchTab({
+            url: '/pages/index/index'
+          });
+        }, 1500);
+      } catch (error) {
+        wx.hideLoading();
+        console.error('添加食谱到餐食失败：', error);
+
+        // 显示错误信息
+        const errorMsg = error.message || '添加失败';
+        wx.showToast({
+          title: errorMsg,
+          icon: 'none',
+          duration: 2000
+        });
+      }
     }
   }
 })

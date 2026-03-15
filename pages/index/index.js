@@ -1,5 +1,5 @@
 // index.js
-import { getRecipeRankings, generateDailyRecipe, getTodayRecipe, getRecipeDetailById, getTodayCheckin } from '../../api/recipe';
+import { getRecipeRankings, generateDailyRecipe, getTodayRecipe, getRecipeDetailById, getTodayCheckin, deleteRecipeItem } from '../../api/recipe';
 const { banners, todayRecipe } = require('../../mock/index.js');
 
 Page({
@@ -200,6 +200,12 @@ Page({
     if (app.globalData.needRefreshCheckin) {
       this.loadTodayCheckin();
       app.globalData.needRefreshCheckin = false;
+    }
+
+    // 检查是否需要刷新今日食谱推荐
+    if (app.globalData.needRefreshDailyRecipe) {
+      this.loadTodayRecipe();
+      app.globalData.needRefreshDailyRecipe = false;
     }
 
     // 检查是否有替换食物的操作
@@ -430,6 +436,7 @@ Page({
         // 遍历每个食谱项（后端已经包含完整信息）
         for (const recipeItem of mealData.recipes) {
           const foodItem = {
+            itemId: recipeItem.item_id,
             id: recipeItem.recipe_id,
             name: recipeItem.recipe_name,
             image: recipeItem.image,
@@ -546,39 +553,70 @@ Page({
   },
 
   // 删除食物项
-  deleteFoodItem(e) {
+  async deleteFoodItem(e) {
     const { mealType, index } = e.currentTarget.dataset;
+    const todayRecipe = this.data.todayRecipe;
+    const foodItem = todayRecipe.meals[mealType].foods[index];
 
     wx.showModal({
       title: '确认删除',
       content: '确定要删除这个食物吗？',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          const todayRecipe = this.data.todayRecipe;
+          try {
+            // 调用后端API删除
+            if (foodItem.itemId) {
+              wx.showLoading({
+                title: '删除中...',
+                mask: true
+              });
 
-          // 删除指定索引的食物
-          todayRecipe.meals[mealType].foods.splice(index, 1);
+              await deleteRecipeItem(foodItem.itemId);
 
-          // 重新计算该餐次的总热量
-          const totalCalories = todayRecipe.meals[mealType].foods.reduce((sum, food) => sum + food.calories, 0);
-          todayRecipe.meals[mealType].calories = totalCalories;
+              wx.hideLoading();
 
-          // 重新计算今日总热量
-          const dailyCalories = todayRecipe.meals.breakfast.calories +
-            todayRecipe.meals.lunch.calories +
-            todayRecipe.meals.dinner.calories;
-          todayRecipe.totalCalories = dailyCalories;
+              // 重新加载今日食谱
+              await this.loadTodayRecipe();
 
-          this.setData({
-            todayRecipe: todayRecipe,
-            editingMealType: '',
-            editingItemIndex: -1
-          });
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              });
+            } else {
+              // 如果没有itemId，说明是本地数据，直接删除
+              todayRecipe.meals[mealType].foods.splice(index, 1);
 
-          wx.showToast({
-            title: '删除成功',
-            icon: 'success'
-          });
+              // 重新计算该餐次的总热量
+              const totalCalories = todayRecipe.meals[mealType].foods.reduce((sum, food) => sum + food.calories, 0);
+              todayRecipe.meals[mealType].calories = totalCalories;
+
+              // 重新计算今日总热量
+              const dailyCalories = todayRecipe.meals.breakfast.calories +
+                todayRecipe.meals.lunch.calories +
+                todayRecipe.meals.dinner.calories;
+              todayRecipe.totalCalories = dailyCalories;
+
+              this.setData({
+                todayRecipe: todayRecipe
+              });
+
+              wx.showToast({
+                title: '删除成功',
+                icon: 'success'
+              });
+            }
+
+            // 取消编辑状态
+            this.cancelEdit();
+          } catch (error) {
+            wx.hideLoading();
+            console.error('删除失败：', error);
+            wx.showToast({
+              title: error.message || '删除失败',
+              icon: 'none',
+              duration: 2000
+            });
+          }
         } else {
           // 用户点击取消，也关闭编辑状态
           this.cancelEdit();

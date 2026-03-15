@@ -235,6 +235,33 @@ export function deleteDietDiary(diaryId) {
     });
 }
 
+/**
+ * 将食谱添加到今日餐食
+ * @param {number} recipeId - 食谱ID
+ * @param {string} mealType - 餐次类型：breakfast/lunch/dinner
+ */
+export function addRecipeToMeal(recipeId, mealType) {
+    return request({
+        url: '/api/ai/food-checkin/add-recipe',
+        method: 'POST',
+        data: {
+            recipeId: recipeId,
+            mealType: mealType
+        }
+    });
+}
+
+/**
+ * 从今日食谱推荐中删除食谱项
+ * @param {number} itemId - 食谱项ID
+ */
+export function deleteRecipeItem(itemId) {
+    return request({
+        url: `/api/ai/daily-recipe/item/${itemId}`,
+        method: 'DELETE'
+    });
+}
+
 
 // ========== 我的收藏相关API ==========
 

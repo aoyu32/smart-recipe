@@ -159,11 +159,8 @@
                 </view>
               </view>
               
-              <!-- 编辑删除按钮 -->
+              <!-- 删除按钮 -->
               <view class="food-actions">
-                <view class="food-action-btn edit" catchtap="editFoodItem" data-meal-type="breakfast" data-index="{{index}}">
-                  <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
-                </view>
                 <view class="food-action-btn delete" catchtap="deleteFoodItem" data-meal-type="breakfast" data-index="{{index}}">
                   <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
                 </view>
@@ -223,11 +220,8 @@
                 </view>
               </view>
               
-              <!-- 编辑删除按钮 -->
+              <!-- 删除按钮 -->
               <view class="food-actions">
-                <view class="food-action-btn edit" catchtap="editFoodItem" data-meal-type="lunch" data-index="{{index}}">
-                  <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
-                </view>
                 <view class="food-action-btn delete" catchtap="deleteFoodItem" data-meal-type="lunch" data-index="{{index}}">
                   <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
                 </view>
@@ -287,11 +281,8 @@
                 </view>
               </view>
               
-              <!-- 编辑删除按钮 -->
+              <!-- 删除按钮 -->
               <view class="food-actions">
-                <view class="food-action-btn edit" catchtap="editFoodItem" data-meal-type="dinner" data-index="{{index}}">
-                  <image class="action-icon" src="/assets/my/icon-edit.png" mode="aspectFit"></image>
-                </view>
                 <view class="food-action-btn delete" catchtap="deleteFoodItem" data-meal-type="dinner" data-index="{{index}}">
                   <image class="action-icon" src="/assets/health-profile/icon-delete.png" mode="aspectFit"></image>
                 </view>
