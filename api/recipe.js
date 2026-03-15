@@ -197,6 +197,44 @@ export function getTodayCheckin() {
     });
 }
 
+/**
+ * 查询指定日期的饮食日记
+ * @param {string} date - 日期（YYYY-MM-DD）
+ */
+export function getDietDiaryByDate(date) {
+    return request({
+        url: `/api/diet-diary/${date}`,
+        method: 'GET'
+    });
+}
+
+/**
+ * 查询日期范围内的饮食日记列表
+ * @param {string} startDate - 开始日期（YYYY-MM-DD）
+ * @param {string} endDate - 结束日期（YYYY-MM-DD）
+ */
+export function getDietDiaryList(startDate, endDate) {
+    return request({
+        url: '/api/diet-diary/list',
+        method: 'GET',
+        params: {
+            startDate,
+            endDate
+        }
+    });
+}
+
+/**
+ * 删除饮食日记
+ * @param {number} diaryId - 日记ID
+ */
+export function deleteDietDiary(diaryId) {
+    return request({
+        url: `/api/diet-diary/${diaryId}`,
+        method: 'DELETE'
+    });
+}
+
 
 // ========== 我的收藏相关API ==========
 

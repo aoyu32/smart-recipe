@@ -1,5 +1,5 @@
 // pages/diet-diary/diet-diary.js
-const mockDietDiary = require('../../mock/diet-diary.js');
+import { getDietDiaryByDate } from '../../api/recipe';
 
 Page({
   data: {
@@ -8,7 +8,6 @@ Page({
     currentDate: '',
     currentWeekday: '',
     selectedDate: '',
-    diaryList: [],
     currentRecord: {
       totalCalories: 0,
       totalProtein: 0,
@@ -34,56 +33,46 @@ Page({
       navBarHeight: navBarHeight
     });
 
+    // 加载今天的日记数据
     this.loadDiaryData();
   },
 
   // 加载日记数据
-  loadDiaryData(dateStr) {
-    const diaryList = mockDietDiary.getDiaryList();
-
+  async loadDiaryData(dateStr) {
     // 如果没有指定日期，使用今天
     if (!dateStr) {
       const today = new Date();
       dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     }
 
-    // 获取星期几
-    const date = new Date(dateStr);
-    const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-    const weekday = weekdays[date.getDay()];
+    try {
+      wx.showLoading({ title: '加载中...' });
 
-    // 查找对应日期的记录
-    let record = diaryList.find(item => item.date === dateStr);
+      // 调用接口查询日记数据
+      const result = await getDietDiaryByDate(dateStr);
 
-    // 如果没有记录，创建空记录
-    if (!record) {
-      record = {
-        date: dateStr,
-        weekday: weekday,
-        totalCalories: 0,
-        totalProtein: 0,
-        totalCarbs: 0,
-        totalFat: 0,
-        checkedMeals: [],
-        meals: {
-          breakfast: { time: '早餐', timeRange: '未记录', calories: 0, checked: false, foods: [] },
-          lunch: { time: '午餐', timeRange: '未记录', calories: 0, checked: false, foods: [] },
-          dinner: { time: '晚餐', timeRange: '未记录', calories: 0, checked: false, foods: [] }
-        }
-      };
+      console.log('饮食日记数据：', result);
+
+      // 计算已打卡餐数
+      const checkedMealsCount = result.checkedMeals ? result.checkedMeals.length : 0;
+
+      this.setData({
+        currentDate: result.date,
+        currentWeekday: result.weekday,
+        selectedDate: result.date,
+        currentRecord: result,
+        checkedMealsCount: checkedMealsCount
+      });
+
+      wx.hideLoading();
+    } catch (error) {
+      wx.hideLoading();
+      console.error('加载饮食日记失败：', error);
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      });
     }
-
-    // 计算已打卡餐数
-    const checkedMealsCount = record.checkedMeals ? record.checkedMeals.length : 0;
-
-    this.setData({
-      currentDate: dateStr,
-      currentWeekday: weekday,
-      selectedDate: dateStr,
-      diaryList: diaryList,
-      currentRecord: record,
-      checkedMealsCount: checkedMealsCount
-    });
   },
 
   // 返回上一页
@@ -133,14 +122,5 @@ Page({
       showDateModal: false
     });
     this.loadDiaryData(dateStr);
-  },
-
-  // 查看详情
-  viewDetail(e) {
-    const date = e.currentTarget.dataset.date;
-    wx.showToast({
-      title: `查看${date}的详情`,
-      icon: 'none'
-    });
   }
 })
