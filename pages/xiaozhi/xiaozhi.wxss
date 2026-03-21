@@ -13,7 +13,6 @@ page {
   flex-direction: column;
 }
 
-/* 自定义导航栏 */
 .custom-navbar {
   background-color: #FFFFFF;
   border-bottom: 1rpx solid #F0F0F0;
@@ -41,7 +40,7 @@ page {
 .navbar-title {
   font-size: 34rpx;
   font-weight: 600;
-  color: #333;
+  color: #333333;
 }
 
 .navbar-icon {
@@ -49,7 +48,6 @@ page {
   height: 44rpx;
 }
 
-/* 聊天消息区域 */
 .chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -57,7 +55,6 @@ page {
   padding-bottom: 160rpx;
 }
 
-/* 欢迎消息 */
 .welcome-message {
   display: flex;
   flex-direction: column;
@@ -80,17 +77,16 @@ page {
 .welcome-title {
   font-size: 36rpx;
   font-weight: 600;
-  color: #333;
+  color: #333333;
   margin-bottom: 20rpx;
 }
 
 .welcome-desc {
   font-size: 28rpx;
-  color: #666;
+  color: #666666;
   line-height: 1.6;
 }
 
-/* 消息列表 */
 .message-list {
   padding: 20rpx 30rpx;
 }
@@ -102,6 +98,7 @@ page {
 .message-wrapper {
   display: flex;
   gap: 20rpx;
+  align-items: flex-start;
 }
 
 .message-item.user .message-wrapper {
@@ -133,7 +130,7 @@ page {
   padding: 24rpx 28rpx;
   border-radius: 16rpx;
   word-wrap: break-word;
-  word-break: break-all;
+  word-break: break-word;
 }
 
 .assistant .message-bubble {
@@ -147,18 +144,28 @@ page {
   margin-left: auto;
 }
 
+.image-only-bubble {
+  padding: 12rpx;
+}
+
 .message-text {
   font-size: 30rpx;
-  line-height: 1.6;
-  color: #333;
+  line-height: 1.7;
+  color: #333333;
+  white-space: pre-wrap;
 }
 
 .user .message-text {
   color: #FFFFFF;
 }
 
+.assistant-markdown {
+  display: block;
+  color: #333333;
+}
+
 .message-image {
-  width: 100%;
+  width: 360rpx;
   max-width: 400rpx;
   max-height: 400rpx;
   border-radius: 12rpx;
@@ -166,9 +173,13 @@ page {
   display: block;
 }
 
+.message-image-only {
+  margin-top: 0;
+}
+
 .message-time {
   font-size: 22rpx;
-  color: #999;
+  color: #999999;
   padding: 0 10rpx;
 }
 
@@ -176,7 +187,6 @@ page {
   text-align: right;
 }
 
-/* 加载动画 */
 .loading-bubble {
   background-color: #F7F7F7;
   padding: 20rpx 30rpx;
@@ -209,13 +219,13 @@ page {
     transform: scale(0);
     opacity: 0.5;
   }
+
   40% {
     transform: scale(1);
     opacity: 1;
   }
 }
 
-/* 底部输入区域 */
 .input-container {
   position: fixed;
   left: 0;
@@ -230,7 +240,6 @@ page {
   z-index: 100;
 }
 
-/* 选中图片预览 */
 .selected-image-preview {
   display: flex;
 }
@@ -259,11 +268,20 @@ page {
   align-items: center;
   justify-content: center;
   color: #FFFFFF;
-  font-size: 20rpx;
+  font-size: 24rpx;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
 }
 
-/* 输入框 */
+.upload-status {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: #999999;
+}
+
+.upload-error {
+  color: #E15B64;
+}
+
 .input-wrapper {
   display: flex;
   align-items: center;
@@ -287,7 +305,7 @@ page {
 .input-field {
   flex: 1;
   font-size: 30rpx;
-  color: #333;
+  color: #333333;
   background-color: transparent;
   min-height: 44rpx;
 }
@@ -312,12 +330,15 @@ page {
   background: linear-gradient(135deg, #B6CF99 0%, #9BC184 100%);
 }
 
+.send-btn.disabled {
+  opacity: 0.6;
+}
+
 .send-icon {
   width: 32rpx;
   height: 32rpx;
 }
 
-/* 抽屉遮罩 */
 .drawer-overlay {
   position: fixed;
   top: 0;
@@ -336,7 +357,6 @@ page {
   visibility: visible;
 }
 
-/* 抽屉容器 */
 .drawer-container {
   position: fixed;
   top: 0;
@@ -355,7 +375,6 @@ page {
   transform: translateX(0);
 }
 
-/* 抽屉头部 */
 .drawer-header {
   background-color: #FFFFFF;
   border-bottom: 1rpx solid #F0F0F0;
@@ -374,7 +393,7 @@ page {
 .drawer-title {
   font-size: 34rpx;
   font-weight: 600;
-  color: #333;
+  color: #333333;
 }
 
 .drawer-close-icon {
@@ -382,13 +401,11 @@ page {
   height: 44rpx;
 }
 
-/* 抽屉内容 */
 .drawer-content {
   flex: 1;
   overflow-y: auto;
 }
 
-/* 对话历史列表 */
 .history-list {
   padding: 20rpx 0;
 }
@@ -414,7 +431,7 @@ page {
 .history-title {
   font-size: 30rpx;
   font-weight: 500;
-  color: #333;
+  color: #333333;
   margin-bottom: 8rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -423,7 +440,7 @@ page {
 
 .history-preview {
   font-size: 26rpx;
-  color: #999;
+  color: #999999;
   margin-bottom: 8rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -432,10 +449,9 @@ page {
 
 .history-time {
   font-size: 22rpx;
-  color: #BBB;
+  color: #BBBBBB;
 }
 
-/* 空状态 */
 .history-empty {
   display: flex;
   flex-direction: column;
@@ -444,12 +460,7 @@ page {
   padding: 150rpx 60rpx;
 }
 
-.empty-icon {
-  font-size: 80rpx;
-  margin-bottom: 20rpx;
-}
-
 .empty-text {
   font-size: 28rpx;
-  color: #999;
+  color: #999999;
 }

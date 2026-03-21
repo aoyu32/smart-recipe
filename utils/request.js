@@ -1,8 +1,10 @@
 import axios from 'axios-miniprogram'
 
+export const BASE_URL = 'http://192.168.0.108:8000'
+
 // 创建axios实例
 const request = axios.create({
-    baseURL: 'http://192.168.0.108:8000',
+    baseURL: BASE_URL,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'

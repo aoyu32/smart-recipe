@@ -1,4 +1,4 @@
-import request from '../utils/request';
+import request, { BASE_URL } from '../utils/request';
 
 /**
  * 查询所有食谱分类
@@ -272,10 +272,9 @@ export function deleteRecipeItem(itemId) {
  */
 export function analyzeRecipeStream(imageUrl, input, onMessage, onError, onComplete) {
     const token = wx.getStorageSync('token');
-    const baseURL = 'http://192.168.0.108:8000';
 
     const requestTask = wx.request({
-        url: `${baseURL}/api/ai/recipe-analysis/stream`,
+        url: `${BASE_URL}/api/ai/recipe-analysis/stream`,
         method: 'POST',
         data: {
             imageUrl: imageUrl,
@@ -449,11 +448,11 @@ export const uploadRecipeImage = (filePath) => {
         const token = wx.getStorageSync('token');
 
         wx.uploadFile({
-            url: 'http://localhost:8000/api/file/upload/image',
+            url: `${BASE_URL}/api/file/upload/image`,
             filePath: filePath,
             name: 'file',
             header: {
-                'Authorization': token
+                'Authorization': `Bearer ${token}`
             },
             success: (res) => {
                 const data = JSON.parse(res.data);
