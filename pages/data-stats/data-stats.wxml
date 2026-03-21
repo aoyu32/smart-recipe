@@ -1,0 +1,105 @@
+<view class="data-stats-page">
+  <view class="custom-navbar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="navbar-content" style="height: {{navBarHeight}}px;">
+      <view class="navbar-back" bindtap="goBack">
+        <image class="back-icon" src="/assets/recipe-detail/icon-back.png" mode="aspectFit"></image>
+      </view>
+      <view class="navbar-title">数据统计</view>
+    </view>
+  </view>
+
+  <scroll-view class="stats-scroll" scroll-y>
+    <view class="hero-card">
+      <view class="hero-top">
+        <view class="hero-copy">
+          <text class="hero-title">饮食统计概览</text>
+          <text class="hero-desc">基于饮食日记、打卡餐次和食物记录自动聚合</text>
+        </view>
+        <view class="range-switch">
+          <view class="range-chip {{activeRange === 7 ? 'active' : ''}}" bindtap="switchRange" data-days="7">7天</view>
+          <view class="range-chip {{activeRange === 30 ? 'active' : ''}}" bindtap="switchRange" data-days="30">30天</view>
+        </view>
+      </view>
+      <view class="hero-footer">
+        <text class="hero-range">{{rangeLabel}}</text>
+        <text class="hero-note" wx:if="{{hasData}}">{{rangeSummaryText}}</text>
+        <text class="hero-note empty" wx:else>{{rangeSummaryText}}</text>
+      </view>
+    </view>
+
+    <view class="summary-grid">
+      <view class="summary-card">
+        <text class="summary-label">总摄入热量</text>
+        <text class="summary-value">{{summary.totalCalories}}</text>
+        <text class="summary-unit">kcal</text>
+      </view>
+      <view class="summary-card">
+        <text class="summary-label">日均热量</text>
+        <text class="summary-value">{{summary.avgDailyCalories}}</text>
+        <text class="summary-unit">kcal</text>
+      </view>
+      <view class="summary-card">
+        <text class="summary-label">打卡天数</text>
+        <text class="summary-value">{{summary.checkinDays}}</text>
+        <text class="summary-unit">天</text>
+      </view>
+      <view class="summary-card">
+        <text class="summary-label">打卡率</text>
+        <text class="summary-value">{{summary.checkinRate}}</text>
+        <text class="summary-unit">%</text>
+      </view>
+    </view>
+
+    <view class="mini-summary">
+      <text>已打卡餐次：{{summary.checkedMealsCount}} 餐</text>
+    </view>
+
+    <view class="chart-card">
+      <view class="chart-header">
+        <view>
+          <text class="chart-title">每日热量摄入</text>
+          <text class="chart-desc">折线图展示所选时间范围内每日总热量变化</text>
+        </view>
+        <text class="chart-tag">单位：kcal</text>
+      </view>
+      <view class="chart-box">
+        <ec-canvas id="lineChart" canvas-id="lineChart" ec="{{ecLine}}"></ec-canvas>
+      </view>
+    </view>
+
+    <view class="chart-card">
+      <view class="chart-header">
+        <view>
+          <text class="chart-title">每日打卡记录</text>
+          <text class="chart-desc">柱状图展示每天完成的餐次数量</text>
+        </view>
+        <text class="chart-tag">单位：餐</text>
+      </view>
+      <view class="chart-box">
+        <ec-canvas id="barChart" canvas-id="barChart" ec="{{ecBar}}"></ec-canvas>
+      </view>
+    </view>
+
+    <view class="chart-card">
+      <view class="chart-header">
+        <view>
+          <text class="chart-title">每餐平均热量</text>
+          <text class="chart-desc">饼图展示早餐、午餐、晚餐的平均热量占比</text>
+        </view>
+        <text class="chart-tag">平均值</text>
+      </view>
+      <view class="chart-box pie-box">
+        <ec-canvas id="pieChart" canvas-id="pieChart" ec="{{ecPie}}"></ec-canvas>
+      </view>
+    </view>
+
+    <view class="bottom-placeholder"></view>
+  </scroll-view>
+
+  <view class="loading-mask" wx:if="{{loading}}">
+    <view class="loading-card">
+      <view class="loading-dot"></view>
+      <text>正在加载统计数据...</text>
+    </view>
+  </view>
+</view>

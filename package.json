@@ -11,6 +11,8 @@
   "dependencies": {
     "@vant/weapp": "^1.11.7",
     "axios-miniprogram": "^2.7.2",
+    "ec-canvas": "^1.0.0",
+    "echarts": "^6.0.0",
     "mp-html": "^2.5.2"
   }
 }

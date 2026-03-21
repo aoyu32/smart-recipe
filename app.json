@@ -9,6 +9,7 @@
     "pages/recipe-detail/recipe-detail",
     "pages/search/search",
     "pages/diet-diary/diet-diary",
+    "pages/data-stats/data-stats",
     "pages/health-profile/health-profile",
     "pages/register/register",
     "pages/reset-password/reset-password",
