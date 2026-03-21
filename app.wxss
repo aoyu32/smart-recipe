@@ -19,16 +19,3 @@ page {
 .theme-bg {
   background-color: #B6CF99;
 }
-
-@font-face {
-  font-family: "阿里妈妈数黑体 Bold";font-weight: 700;src: url("//at.alicdn.com/wf/webfont/6Lmd9CXnRyig/q8yZfUu1NGz9.woff2") format("woff2"),
-  url("//at.alicdn.com/wf/webfont/6Lmd9CXnRyig/1DES0V1O7IWN.woff") format("woff");font-variation-settings: normal;font-display: swap;
-}
-
-.webfont {
-  font-family: "阿里妈妈数黑体 Bold";font-variation-settings: normal; }@font-face {
-  font-family: 'ZCOOLXiaoWei';
-  src: url('/assets/fonts/ZCOOLXiaoWei-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
